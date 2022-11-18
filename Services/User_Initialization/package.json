@@ -4,7 +4,7 @@
   "description": "Login and Register Service for the User. Node JS",
   "main": "index.js",
   "scripts": {
-    "dev" : "nodemon index.js"
+    "dev": "nodemon src/index.js"
   },
   "keywords": [
     "Node",
