@@ -9,6 +9,8 @@
         public string First_Lastname { get; set; }
         public string? Second_Lastname { get; set; }
         public string Rol { get; set; }
+        public string Department { get; set; }
+        public string City { get; set; }
         public DateOnly Birthdate { get; set; }
     }
 } 

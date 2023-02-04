@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\MS_Users_Auth.props" />
+</Project>
