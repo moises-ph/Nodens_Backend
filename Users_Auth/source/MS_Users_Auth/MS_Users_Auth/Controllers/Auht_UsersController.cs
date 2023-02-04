@@ -12,6 +12,10 @@ namespace MS_Users_Auth.Controllers
     [EnableCors("ReglasCors")]
     public class Auht_UsersController : ControllerBase
     {
-        
+        private readonly string secretKey;
+        public Auht_UsersController(IConfiguration config)
+        {
+            secretKey = config.GetSection("settings").GetSection("secretKey").ToString();
+        }
     }
 }
