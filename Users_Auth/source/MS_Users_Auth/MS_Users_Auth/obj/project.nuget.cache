@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "a/P094fZSWpqKzdRP+cyDe6uf8I4r0adt264F/efhP/Q0yZKam5a0jmJ5sxdskEmuPK/R594QKPBsoFk7DCXgQ==",
+  "dgSpecHash": "oU8o+59+2iNMJ2vjF5FtokTy6sZaFgZT8esPi91yLTr/ZG63W73o1BfBUTnhl1w0d3G0bVf4tiKVBc6VMd1KpA==",
   "success": true,
-  "projectFilePath": "D:\\System32\\Proyecto\\Nodens_Backend\\Users_Auth\\source\\MS_Users_Auth\\MS_Users_Auth\\MS_Users_Auth.csproj",
+  "projectFilePath": "C:\\System32\\Nodens_Backend\\Users_Auth\\source\\MS_Users_Auth\\MS_Users_Auth\\MS_Users_Auth.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\SENA\\.nuget\\packages\\bcrypt.net-core\\1.6.0\\bcrypt.net-core.1.6.0.nupkg.sha512",
     "C:\\Users\\SENA\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\6.0.12\\microsoft.aspnetcore.authentication.jwtbearer.6.0.12.nupkg.sha512",
