@@ -60,16 +60,13 @@ end
 
 -------------------------------------------------------------------------
 
-
 go
 create procedure SP_ChangePassword
-	@Id int,
+	@Email varchar(300),
 	@Password varchar(max)
 as
 begin transaction TX_ChangePassword
 	BEGIN TRY
-		declare @Email varchar(300);
-		SELECT @Email = Email from Users where Id = @Id
 		UPDATE Auth_Users set Password = @Password where Email = @Email
 		COMMIT TRANSACTION TX_ChangePassword
 		SELECT 'Contraseña actualizada correctamente' as Respuesta, 0 as Error

@@ -25,58 +25,75 @@ namespace MS_Users_Auth.Controllers
             cadenaSQL = config.GetConnectionString("CadenaSQL");
         }
 
+        //[HttpPost]
+        //[Route("/")]
+        //public IActionResult Post(Auth_User usr)
+        //{
+        //    try
+        //    {
+        //        using(var connection = new SqlConnection(cadenaSQL))
+        //        {
+        //            string? password = null;
+        //            int? Id = null;
+        //            connection.Open();
+        //            var cmd = new SqlCommand("SP_AuthUser", connection);
+        //            cmd.Parameters.AddWithValue("Email", usr.Email);
+        //            cmd.Parameters.AddWithValue("Password", usr.Password);
+        //            using(SqlDataReader reader = cmd.ExecuteReader())
+        //            {
+        //                reader.Read();
+        //                if (reader["Password"].ToString() != null)
+        //                {
+        //                    password = reader["Password"].ToString();
+        //                    Id = Convert.ToInt32(reader["Id"].ToString());
+        //                }
+        //                else
+        //                {
+        //                    new Exception("Usuario no encontrado");
+        //                }
+        //                reader.Close();
+        //            }
+        //            if(BC.Verify(usr.Password, password))
+        //            {
+        //                var keyBytes = Encoding.ASCII.GetBytes(secretKey);
+        //                var claims = new ClaimsIdentity();
+        //                claims.AddClaim(new Claim(ClaimTypes.NameIdentifier, usr.Email));
+        //                var tokenDescriptor = new SecurityTokenDescriptor
+        //                {
+        //                    Subject = claims,
+        //                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
+        //                };
+        //                var tokenHandler = new JwtSecurityTokenHandler();
+        //                var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
+        //                string tokencreado = tokenHandler.WriteToken(tokenConfig);
+        //                return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, User_Id = Id });
+        //            }
+        //            else
+        //            {
+        //                return StatusCode(StatusCodes.Status401Unauthorized, new { token = "" });
+        //            }
+        //        }
+        //    }
+        //    catch(Exception err)
+        //    {
+        //        return StatusCode(StatusCodes.Status401Unauthorized, new { token = "", msg = err.Message });
+        //    }
+        //}
+
         [HttpPost]
-        [Route("/")]
-        public IActionResult Post(Auth_User usr)
+        [Route("recovery/request")]
+        public IActionResult PostRec(Auth_User usr)
         {
             try
             {
-                using(var connection = new SqlConnection(cadenaSQL))
+                if (usr.Password != null)
                 {
-                    string? password = null;
-                    int? Id = null;
-                    connection.Open();
-                    var cmd = new SqlCommand("SP_AuthUser", connection);
-                    cmd.Parameters.AddWithValue("Email", usr.Email);
-                    cmd.Parameters.AddWithValue("Password", usr.Password);
-                    using(SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        reader.Read();
-                        if (reader["Password"].ToString() != null)
-                        {
-                            password = reader["Password"].ToString();
-                            Id = Convert.ToInt32(reader["Id"].ToString());
-                        }
-                        else
-                        {
-                            new Exception("Usuario no encontrado");
-                        }
-                        reader.Close();
-                    }
-                    if(BC.Verify(usr.Password, password))
-                    {
-                        var keyBytes = Encoding.ASCII.GetBytes(secretKey);
-                        var claims = new ClaimsIdentity();
-                        claims.AddClaim(new Claim(ClaimTypes.NameIdentifier, usr.Email));
-                        var tokenDescriptor = new SecurityTokenDescriptor
-                        {
-                            Subject = claims,
-                            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
-                        };
-                        var tokenHandler = new JwtSecurityTokenHandler();
-                        var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
-                        string tokencreado = tokenHandler.WriteToken(tokenConfig);
-                        return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, User_Id = Id });
-                    }
-                    else
-                    {
-                        return StatusCode(StatusCodes.Status401Unauthorized, new { token = "" });
-                    }
+
                 }
             }
-            catch(Exception err)
+            catch (Exception err)
             {
-                return StatusCode(StatusCodes.Status401Unauthorized, new { token = "", msg = err.Message });
+                return StatusCode(StatusCodes.Status401Unauthorized, new { msg = err.Message });
             }
         }
     }
