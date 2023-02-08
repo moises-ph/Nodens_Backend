@@ -17,8 +17,6 @@ create table Auth_Users(
 	Password varchar(max) not null,
 	Constraint fk_email foreign key (Email) references Users(Email)
 );
-
-
 -------------------------------------------------------------------------
 
 

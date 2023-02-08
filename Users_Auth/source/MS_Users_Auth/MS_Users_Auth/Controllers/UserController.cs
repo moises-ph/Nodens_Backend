@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MS_Users_Auth.Models;
+using BC = BCrypt.Net.BCrypt;
 
 namespace MS_Users_Auth.Controllers
 {
@@ -37,8 +38,9 @@ namespace MS_Users_Auth.Controllers
                     cmd.Parameters.AddWithValue("Second_Lastname", obj.Second_Lastname);
                     cmd.Parameters.AddWithValue("Rol", obj.Rol);
                     cmd.Parameters.AddWithValue("Birthdate", obj.Birthdate);
+                    string pass = BC.HashPassword(obj.Password);
+                    cmd.Parameters.AddWithValue("Password", pass);
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.ExecuteNonQuery();
                     using (SqlDataReader rd = cmd.ExecuteReader())
                     {
                         rd.Read();
