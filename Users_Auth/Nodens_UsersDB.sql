@@ -53,7 +53,7 @@ create procedure SP_AuthUser
 as
 begin
 	if exists(SELECT * FROM Auth_Users where Email = @Email)
-		SELECT Password, Users.Id from Auth_Users, Users where Auth_Users.Email = @Email
+		SELECT Password, Users.Id as Id from Auth_Users, Users where Auth_Users.Email = @Email
 	else
 		SELECT null as Password
 end

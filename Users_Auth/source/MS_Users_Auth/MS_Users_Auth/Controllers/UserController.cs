@@ -16,7 +16,7 @@ namespace MS_Users_Auth.Controllers
         private readonly string cadenaSQL;
         public UserController(IConfiguration config)
         {
-            cadenaSQL = config.GetConnectionString("cadenaSQL");
+            cadenaSQL = config.GetConnectionString("CadenaSQL");
         }
 
         [HttpPost]
