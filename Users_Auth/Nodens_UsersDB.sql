@@ -48,8 +48,7 @@ begin transaction New_User
 
 go
 create procedure SP_AuthUser
-	@Email varchar(300),
-	@Password varchar(max)
+	@Email varchar(300)
 as
 begin
 	if exists(SELECT * FROM Auth_Users where Email = @Email)

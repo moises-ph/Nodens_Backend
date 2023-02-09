@@ -12,6 +12,7 @@ using System.Text;
 using MS_Users_Auth.Utils;
 using MS_Users_Auth.Models;
 using Microsoft.VisualBasic.FileIO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MS_Users_Auth.Controllers
 {
@@ -42,8 +43,8 @@ namespace MS_Users_Auth.Controllers
         //            int? Id = null;
         //            connection.Open();
         //            var cmd = new SqlCommand("SP_AuthUser", connection);
+        //            cmd.CommandType = CommandType.StoredProcedure;
         //            cmd.Parameters.AddWithValue("Email", usr.Email);
-        //            cmd.Parameters.AddWithValue("Password", usr.Password);
         //            using(SqlDataReader reader = cmd.ExecuteReader())
         //            {
         //                reader.Read();
@@ -93,35 +94,67 @@ namespace MS_Users_Auth.Controllers
             {
                 if (usr.Password == null)
                 {
+                    bool isRegistered = false;
                     using(var connection = new SqlConnection(cadenaSQL))
                     {
                         connection.Open();
-                        var cmd = new SqlCommand("",connection);
+                        var cmd = new SqlCommand("SP_AuthUser",connection);
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("Email", usr.Email);
+                        using(SqlDataReader rd = cmd.ExecuteReader())
+                        {
+                            rd.Read();
+                            isRegistered = rd["Password"].ToString() != null;
+                            rd.Close();
+                        }
+                        connection.Close();
                     }
 
-
-                    MailSender mailSender = new MailSender(configuration);
-
-                    var keyBytes = Encoding.ASCII.GetBytes(secretKey);
-                    var claims = new ClaimsIdentity();
-                    claims.AddClaim(new Claim(ClaimTypes.NameIdentifier, usr.Email));
-                    var tokenDescriptor = new SecurityTokenDescriptor
+                    if (isRegistered)
                     {
-                        Subject = claims,
-                        Expires = DateTime.UtcNow.AddMinutes(30),
-                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
-                    };
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
-                    string tokencreado = tokenHandler.WriteToken(tokenConfig);
+                        MailSender mailSender = new MailSender(configuration);
 
-                    // ErrorModel sent = await mailSender.SendEmailGmailAsync(usr.Email, "Prueba", "<h1>Hola<h1>");
-                    // return StatusCode(StatusCodes.Status200OK, new {Result = sent});
+                        var keyBytes = Encoding.ASCII.GetBytes(secretKey);
+                        var claims = new ClaimsIdentity();
+                        claims.AddClaim(new Claim(ClaimTypes.NameIdentifier, usr.Email));
+                        var tokenDescriptor = new SecurityTokenDescriptor
+                        {
+                            Subject = claims,
+                            Expires = DateTime.UtcNow.AddMinutes(35),
+                            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
+                        };
+                        var tokenHandler = new JwtSecurityTokenHandler();
+                        var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
+                        string tokencreado = tokenHandler.WriteToken(tokenConfig);
+                        string emailHash = BC.HashString(usr.Email);
+
+                        ErrorModel sent = await mailSender.SendEmailGmailAsync(usr.Email, "Recuperar Contraseña en tu Cuenta Nodens", $"<a href='https://localhost:44384/api/auth/recovery/reset/{tokencreado}/{emailHash}' target='_blank'>Recupera tu contraseña aquí</a>");
+                        return StatusCode(StatusCodes.Status200OK, new { Result = sent });
+                    }
+                    else
+                    {
+                        return StatusCode(StatusCodes.Status401Unauthorized, new { Result = new{ message = "Usuario no registrado", result = false } });
+                    }
                 }
                 else
                 {
                     return BadRequest();
                 }
+            }
+            catch (Exception err)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, new { msg = err.Message });
+            }
+        }
+
+        [HttpPost]
+        [Route("recovery/reset")]
+        [Authorize]
+        public async Task<IActionResult> PostResetAsync()
+        {
+            try
+            {
+                return StatusCode(200, Request);
             }
             catch (Exception err)
             {
