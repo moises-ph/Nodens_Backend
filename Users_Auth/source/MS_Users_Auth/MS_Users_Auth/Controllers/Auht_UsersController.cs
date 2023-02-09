@@ -93,9 +93,30 @@ namespace MS_Users_Auth.Controllers
             {
                 if (usr.Password == null)
                 {
+                    using(var connection = new SqlConnection(cadenaSQL))
+                    {
+                        connection.Open();
+                        var cmd = new SqlCommand("",connection);
+                    }
+
+
                     MailSender mailSender = new MailSender(configuration);
-                    ErrorModel sent = await mailSender.SendEmailGmailAsync(usr.Email, "Prueba", "<h1>Hola<h1>");
-                    return StatusCode(StatusCodes.Status200OK, new {Result = sent});
+
+                    var keyBytes = Encoding.ASCII.GetBytes(secretKey);
+                    var claims = new ClaimsIdentity();
+                    claims.AddClaim(new Claim(ClaimTypes.NameIdentifier, usr.Email));
+                    var tokenDescriptor = new SecurityTokenDescriptor
+                    {
+                        Subject = claims,
+                        Expires = DateTime.UtcNow.AddMinutes(30),
+                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
+                    };
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
+                    string tokencreado = tokenHandler.WriteToken(tokenConfig);
+
+                    // ErrorModel sent = await mailSender.SendEmailGmailAsync(usr.Email, "Prueba", "<h1>Hola<h1>");
+                    // return StatusCode(StatusCodes.Status200OK, new {Result = sent});
                 }
                 else
                 {

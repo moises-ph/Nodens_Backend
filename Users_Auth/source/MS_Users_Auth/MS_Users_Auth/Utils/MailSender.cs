@@ -43,16 +43,16 @@ namespace MS_Users_Auth.Utils
                 smtpClient.Host = smtpserver;
                 smtpClient.Port = port;
                 smtpClient.EnableSsl = ssl;
-                smtpClient.UseDefaultCredentials = defaultcredentials;
+                smtpClient.UseDefaultCredentials = false;
 
                 NetworkCredential usercredential = new NetworkCredential(usermail, passwordmail);
                 smtpClient.Credentials = usercredential;
                 await smtpClient.SendMailAsync(mail);
-                return new Error() {Message = "Correo enviado con exito", Result = true };
+                return new ErrorModel() {Message = "Correo enviado con exito", Result = true };
             }
             catch(Exception ex)
             {
-                return new Error() { Message = ex.Message, Result = false };
+                return new ErrorModel() { Message = ex.Message, Result = false };
             }
         }
 
