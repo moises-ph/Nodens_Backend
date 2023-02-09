@@ -5,46 +5,55 @@ using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
+using MS_Users_Auth.Models;
 
 namespace MS_Users_Auth.Utils
 {
     public class MailSender
     {
+
         IConfiguration configuration;
         public MailSender(IConfiguration configuration)
         {
             this.configuration = configuration;
         }
 
-        public void SendEmailGmail(string receptor, string asunto, string mensaje) 
-        { 
-            MailMessage mail = new MailMessage();
+        public async Task<ErrorModel> SendEmailGmailAsync(string receptor, string asunto, string mensaje)
+        {
+            try
+            {
+                MailMessage mail = new MailMessage();
 
-            string usermail = configuration["usuariogmail"];
-            string passwordmail = configuration["password"];
+                string usermail = configuration["usuariogmail"];    
+                string passwordmail = configuration["passwordgmail"];
 
-            mail.From = new MailAddress(usermail);
-            mail.To.Add(new MailAddress(receptor));
-            mail.Subject = asunto;
-            mail.Body = mensaje;
-            mail.IsBodyHtml = true;
-            mail.Priority = MailPriority.High;
+                mail.From = new MailAddress(usermail);
+                mail.To.Add(new MailAddress(receptor));
+                mail.Subject = asunto;
+                mail.Body = mensaje;
+                mail.IsBodyHtml = true;
+                mail.Priority = MailPriority.High;
 
-            string smtpserver = configuration["hostGmail"];
-            int port = Convert.ToInt32(configuration["portGmail"]);
-            bool ssl = Convert.ToBoolean(configuration["sslGmail"]);
-            bool defaultcredentials = Convert.ToBoolean(configuration["defaultcredentialsGmail"]);
+                string smtpserver = configuration["hostGmail"];
+                int port = Convert.ToInt32(configuration["portGmail"]);
+                bool ssl = Convert.ToBoolean(configuration["sslGmail"]);
+                bool defaultcredentials = Convert.ToBoolean(configuration["defaultcredentialsGmail"]);
 
-            SmtpClient smtpClient = new SmtpClient();
-            smtpClient.Host = smtpserver;
-            smtpClient.Port = port;
-            smtpClient.EnableSsl = ssl;
-            smtpClient.UseDefaultCredentials = defaultcredentials;
+                SmtpClient smtpClient = new SmtpClient();
+                smtpClient.Host = smtpserver;
+                smtpClient.Port = port;
+                smtpClient.EnableSsl = ssl;
+                smtpClient.UseDefaultCredentials = defaultcredentials;
 
-            NetworkCredential usercredential = new NetworkCredential(usermail, passwordmail);
-            smtpClient.Credentials = usercredential;
-            smtpClient.Send(mail);
-
+                NetworkCredential usercredential = new NetworkCredential(usermail, passwordmail);
+                smtpClient.Credentials = usercredential;
+                await smtpClient.SendMailAsync(mail);
+                return new Error() {Message = "Correo enviado con exito", Result = true };
+            }
+            catch(Exception ex)
+            {
+                return new Error() { Message = ex.Message, Result = false };
+            }
         }
 
         public void SendEmailOutlook(String receptor, String asunto, String mensaje)

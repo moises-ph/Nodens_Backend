@@ -9,6 +9,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using BC = BCrypt.Net.BCrypt;
 using System.Text;
+using MS_Users_Auth.Utils;
+using MS_Users_Auth.Models;
+using Microsoft.VisualBasic.FileIO;
 
 namespace MS_Users_Auth.Controllers
 {
@@ -19,10 +22,12 @@ namespace MS_Users_Auth.Controllers
     {
         private readonly string secretKey;
         private readonly string cadenaSQL;
+        private readonly IConfiguration configuration;
         public Auht_UsersController(IConfiguration config)
         {
             secretKey = config.GetSection("settings").GetSection("secretKey").Value;
             cadenaSQL = config.GetConnectionString("CadenaSQL");
+            configuration = config;
         }
 
         //[HttpPost]
@@ -82,13 +87,15 @@ namespace MS_Users_Auth.Controllers
 
         [HttpPost]
         [Route("recovery/request")]
-        public IActionResult PostRec(Auth_User usr)
+        public async Task<IActionResult> PostRecAsync(Auth_User usr)
         {
             try
             {
-                if (usr.Password != null)
+                if (usr.Password == null)
                 {
-                    
+                    MailSender mailSender = new MailSender(configuration);
+                    ErrorModel sent = await mailSender.SendEmailGmailAsync(usr.Email, "Prueba", "<h1>Hola<h1>");
+                    return StatusCode(StatusCodes.Status200OK, new {Result = sent});
                 }
                 else
                 {
