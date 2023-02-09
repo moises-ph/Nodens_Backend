@@ -88,7 +88,11 @@ namespace MS_Users_Auth.Controllers
             {
                 if (usr.Password != null)
                 {
-
+                    
+                }
+                else
+                {
+                    return BadRequest();
                 }
             }
             catch (Exception err)
