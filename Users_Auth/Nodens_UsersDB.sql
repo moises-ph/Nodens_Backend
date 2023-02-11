@@ -1,3 +1,5 @@
+use master
+drop database if exists Nodens_Users
 create database Nodens_Users
 use Nodens_Users
 
@@ -9,7 +11,7 @@ create table Users(
 	First_Lastname varchar(30) not null,
 	Second_Lastname varchar(30),
 	Rol varchar(10) not null,
-	Birthdate Date,
+	Birthdate Date not null,
 	Verified bit default 0
 );
 

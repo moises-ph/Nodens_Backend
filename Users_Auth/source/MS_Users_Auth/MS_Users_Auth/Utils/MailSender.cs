@@ -6,6 +6,8 @@ using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using MS_Users_Auth.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Any;
 
 namespace MS_Users_Auth.Utils
 {
@@ -48,7 +50,7 @@ namespace MS_Users_Auth.Utils
                 NetworkCredential usercredential = new NetworkCredential(usermail, passwordmail);
                 smtpClient.Credentials = usercredential;
                 await smtpClient.SendMailAsync(mail);
-                return new ErrorModel() {Message = "Correo enviado con exito", Result = true };
+                return new ErrorModel() {Message = "Correo enviado con exito", Result = true};
             }
             catch(Exception ex)
             {

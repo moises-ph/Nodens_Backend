@@ -33,7 +33,7 @@ namespace MS_Users_Auth.Controllers
                     var cmd = new SqlCommand("SP_CreateUser", conexion);
                     cmd.Parameters.AddWithValue("Email", obj.Email);
                     cmd.Parameters.AddWithValue("First_Name", obj.First_Name);
-                    cmd.Parameters.AddWithValue("Second_Name", obj.Second_Name);
+                    cmd.Parameters.AddWithValue("Second_Name", obj.Second_Name == null ? DBNull.Value : obj.Second_Name);
                     cmd.Parameters.AddWithValue("First_Lastname", obj.First_Lastname);
                     cmd.Parameters.AddWithValue("Second_Lastname", obj.Second_Lastname);
                     cmd.Parameters.AddWithValue("Rol", obj.Rol);

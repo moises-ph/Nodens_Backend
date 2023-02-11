@@ -10,7 +10,6 @@ using System.IdentityModel.Tokens.Jwt;
 using BC = BCrypt.Net.BCrypt;
 using System.Text;
 using MS_Users_Auth.Utils;
-using MS_Users_Auth.Models;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.AspNetCore.Authorization;
 
@@ -101,7 +100,7 @@ namespace MS_Users_Auth.Controllers
                         var cmd = new SqlCommand("SP_AuthUser",connection);
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("Email", usr.Email);
-                        using(SqlDataReader rd = cmd.ExecuteReader())
+                        using(SqlDataReader rd = await cmd.ExecuteReaderAsync())
                         {
                             rd.Read();
                             isRegistered = rd["Password"].ToString() != null;
