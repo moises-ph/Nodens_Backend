@@ -9,7 +9,8 @@ create table Users(
 	First_Lastname varchar(30) not null,
 	Second_Lastname varchar(30),
 	Rol varchar(10) not null,
-	Birthdate Date
+	Birthdate Date,
+	Verified bit default 0
 );
 
 create table Auth_Users(
