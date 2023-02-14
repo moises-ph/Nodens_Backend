@@ -153,11 +153,9 @@ namespace MS_Users_Auth.Controllers
         {
             try
             {
-                var authToken = Request.Headers.Authorization;
-                var handler = new JwtSecurityTokenHandler();
-                var jsonToken = handler.ReadToken(authToken.Skip(7).ToString());
-                var tokenS = jsonToken.ToString();
-                return StatusCode(200, new { tokenS = tokenS, authToken = authToken });
+                var jsonToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
+                var token = new JwtSecurityToken(jsonToken);
+                return StatusCode(200, new { tokenS = token });
             }
             catch (Exception err)
             {
