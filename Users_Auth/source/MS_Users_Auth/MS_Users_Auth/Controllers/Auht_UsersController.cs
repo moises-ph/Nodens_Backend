@@ -115,7 +115,7 @@ namespace MS_Users_Auth.Controllers
 
                         var keyBytes = Encoding.ASCII.GetBytes(secretKey);
                         var claims = new ClaimsIdentity();
-                        claims.AddClaim(new Claim(ClaimTypes.NameIdentifier, usr.Email));
+                        claims.AddClaim(new Claim(ClaimTypes.Email, usr.Email));
                         var tokenDescriptor = new SecurityTokenDescriptor
                         {
                             Subject = claims,
@@ -125,10 +125,10 @@ namespace MS_Users_Auth.Controllers
                         var tokenHandler = new JwtSecurityTokenHandler();
                         var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
                         string tokencreado = tokenHandler.WriteToken(tokenConfig);
-                        string emailHash = BC.HashString(usr.Email);
+                        //string emailHash = BC.HashString(usr.Email);
 
-                        ErrorModel sent = await mailSender.SendEmailGmailAsync(usr.Email, "Recuperar Contraseña en tu Cuenta Nodens", $"<a href='https://localhost:44384/api/auth/recovery/reset/{tokencreado}/{emailHash}' target='_blank'>Recupera tu contraseña aquí</a>");
-                        return StatusCode(StatusCodes.Status200OK, new { Result = sent });
+                        //ErrorModel sent = await mailSender.SendEmailGmailAsync(usr.Email, "Recuperar Contraseña en tu Cuenta Nodens", $"<a href='https://localhost:44384/api/auth/recovery/reset/{tokencreado}/{emailHash}' target='_blank'>Recupera tu contraseña aquí</a>");
+                        return StatusCode(StatusCodes.Status200OK, new { Result = tokencreado });
                     }
                     else
                     {
@@ -153,11 +153,15 @@ namespace MS_Users_Auth.Controllers
         {
             try
             {
-                return StatusCode(200, Request);
+                var authToken = Request.Headers.Authorization;
+                var handler = new JwtSecurityTokenHandler();
+                var jsonToken = handler.ReadToken(authToken.Skip(7).ToString());
+                var tokenS = jsonToken.ToString();
+                return StatusCode(200, new { tokenS = tokenS, authToken = authToken });
             }
             catch (Exception err)
             {
-                return StatusCode(StatusCodes.Status401Unauthorized, new { msg = err.Message });
+                return StatusCode(StatusCodes.Status401Unauthorized, new { msg = err.Message, token = Request.Headers.Authorization });
             }
         }
     }
