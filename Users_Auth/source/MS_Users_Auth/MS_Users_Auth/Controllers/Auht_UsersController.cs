@@ -85,6 +85,13 @@ namespace MS_Users_Auth.Controllers
         //    }
         //}
 
+        //[HttpPost]
+        //[Route("recovery/pre")]
+        //public async Task<IActionResult> PostPreAsync(Auth_User usr)
+        //{
+
+        //}
+
         [HttpPost]
         [Route("recovery/request")]
         public async Task<IActionResult> PostRecAsync(Auth_User usr)
@@ -103,7 +110,7 @@ namespace MS_Users_Auth.Controllers
                         using(SqlDataReader rd = await cmd.ExecuteReaderAsync())
                         {
                             rd.Read();
-                            isRegistered = rd["Password"].ToString() != null;
+                            isRegistered = rd["Password"] != DBNull.Value;
                             rd.Close();
                         }
                         connection.Close();
