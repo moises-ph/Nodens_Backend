@@ -136,3 +136,16 @@ C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source
 C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\obj\Debug\net6.0\MS_Users_Auth.pdb
 C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\obj\Debug\net6.0\MS_Users_Auth.genruntimeconfig.cache
 C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\obj\Debug\net6.0\ref\MS_Users_Auth.dll
+C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\AWSSDK.Core.dll
+C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\AWSSDK.SecurityToken.dll
+C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\DnsClient.dll
+C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\MongoDB.Bson.dll
+C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\MongoDB.Driver.dll
+C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\MongoDB.Driver.Core.dll
+C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\MongoDB.Libmongocrypt.dll
+C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\SharpCompress.dll
+C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\Snappier.dll
+C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\ZstdSharp.dll
+C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\runtimes\linux\native\libmongocrypt.so
+C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\runtimes\osx\native\libmongocrypt.dylib
+C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\runtimes\win\native\mongocrypt.dll

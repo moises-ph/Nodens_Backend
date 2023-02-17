@@ -13,6 +13,7 @@ using MS_Users_Auth.Utils;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.AspNetCore.Authorization;
 using MS_Users_Auth.Db;
+using MongoDB.Driver;
 
 namespace MS_Users_Auth.Controllers
 {
@@ -91,66 +92,111 @@ namespace MS_Users_Auth.Controllers
             }
         }
 
-        //[HttpPost]
-        //[Route("recovery/pre")]
-        //public async Task<IActionResult> PostPreAsync(Auth_User usr)
-        //{
-
-        //}
-
         [HttpPost]
-        [Route("recovery/request")]
-        public async Task<IActionResult> PostRecAsync(Auth_User usr)
+        [Route("recovery/pre")]
+        public async Task<IActionResult> PostPreAsync(string Email)
         {
             try
             {
-                if (usr.Password == null)
+                if (Email == null)
                 {
-                    bool isRegistered = false;
-                    using(var connection = new SqlConnection(cadenaSQL))
+                    return BadRequest(new { msg = "Email no válido" });
+                }
+                bool isRegistered = false;
+                int? UserId = 0;
+                using (var connection = new SqlConnection(cadenaSQL))
+                {
+                    connection.Open();
+                    var cmd = new SqlCommand("SP_AuthUser", connection);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("Email", Email);
+                    using (SqlDataReader rd = await cmd.ExecuteReaderAsync())
                     {
-                        connection.Open();
-                        var cmd = new SqlCommand("SP_AuthUser",connection);
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("Email", usr.Email);
-                        using(SqlDataReader rd = await cmd.ExecuteReaderAsync())
-                        {
-                            rd.Read();
-                            isRegistered = rd["Password"] != DBNull.Value;
-                            rd.Close();
-                        }
-                        connection.Close();
+                        rd.Read();
+                        isRegistered = rd["Password"] != DBNull.Value;
+                        UserId = rd["Password"] != DBNull.Value ? Convert.ToInt32(rd["Id"].ToString()) : null;
+                        rd.Close();
                     }
-
-                    if (isRegistered)
+                    connection.Close();
+                }
+                if (!isRegistered)
+                {
+                    return NotFound(new { msg = "Usuario no registrado" });
+                }
+                MongoClass mongoClass = new MongoClass(configuration);
+                var mongoClientRequests = mongoClass.ClientRequest;
+                var timeStamp = (MongoDB.Bson.BsonDateTime)DateTime.UtcNow;
+                MongoClass.RequestModel requestModel = new()
+                {
+                    source = new MongoClass.Source()
                     {
-                        MailSender mailSender = new MailSender(configuration);
+                        UserId = UserId
+                    },
+                    email = Email,
+                    timestamp = timeStamp,
+                };
+                await mongoClientRequests.InsertOneAsync(requestModel);
+                var filter = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.email, Email);
+                var result = await mongoClientRequests.Find(filter).FirstOrDefaultAsync();
+                return StatusCode(StatusCodes.Status200OK, result);
 
-                        var keyBytes = Encoding.ASCII.GetBytes(secretKey);
-                        var claims = new ClaimsIdentity();
-                        claims.AddClaim(new Claim(ClaimTypes.Email, usr.Email));
-                        var tokenDescriptor = new SecurityTokenDescriptor
-                        {
-                            Subject = claims,
-                            Expires = DateTime.UtcNow.AddMinutes(35),
-                            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
-                        };
-                        var tokenHandler = new JwtSecurityTokenHandler();
-                        var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
-                        string tokencreado = tokenHandler.WriteToken(tokenConfig);
-                        //string emailHash = BC.HashString(usr.Email);
+            }
+            catch (Exception err)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, new { msg = err.Message });
+            }
+        }
 
-                        //ErrorModel sent = await mailSender.SendEmailGmailAsync(usr.Email, "Recuperar Contraseña en tu Cuenta Nodens", $"<a href='https://localhost:44384/api/auth/recovery/reset/{tokencreado}/{emailHash}' target='_blank'>Recupera tu contraseña aquí</a>");
-                        return StatusCode(StatusCodes.Status200OK, new { Result = tokencreado });
-                    }
-                    else
+        [HttpPost]
+        [Route("recovery/request")]
+        public async Task<IActionResult> PostRecAsync(string Email)
+        {
+            try
+            {
+                if (Email == null)
+                {
+                    return BadRequest(new { msg = "Email no válido" });
+                }
+                bool isRegistered = false;
+                using(var connection = new SqlConnection(cadenaSQL))
+                {
+                    connection.Open();
+                    var cmd = new SqlCommand("SP_AuthUser",connection);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("Email", Email);
+                    using(SqlDataReader rd = await cmd.ExecuteReaderAsync())
                     {
-                        return StatusCode(StatusCodes.Status401Unauthorized, new { Result = new{ message = "Usuario no registrado", result = false } });
+                        rd.Read();
+                        isRegistered = rd["Password"] != DBNull.Value;
+                        rd.Close();
                     }
+                    connection.Close();
+                }
+
+                if (isRegistered)
+                {
+                    MailSender mailSender = new MailSender(configuration);
+
+                    var keyBytes = Encoding.ASCII.GetBytes(secretKey);
+                    var claims = new ClaimsIdentity();
+                    claims.AddClaim(new Claim(ClaimTypes.Email, Email));
+                    var tokenDescriptor = new SecurityTokenDescriptor
+                    {
+                        Subject = claims,
+                        Expires = DateTime.UtcNow.AddMinutes(35),
+                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
+                    };
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
+                    string tokencreado = tokenHandler.WriteToken(tokenConfig);
+                    //string emailHash = BC.HashString(usr.Email);
+
+                    //ErrorModel sent = await mailSender.SendEmailGmailAsync(usr.Email, "Recuperar Contraseña en tu Cuenta Nodens", $"<a href='https://localhost:44384/api/auth/recovery/reset/{tokencreado}/{emailHash}' target='_blank'>Recupera tu contraseña aquí</a>");
+                    return StatusCode(StatusCodes.Status200OK, new { Result = tokencreado });
                 }
                 else
                 {
-                    return BadRequest();
+                    return StatusCode(StatusCodes.Status401Unauthorized, new { Result = new{ message = "Usuario no registrado", result = false } });
                 }
             }
             catch (Exception err)
