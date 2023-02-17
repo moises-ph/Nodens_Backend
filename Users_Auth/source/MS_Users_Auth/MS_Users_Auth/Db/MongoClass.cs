@@ -11,7 +11,17 @@ namespace MS_Users_Auth.Db
         {
             _connection = config.GetConnectionString("CadenaMongo");
             Client = new MongoClient(_connection);
-            Client.GetDatabase("Nodens_RecPassword");
+        }
+
+        public async bool CreateResetRequest(string email, int Id)
+        {
+            var _requestsCollection = Client.GetDatabase("Nodens_RecPassword").GetCollection<BsonDocument>("Requests");
+            await _requestsCollection.InsertOneAsync(new { 
+                source = {
+                    ID = Id
+                },
+                Email = email
+            });
         }
     }
 }
