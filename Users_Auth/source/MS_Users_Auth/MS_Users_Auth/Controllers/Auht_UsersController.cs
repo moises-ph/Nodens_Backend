@@ -141,8 +141,9 @@ namespace MS_Users_Auth.Controllers
                 var filter = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.email, Email);
                 var result = await mongoClientRequests.Find(filter).FirstOrDefaultAsync();
                 MailSender mailSender = new MailSender(configuration);
-                ErrorModel sent = await mailSender.SendEmailGmailAsync(Email, "Recuperar Contraseña en tu Cuenta Nodens", $"<a href='https://localhost:44384/api/auth/recovery/reset/{guid.ToString()}' target='_blank'>Recupera tu contraseña aquí</a>");
-                return StatusCode(StatusCodes.Status200OK, sent);
+                string url = $"https://localhost:44384/api/auth/recovery/request/{guid.ToString()}?mn={Email.Replace("@", "%40")}";
+                //ErrorModel sent = await mailSender.SendEmailGmailAsync(Email, "Recuperar Contraseña en tu Cuenta Nodens", $"<a href={url}?mn={Email.Replace("@", "%40")}' target='_blank'>Recupera tu contraseña aquí</a>");
+                return StatusCode(StatusCodes.Status200OK, new { url , email = result.email, source = result.source, timestamp = result.timestamp.ToString() });
             }
             catch (Exception err)
             {
@@ -151,12 +152,12 @@ namespace MS_Users_Auth.Controllers
         }
 
         [HttpPost]
-        [Route("recovery/request")]
-        public async Task<IActionResult> PostRecAsync(string Email)
+        [Route("recovery/request/{guid:alpha}")]
+        public async Task<IActionResult> PostRecAsync(string mn)
         {
             try
             {
-                
+                return StatusCode(StatusCodes.Status200OK, new { mn = mn, Guid = Request.Query });
             }
             catch (Exception err)
             {
