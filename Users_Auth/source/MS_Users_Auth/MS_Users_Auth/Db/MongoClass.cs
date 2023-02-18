@@ -9,6 +9,7 @@ namespace MS_Users_Auth.Db
         public class Source
         {
             public int? UserId { get; set; }
+            public string EncodedId { get; set; }
         }
         public class RequestModel
         {
