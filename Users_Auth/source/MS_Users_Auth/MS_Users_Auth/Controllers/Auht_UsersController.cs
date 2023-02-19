@@ -126,11 +126,13 @@ namespace MS_Users_Auth.Controllers
                 MongoClass mongoClass = new MongoClass(configuration);
                 var mongoClientRequests = mongoClass.ClientRequest;
                 var timeStamp = (MongoDB.Bson.BsonDateTime)DateTime.UtcNow;
+                Guid guid = Guid.NewGuid();
                 MongoClass.RequestModel requestModel = new()
                 {
                     source = new MongoClass.Source()
                     {
-                        UserId = UserId
+                        UserId = UserId,
+                        EncodedId = guid.ToString()
                     },
                     email = Email,
                     timestamp = timeStamp,
@@ -138,8 +140,10 @@ namespace MS_Users_Auth.Controllers
                 await mongoClientRequests.InsertOneAsync(requestModel);
                 var filter = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.email, Email);
                 var result = await mongoClientRequests.Find(filter).FirstOrDefaultAsync();
-                return StatusCode(StatusCodes.Status200OK, result);
-
+                MailSender mailSender = new MailSender(configuration);
+                string url = $"https://localhost:44384/api/auth/recovery/request/{guid.ToString()}?mn={Email.Replace("@", "%40")}";
+                //ErrorModel sent = await mailSender.SendEmailGmailAsync(Email, "Recuperar Contraseña en tu Cuenta Nodens", $"<a href={url}?mn={Email.Replace("@", "%40")}' target='_blank'>Recupera tu contraseña aquí</a>");
+                return StatusCode(StatusCodes.Status200OK, new { url , email = result.email, source = result.source, timestamp = result.timestamp.ToString() });
             }
             catch (Exception err)
             {
@@ -148,56 +152,12 @@ namespace MS_Users_Auth.Controllers
         }
 
         [HttpPost]
-        [Route("recovery/request")]
-        public async Task<IActionResult> PostRecAsync(string Email)
+        [Route("recovery/request/{guid:alpha}")]
+        public async Task<IActionResult> PostRecAsync(string mn)
         {
             try
             {
-                if (Email == null)
-                {
-                    return BadRequest(new { msg = "Email no válido" });
-                }
-                bool isRegistered = false;
-                using(var connection = new SqlConnection(cadenaSQL))
-                {
-                    connection.Open();
-                    var cmd = new SqlCommand("SP_AuthUser",connection);
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("Email", Email);
-                    using(SqlDataReader rd = await cmd.ExecuteReaderAsync())
-                    {
-                        rd.Read();
-                        isRegistered = rd["Password"] != DBNull.Value;
-                        rd.Close();
-                    }
-                    connection.Close();
-                }
-
-                if (isRegistered)
-                {
-                    MailSender mailSender = new MailSender(configuration);
-
-                    var keyBytes = Encoding.ASCII.GetBytes(secretKey);
-                    var claims = new ClaimsIdentity();
-                    claims.AddClaim(new Claim(ClaimTypes.Email, Email));
-                    var tokenDescriptor = new SecurityTokenDescriptor
-                    {
-                        Subject = claims,
-                        Expires = DateTime.UtcNow.AddMinutes(35),
-                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
-                    };
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
-                    string tokencreado = tokenHandler.WriteToken(tokenConfig);
-                    //string emailHash = BC.HashString(usr.Email);
-
-                    //ErrorModel sent = await mailSender.SendEmailGmailAsync(usr.Email, "Recuperar Contraseña en tu Cuenta Nodens", $"<a href='https://localhost:44384/api/auth/recovery/reset/{tokencreado}/{emailHash}' target='_blank'>Recupera tu contraseña aquí</a>");
-                    return StatusCode(StatusCodes.Status200OK, new { Result = tokencreado });
-                }
-                else
-                {
-                    return StatusCode(StatusCodes.Status401Unauthorized, new { Result = new{ message = "Usuario no registrado", result = false } });
-                }
+                return StatusCode(StatusCodes.Status200OK, new { mn = mn, Guid = Request.Query });
             }
             catch (Exception err)
             {

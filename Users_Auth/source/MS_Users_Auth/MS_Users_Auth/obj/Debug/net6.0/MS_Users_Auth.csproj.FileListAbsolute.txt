@@ -149,3 +149,16 @@ C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source
 C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\runtimes\linux\native\libmongocrypt.so
 C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\runtimes\osx\native\libmongocrypt.dylib
 C:\Users\Moises\Documents\PROYECTO NODENS PERRO\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\runtimes\win\native\mongocrypt.dll
+D:\System32\Proyecto\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\AWSSDK.Core.dll
+D:\System32\Proyecto\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\AWSSDK.SecurityToken.dll
+D:\System32\Proyecto\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\DnsClient.dll
+D:\System32\Proyecto\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\MongoDB.Bson.dll
+D:\System32\Proyecto\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\MongoDB.Driver.dll
+D:\System32\Proyecto\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\MongoDB.Driver.Core.dll
+D:\System32\Proyecto\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\MongoDB.Libmongocrypt.dll
+D:\System32\Proyecto\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\SharpCompress.dll
+D:\System32\Proyecto\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\Snappier.dll
+D:\System32\Proyecto\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\ZstdSharp.dll
+D:\System32\Proyecto\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\runtimes\linux\native\libmongocrypt.so
+D:\System32\Proyecto\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\runtimes\osx\native\libmongocrypt.dylib
+D:\System32\Proyecto\Nodens_Backend\Users_Auth\source\MS_Users_Auth\MS_Users_Auth\bin\Debug\net6.0\runtimes\win\native\mongocrypt.dll
