@@ -22,6 +22,7 @@ create table Auth_Users(
 );
 -------------------------------------------------------------------------
 
+select * from Auth_Users
 
 go
 create procedure SP_CreateUser

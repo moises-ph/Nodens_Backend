@@ -10,6 +10,7 @@ namespace MS_Users_Auth.Db
         {
             public int? UserId { get; set; }
             public string EncodedId { get; set; }
+            public bool Verified { get; set; }
         }
         public class RequestModel
         {

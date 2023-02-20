@@ -125,14 +125,15 @@ namespace MS_Users_Auth.Controllers
                 }
                 MongoClass mongoClass = new MongoClass(configuration);
                 var mongoClientRequests = mongoClass.ClientRequest;
-                var timeStamp = (MongoDB.Bson.BsonDateTime)DateTime.UtcNow;
+                var timeStamp = (MongoDB.Bson.BsonDateTime)DateTime.Now;
                 Guid guid = Guid.NewGuid();
                 MongoClass.RequestModel requestModel = new()
                 {
                     source = new MongoClass.Source()
                     {
                         UserId = UserId,
-                        EncodedId = guid.ToString()
+                        EncodedId = guid.ToString(),
+                        Verified = false
                     },
                     email = Email,
                     timestamp = timeStamp,
@@ -141,7 +142,7 @@ namespace MS_Users_Auth.Controllers
                 var filter = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.email, Email);
                 var result = await mongoClientRequests.Find(filter).FirstOrDefaultAsync();
                 MailSender mailSender = new MailSender(configuration);
-                string url = $"https://localhost:44384/api/auth/recovery/request/{guid.ToString()}?mn={Email.Replace("@", "%40")}";
+                string url = $"https://localhost:44384/api/auth/recovery/request?gdusr={guid.ToString()}&mn={Email.Replace("@", "%40")}";
                 //ErrorModel sent = await mailSender.SendEmailGmailAsync(Email, "Recuperar Contraseña en tu Cuenta Nodens", $"<a href={url}?mn={Email.Replace("@", "%40")}' target='_blank'>Recupera tu contraseña aquí</a>");
                 return StatusCode(StatusCodes.Status200OK, new { url , email = result.email, source = result.source, timestamp = result.timestamp.ToString() });
             }
@@ -152,12 +153,42 @@ namespace MS_Users_Auth.Controllers
         }
 
         [HttpPost]
-        [Route("recovery/request/{guid:alpha}")]
-        public async Task<IActionResult> PostRecAsync(string mn)
+        [Route("recovery/request")]
+        public async Task<IActionResult> PostRecAsync(string gdusr, string mn)
         {
             try
             {
-                return StatusCode(StatusCodes.Status200OK, new { mn = mn, Guid = Request.Query });
+                MongoClass mongoClass = new MongoClass(configuration);
+                var mongoClientRequests = mongoClass.ClientRequest;
+                var filter = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.email, mn);
+                var result = await mongoClientRequests.Find(filter).FirstOrDefaultAsync();
+                if(result == null)
+                {
+                    return StatusCode(StatusCodes.Status401Unauthorized, new { msg = "Url Expirada, por favor vuelva a pedir el restablecimiento de contraseña" });
+                }
+                if(result.source.EncodedId != gdusr || result.email!= mn)
+                {
+                    return StatusCode(StatusCodes.Status401Unauthorized, new { msg = "Url no válida, por favor vuelva a pedir el restablecimiento de contraseña" });
+                }
+                var keyBytes = Encoding.ASCII.GetBytes(secretKey);
+                var claims = new ClaimsIdentity();
+                claims.AddClaim(new Claim(ClaimTypes.Email, mn));
+                claims.AddClaim(new Claim("Guid", gdusr));
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = claims,
+                    Expires = DateTime.UtcNow.AddMinutes(60),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
+                };
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
+                string tokencreado = tokenHandler.WriteToken(tokenConfig);
+
+                var sourceRes = result.source;
+                var filterUp = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.source.EncodedId, sourceRes.EncodedId);
+                var update = Builders<MongoClass.RequestModel>.Update.Set(r => r.source.Verified, true);
+                UpdateResult upResult = await mongoClientRequests.UpdateManyAsync(filterUp, update);
+                return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, upResult });
             }
             catch (Exception err)
             {
@@ -168,17 +199,63 @@ namespace MS_Users_Auth.Controllers
         [HttpPost]
         [Route("recovery/reset")]
         [Authorize]
-        public async Task<IActionResult> PostResetAsync()
+        public async Task<IActionResult> PostResetAsync(Auth_User user)
         {
             try
             {
-                var jsonToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
-                var token = new JwtSecurityToken(jsonToken);
-                return StatusCode(200, new { tokenS = token });
+                var token = new JwtSecurityToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty));
+                string? Guid = token.Payload["Guid"].ToString();
+                string? Email = token.Payload["email"].ToString();
+                MongoClass mongoClass = new MongoClass(configuration);
+                IMongoCollection<MongoClass.RequestModel> mongoClientRequests = mongoClass.ClientRequest;
+                FilterDefinition<MongoClass.RequestModel> filter = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.source.EncodedId, Guid);
+                MongoClass.RequestModel result = await mongoClientRequests.Find(filter).FirstOrDefaultAsync();
+                if(result == null)
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, new { msg = "Url expirada, por favor vuelva a pedir el restablecimiento de contraseña" });
+                }
+                if(result.source.EncodedId != Guid || result.email != Email)
+                {
+                    return BadRequest(new { msg = "URL no válida" });
+                }
+
+                if (!result.source.Verified)
+                {
+                    return BadRequest(new { msg = "Vuelva a solicitar el restablecimiento de su contraseña" });
+                }
+
+                int isError = 0;
+                string? msg = string.Empty;
+
+                string passwordCrypt = BC.HashPassword(user.Password, 10);
+
+                using(var connection = new SqlConnection(cadenaSQL))
+                {
+                    connection.Open();
+                    var cmd = new SqlCommand("SP_ChangePassword", connection);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("Email", Email);
+                    cmd.Parameters.AddWithValue("Password", passwordCrypt);
+                    using(var rd = await cmd.ExecuteReaderAsync())
+                    {
+                        while (rd.Read())
+                        {
+                            isError = Convert.ToInt32(rd["Error"].ToString());
+                            msg = rd["Respuesta"].ToString();
+                        }
+                        rd.Close();
+                    }
+                    connection.Close();
+                }
+
+                var delFilter = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.source.EncodedId, Guid);
+                DeleteResult deleteResult = await mongoClientRequests.DeleteManyAsync(delFilter);
+
+                return StatusCode(200, new { msg = "Contraseña cambiada exitosamente" });
             }
             catch (Exception err)
             {
-                return StatusCode(StatusCodes.Status401Unauthorized, new { msg = err.Message, token = Request.Headers.Authorization });
+                return StatusCode(StatusCodes.Status401Unauthorized, new { msg = err.Message });
             }
         }
     }
