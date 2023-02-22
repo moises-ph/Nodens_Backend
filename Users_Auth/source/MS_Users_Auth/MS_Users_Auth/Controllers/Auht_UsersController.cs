@@ -34,14 +34,10 @@ namespace MS_Users_Auth.Controllers
 
         [HttpPost]
         [Route("/")]
-        public IActionResult Post(Auth_User usr)
+        public IActionResult Post([FromBody]Auth_User usr)
         {
             try
             {
-                if (usr.Password == null || usr.Email == null)
-                {
-                    return StatusCode(StatusCodes.Status401Unauthorized, new { token = "", message = "Faltan datos para la validación" });
-                }
                 using (var connection = new SqlConnection(cadenaSQL))
                 {
                     string? password = null;
@@ -68,7 +64,7 @@ namespace MS_Users_Auth.Controllers
                     {
                         var keyBytes = Encoding.ASCII.GetBytes(secretKey);
                         var claims = new ClaimsIdentity();
-                        claims.AddClaim(new Claim(ClaimTypes.NameIdentifier, usr.Email));
+                        claims.AddClaim(new Claim(ClaimTypes.Email, usr.Email));
                         var tokenDescriptor = new SecurityTokenDescriptor
                         {
                             Subject = claims,
