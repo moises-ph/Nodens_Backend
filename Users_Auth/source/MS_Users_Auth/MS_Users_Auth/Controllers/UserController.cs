@@ -37,7 +37,7 @@ namespace MS_Users_Auth.Controllers
                     cmd.Parameters.AddWithValue("First_Lastname", obj.First_Lastname);
                     cmd.Parameters.AddWithValue("Second_Lastname", obj.Second_Lastname);
                     cmd.Parameters.AddWithValue("Rol", obj.Rol);
-                    cmd.Parameters.AddWithValue("Birthdate", obj.Birthdate);
+                    cmd.Parameters.AddWithValue("Birthdate", obj.Birthdate.Date);
                     string pass = BC.HashPassword(obj.Password);
                     cmd.Parameters.AddWithValue("Password", pass);
                     cmd.CommandType = CommandType.StoredProcedure;
