@@ -46,7 +46,8 @@ namespace MS_Users_Auth.Controllers
                     var cmd = new SqlCommand("SP_AuthUser", connection);
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("Email", usr.Email);
-                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    cmd.Parameters.AddWithValue("Password", usr.Password);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         reader.Read();
                         if (reader["Password"].ToString() != null)
@@ -90,7 +91,7 @@ namespace MS_Users_Auth.Controllers
 
         [HttpPost]
         [Route("recovery/pre")]
-        public async Task<IActionResult> PostPreAsync(string Email)
+        public async Task<IActionResult> PostPreAsync(string Email, string Password)
         {
             try
             {
@@ -106,6 +107,7 @@ namespace MS_Users_Auth.Controllers
                     var cmd = new SqlCommand("SP_AuthUser", connection);
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("Email", Email);
+                    cmd.Parameters.AddWithValue("Password", Password);
                     using (SqlDataReader rd = await cmd.ExecuteReaderAsync())
                     {
                         rd.Read();
