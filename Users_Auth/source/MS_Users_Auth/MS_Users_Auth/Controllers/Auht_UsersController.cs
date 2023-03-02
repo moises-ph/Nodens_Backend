@@ -50,7 +50,7 @@ namespace MS_Users_Auth.Controllers
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         reader.Read();
-                        if (reader["Password"].ToString() != null)
+                        if (reader["Password"] != DBNull.Value)
                         {
                             password = reader["Password"].ToString();
                             Id = Convert.ToInt32(reader["Id"].ToString());
@@ -61,26 +61,24 @@ namespace MS_Users_Auth.Controllers
                         }
                         reader.Close();
                     }
-                    if(BC.Verify(usr.Password, password))
-                    {
-                        var keyBytes = Encoding.ASCII.GetBytes(secretKey);
-                        var claims = new ClaimsIdentity();
-                        claims.AddClaim(new Claim(ClaimTypes.Email, usr.Email));
-                        var tokenDescriptor = new SecurityTokenDescriptor
-                        {
-                            Subject = claims,
-                            Expires = DateTime.UtcNow.AddMinutes(60),
-                            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
-                        };
-                        var tokenHandler = new JwtSecurityTokenHandler();
-                        var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
-                        string tokencreado = tokenHandler.WriteToken(tokenConfig);
-                        return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, User_Id = Id });
-                    }
-                    else
+                    if (!BC.Verify(usr.Password, password))
                     {
                         return StatusCode(StatusCodes.Status401Unauthorized, new { token = "", message = "Contraseña Incorrecta" });
                     }
+                    
+                    var keyBytes = Encoding.ASCII.GetBytes(secretKey);
+                    var claims = new ClaimsIdentity();
+                    claims.AddClaim(new Claim(ClaimTypes.Email, usr.Email));
+                    var tokenDescriptor = new SecurityTokenDescriptor
+                    {
+                        Subject = claims,
+                        Expires = DateTime.UtcNow.AddMinutes(60),
+                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
+                    };
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
+                    string tokencreado = tokenHandler.WriteToken(tokenConfig);
+                    return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, User_Id = Id });
                 }
             }
             catch(Exception err)
@@ -197,7 +195,7 @@ namespace MS_Users_Auth.Controllers
         [HttpPost]
         [Route("recovery/reset")]
         [Authorize]
-        public async Task<IActionResult> PostResetAsync(Auth_User user)
+        public async Task<IActionResult> PostResetAsync(Reset_Pass pass)
         {
             try
             {
@@ -225,7 +223,7 @@ namespace MS_Users_Auth.Controllers
                 int isError = 0;
                 string? msg = string.Empty;
 
-                string passwordCrypt = BC.HashPassword(user.Password, 10);
+                string passwordCrypt = BC.HashPassword(pass.Password, 10);
 
                 using(var connection = new SqlConnection(cadenaSQL))
                 {

@@ -13,4 +13,11 @@ namespace MS_Users_Auth.Models
         [MinLength(8, ErrorMessage = "La contraseña debe tener al menos 8 carácteres")]
         public string? Password { get; set; }
     }
+
+    public class Reset_Pass
+    {
+        [Required]
+        [MinLength(8, ErrorMessage = "La contraseña debe tener al menos 8 carácteres")]
+        public string? Password { get; set; }
+    }
 }
