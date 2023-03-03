@@ -27,19 +27,15 @@ namespace MS_Users_Auth.Controllers
             {
                 int error;
                 string Response;
-                using (var conexion = new SqlConnection(cadenaSQL))
+                using (var connection = new SqlConnection(cadenaSQL))
                 {
-                    conexion.Open();
-                    var cmd = new SqlCommand("SP_CreateUser", conexion);
+                    connection.Open();
+                    var cmd = new SqlCommand("SP_CreateUser", connection);
                     cmd.Parameters.AddWithValue("Email", obj.Email);
-                    cmd.Parameters.AddWithValue("First_Name", obj.First_Name);
-                    cmd.Parameters.AddWithValue("Second_Name", obj.Second_Name == null ? DBNull.Value : obj.Second_Name);
-                    cmd.Parameters.AddWithValue("First_Lastname", obj.First_Lastname);
-                    cmd.Parameters.AddWithValue("Second_Lastname", obj.Second_Lastname);
+                    cmd.Parameters.AddWithValue("Name", obj.Name);
+                    cmd.Parameters.AddWithValue("Lastname", obj.Lastname);
                     cmd.Parameters.AddWithValue("Rol", obj.Rol);
-                    cmd.Parameters.AddWithValue("Birthdate", obj.Birthdate.Date);
-                    string pass = BC.HashPassword(obj.Password);
-                    cmd.Parameters.AddWithValue("Password", pass);
+                    cmd.Parameters.AddWithValue("Password", BC.HashPassword(obj.Password));
                     cmd.CommandType = CommandType.StoredProcedure;
                     using (SqlDataReader rd = cmd.ExecuteReader())
                     {
@@ -48,7 +44,7 @@ namespace MS_Users_Auth.Controllers
                         Response = rd["Message"].ToString();
                         rd.Close();
                     }
-                    conexion.Close();
+                    connection.Close();
                 }
                 if (error == 1)
                 {
@@ -61,7 +57,7 @@ namespace MS_Users_Auth.Controllers
             }
             catch(Exception err)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = err.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { err.Message });
             }
         }
     }

@@ -13,30 +13,15 @@ namespace MS_Users_Auth.Models
 
         [Required]
         [StringLength(50)]
-        public string First_Name { get; set; }
-
-        public string? Second_Name { get; set; }
+        public string Name { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string First_Lastname { get; set; }
-
-        public string? Second_Lastname { get; set; }
+        public string Lastname { get; set; }
 
         [Required]
         [StringLength(9)]
         public string Rol { get; set; }
-
-        [Required]
-        [StringLength(50)]
-        public string Department { get; set; }
-
-        [Required]
-        [StringLength(50)]
-        public string City { get; set; }
-
-        [Required]
-        public DateTime Birthdate { get; set; }
 
         [Required] 
         [StringLength(50)]
