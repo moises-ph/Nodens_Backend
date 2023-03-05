@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MS_Users_Auth.Validations;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 
 namespace MS_Users_Auth.Models
@@ -21,6 +22,7 @@ namespace MS_Users_Auth.Models
 
         [Required]
         [StringLength(9)]
+        [CustomValidationRol("Musician", "Organizer", ErrorMessage = "Rol no válido")]
         public string Rol { get; set; }
 
         [Required] 
