@@ -1,10 +1,14 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MS_Users_Auth.Models;
 using BC = BCrypt.Net.BCrypt;
+using MS_Users_Auth.Utils;
+using MongoDB.Driver;
+using MS_Users_Auth.Db;
 
 namespace MS_Users_Auth.Controllers
 {
@@ -14,14 +18,15 @@ namespace MS_Users_Auth.Controllers
     public class UserController : ControllerBase
     {
         private readonly string cadenaSQL;
+        private readonly IConfiguration configuration;
         public UserController(IConfiguration config)
         {
             cadenaSQL = config.GetConnectionString("CadenaSQL");
+            configuration = config;
         }
 
-        [HttpPost]
-        [Route("Register")]
-        public IActionResult Register([FromBody] User obj)
+        [HttpPost("Register")]
+        public IActionResult Register([FromBody] RegisterUser obj)
         {
             try
             {
@@ -52,10 +57,84 @@ namespace MS_Users_Auth.Controllers
                 }
                 else
                 {
+                    MongoClass mongoClass = new MongoClass(configuration);
+                    Guid guid = Guid.NewGuid();
+                    // terminar aquí, añadir documento de verificación
                     return StatusCode(StatusCodes.Status200OK, new { Message = Response });
                 }
             }
-            catch(Exception err)
+            catch (Exception err)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { err.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult GetUser([FromBody] string email)
+        {
+            try
+            {
+                ReadUser user = new ReadUser();
+                using (var connection = new SqlConnection(cadenaSQL))
+                {
+                    connection.Open();
+                    SqlCommand cmd = new SqlCommand("SP_ReadUser", connection);
+                    cmd.Parameters.AddWithValue("Email", email);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    using (SqlDataReader rd = cmd.ExecuteReader())
+                    {
+                        while (rd.Read())
+                        {
+                            user.Name = rd["Name"].ToString();
+                            user.Lastname = rd["Lastname"].ToString();
+                            user.Email = rd["email"].ToString();
+                            user.Rol = rd["Role"].ToString();
+                            user.Verified = Convert.ToInt16(rd["Verified"]) == 1;
+                        }
+                        rd.Close();
+                    }
+                    connection.Close();
+                }
+                return StatusCode(StatusCodes.Status200OK, user);
+            }
+            catch (Exception err)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { err.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPut("update")]
+        public IActionResult UpdateUser([FromBody] UpdateUserModel user) 
+        {
+            try
+            {
+                bool Error = false;
+                string? Response = String.Empty;
+                using(SqlConnection connection = new SqlConnection(cadenaSQL))
+                {
+                    connection.Open();
+                    SqlCommand cmd = new SqlCommand("SP_UpdateUser", connection);
+                    cmd.Parameters.AddWithValue("Email", user.NewEmail);
+                    cmd.Parameters.AddWithValue("newEmail", user.OldEmail);
+                    cmd.Parameters.AddWithValue("Name", user.Name);
+                    cmd.Parameters.AddWithValue("Lastname", user.Lastname);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Error = Convert.ToInt16(reader["Error"]) == 1;
+                            Response = reader["Message"].ToString();
+                        }
+                        reader.Close();
+                    }
+                    connection.Close();
+                }
+                return Error ? StatusCode(StatusCodes.Status500InternalServerError, new { Response }) : StatusCode(StatusCodes.Status200OK, new { Response });
+            }
+            catch (Exception err)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { err.Message });
             }

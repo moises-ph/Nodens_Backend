@@ -30,7 +30,7 @@ create table Permission(
 	description varchar(500) not null
 );
 
-create table RolePermissions(
+create table RolePermissions(	
 	role_id int not null,
 	permission_id int not null,
 	constraint fk_role_2 foreign key (role_id) references Role(id),
@@ -72,15 +72,16 @@ go
 
 execute SP_CreateUser 'email@gmail.com', 'Juan', 'Eduardo', '1234', 'Musician'
 
-
 go
 create procedure SP_ReadUser
 	@Email varchar(320)
 as
 begin
-	SELECT Name, Lastname, (select name from Role where id = role_id) as Role from Users where email = @Email
+	SELECT Name, Lastname, (select name from Role where id = role_id) as Role, email, Verified from Users where email = @Email
 end
 go
+
+execute SP_ReadUser 'email@gmail.com'
 
 ---------------------------------
 
@@ -90,9 +91,9 @@ create procedure SP_AuthUser
 as
 begin
 	if exists(SELECT id from Users where email = @Email)
-		SELECT password from Users where email = @Email
+		SELECT password, Verified from Users where email = @Email
 	else
-		SELECT null as password
+		SELECT null as password, null as Verified
 end
 go
 
@@ -164,6 +165,10 @@ create procedure SP_UpdateUser
 as
 begin transaction TX_Update_User
 	BEGIN TRY
+		if @newEmail != null and @newEmail != @Email
+		begin
+			update Users set Verified = 0 where email = @Email
+		end
 		update Users set 
 			email = ISNULL(@newEmail, email),
 			Name = ISNULL(@Name, Name),

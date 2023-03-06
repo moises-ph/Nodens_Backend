@@ -254,5 +254,18 @@ namespace MS_Users_Auth.Controllers
                 return StatusCode(StatusCodes.Status401Unauthorized, new { msg = err.Message });
             }
         }
+
+        [HttpPut("verify")]
+        public async Task<IActionResult> Verifyuser(string email, string guid)
+        {
+            try
+            {
+
+            }
+            catch (Exception err)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { msg = err.Message });
+            }
+        }
     }
 }

@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace MS_Users_Auth.Models
 {
-    public class User
+    public class RegisterUser
     {
         public int? Id { get; set; }
 
@@ -28,5 +28,6 @@ namespace MS_Users_Auth.Models
         [Required] 
         [StringLength(50)]
         public string Password { get; set; }
+        public bool? Verified { get; set; }
     }
 } 
