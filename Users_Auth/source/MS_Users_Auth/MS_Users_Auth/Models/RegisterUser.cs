@@ -10,7 +10,7 @@ namespace MS_Users_Auth.Models
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -25,7 +25,8 @@ namespace MS_Users_Auth.Models
         [CustomValidationRol("Musician", "Organizer", ErrorMessage = "Rol no válido")]
         public string Rol { get; set; }
 
-        [Required] 
+        [Required]
+        [MinLength(8, ErrorMessage = "La contraseña debe ser de al menos ocho carácteres")]
         [StringLength(50)]
         public string Password { get; set; }
         public bool? Verified { get; set; }

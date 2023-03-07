@@ -26,7 +26,7 @@ namespace MS_Users_Auth.Controllers
         }
 
         [HttpPost("Register")]
-        public IActionResult Register([FromBody] RegisterUser obj)
+        public async Task<IActionResult> Register([FromBody] RegisterUser obj)
         {
             try
             {
@@ -39,8 +39,8 @@ namespace MS_Users_Auth.Controllers
                     cmd.Parameters.AddWithValue("Email", obj.Email);
                     cmd.Parameters.AddWithValue("Name", obj.Name);
                     cmd.Parameters.AddWithValue("Lastname", obj.Lastname);
-                    cmd.Parameters.AddWithValue("Rol", obj.Rol);
-                    cmd.Parameters.AddWithValue("Password", BC.HashPassword(obj.Password));
+                    cmd.Parameters.AddWithValue("Role", obj.Rol);
+                    cmd.Parameters.AddWithValue("Password", BC.HashPassword(obj.Password,10));
                     cmd.CommandType = CommandType.StoredProcedure;
                     using (SqlDataReader rd = cmd.ExecuteReader())
                     {
@@ -58,9 +58,23 @@ namespace MS_Users_Auth.Controllers
                 else
                 {
                     MongoClass mongoClass = new MongoClass(configuration);
+                    IMongoCollection<MongoClass.VerifyUsersModel> VerifyUsersCollection = mongoClass.VerifyUsers;
                     Guid guid = Guid.NewGuid();
-                    // terminar aquí, añadir documento de verificación
-                    return StatusCode(StatusCodes.Status200OK, new { Message = Response });
+                    var timestamp = (MongoDB.Bson.BsonDateTime)DateTime.Now;
+                    MongoClass.VerifyUsersModel verifyUsersModel = new MongoClass.VerifyUsersModel() 
+                    {
+                        source = new MongoClass.SourceVerify()
+                        {
+                            email = obj.Email,
+                            unique_str = guid.ToString(),
+                        },
+                        timestamp = timestamp,
+                    };
+                    
+                    await VerifyUsersCollection.InsertOneAsync(verifyUsersModel);
+                    string emailHash = BC.HashString(obj.Email);
+                    string url = $"https://localhost:44384/api/auth/verify?em={emailHash}&guid={guid.ToString()}";
+                    return StatusCode(StatusCodes.Status200OK, new { Message = Response, url });
                 }
             }
             catch (Exception err)

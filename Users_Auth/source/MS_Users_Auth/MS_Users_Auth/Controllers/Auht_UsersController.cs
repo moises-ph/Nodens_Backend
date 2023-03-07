@@ -41,19 +41,18 @@ namespace MS_Users_Auth.Controllers
                 using (var connection = new SqlConnection(cadenaSQL))
                 {
                     string? password = null;
-                    int? Id = null;
+                    bool Verified = false;
                     connection.Open();
                     var cmd = new SqlCommand("SP_AuthUser", connection);
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("Email", usr.Email);
-                    cmd.Parameters.AddWithValue("Password", usr.Password);
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         reader.Read();
                         if (reader["Password"] != DBNull.Value)
                         {
                             password = reader["Password"].ToString();
-                            Id = Convert.ToInt32(reader["Id"].ToString());
+                            Verified = Convert.ToInt16(reader["Verified"].ToString()) == 1;
                         }
                         else
                         {
@@ -78,7 +77,7 @@ namespace MS_Users_Auth.Controllers
                     var tokenHandler = new JwtSecurityTokenHandler();
                     var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
                     string tokencreado = tokenHandler.WriteToken(tokenConfig);
-                    return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, User_Id = Id });
+                    return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, Verified });
                 }
             }
             catch(Exception err)
@@ -125,7 +124,7 @@ namespace MS_Users_Auth.Controllers
                 Guid guid = Guid.NewGuid();
                 MongoClass.RequestModel requestModel = new()
                 {
-                    source = new MongoClass.Source()
+                    source = new MongoClass.SourceRequest()
                     {
                         UserId = UserId,
                         EncodedId = guid.ToString(),
@@ -256,11 +255,55 @@ namespace MS_Users_Auth.Controllers
         }
 
         [HttpPut("verify")]
-        public async Task<IActionResult> Verifyuser(string email, string guid)
+        public async Task<IActionResult> Verifyuser(string em, string guid)
         {
             try
             {
+                bool Error = false;
+                string Response = String.Empty;
+                MongoClass mongoClass = new MongoClass(configuration);
+                IMongoCollection<MongoClass.VerifyUsersModel> verifyCollection = mongoClass.VerifyUsers;
+                var filter = Builders<MongoClass.VerifyUsersModel>.Filter.Eq(r => r.source.unique_str, guid);
+                var result = await verifyCollection.Find(filter).FirstOrDefaultAsync();
 
+                if (result == null)
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, new { Message = "Url Expirada, intente de nuevo" });
+                }
+
+                bool isEmail = BC.Verify(result.source.email, em);
+                bool isGuid = result.source.unique_str == guid;
+
+                if ( isEmail && isGuid)
+                {
+                    string email = result.source.email;
+                    using(SqlConnection connection = new SqlConnection(cadenaSQL))
+                    {
+                        connection.Open();
+                        var cmd = new SqlCommand("SP_VerifyUser", connection);
+                        cmd.Parameters.AddWithValue("Email", email);
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using(SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while(reader.Read())
+                            {
+                                Error = Convert.ToInt32(reader["Error"].ToString()) == 1;
+                                Response = reader["Message"].ToString();
+                            }
+                            reader.Close();
+                        }
+                        connection.Close();
+                    }
+                }
+
+                if (Error)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, new { Response, Message = "Vuelva a intentarlo" });
+                }
+
+                DeleteResult deleteResult = await verifyCollection.DeleteManyAsync(filter);
+
+                return StatusCode(StatusCodes.Status200OK, new { Response });
             }
             catch (Exception err)
             {

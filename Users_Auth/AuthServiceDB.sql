@@ -41,6 +41,8 @@ create table RolePermissions(
 
 INSERT into Role(name) values ('Musician'),('Organizer')
 
+select * from Users
+
 --------------------------------------------------------------------------------------------------------
 
 go
