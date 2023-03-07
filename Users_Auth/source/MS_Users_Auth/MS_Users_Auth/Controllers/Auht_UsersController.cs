@@ -33,15 +33,15 @@ namespace MS_Users_Auth.Controllers
         }
 
         [HttpPost]
-        [Route("/")]
+        [Route("login")]
         public IActionResult Post([FromBody]Auth_User usr)
         {
-            try
-            {
+            //try
+            //{
+                string? password = null;
+                bool Verified = false;
                 using (var connection = new SqlConnection(cadenaSQL))
                 {
-                    string? password = null;
-                    bool Verified = false;
                     connection.Open();
                     var cmd = new SqlCommand("SP_AuthUser", connection);
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -49,41 +49,42 @@ namespace MS_Users_Auth.Controllers
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         reader.Read();
-                        if (reader["Password"] != DBNull.Value)
+                        if (reader["password"] != DBNull.Value)
                         {
-                            password = reader["Password"].ToString();
-                            Verified = Convert.ToInt16(reader["Verified"].ToString()) == 1;
+                            password = reader["password"].ToString();
+                            Verified = reader["Verified"].ToString() == "1";
                         }
                         else
                         {
-                            new Exception("Usuario no encontrado");
+                            return StatusCode(StatusCodes.Status404NotFound, new { token = "", message = "Usuario no encontrado" });
                         }
                         reader.Close();
                     }
-                    if (!BC.Verify(usr.Password, password))
-                    {
-                        return StatusCode(StatusCodes.Status401Unauthorized, new { token = "", message = "Contraseña Incorrecta" });
-                    }
-                    
-                    var keyBytes = Encoding.ASCII.GetBytes(secretKey);
-                    var claims = new ClaimsIdentity();
-                    claims.AddClaim(new Claim(ClaimTypes.Email, usr.Email));
-                    var tokenDescriptor = new SecurityTokenDescriptor
-                    {
-                        Subject = claims,
-                        Expires = DateTime.UtcNow.AddMinutes(60),
-                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
-                    };
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
-                    string tokencreado = tokenHandler.WriteToken(tokenConfig);
-                    return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, Verified });
+                    connection.Close();
                 }
-            }
-            catch(Exception err)
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized, new { token = "", msg = err.Message });
-            }
+                if (!BC.Verify(usr.Password, password))
+                {
+                    return StatusCode(StatusCodes.Status401Unauthorized, new { token = "", message = "Contraseña Incorrecta" });
+                }
+
+                var keyBytes = Encoding.ASCII.GetBytes(secretKey);
+                var claims = new ClaimsIdentity();
+                claims.AddClaim(new Claim(ClaimTypes.Email, usr.Email));
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = claims,
+                    Expires = DateTime.UtcNow.AddMinutes(60),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
+                };
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
+                string tokencreado = tokenHandler.WriteToken(tokenConfig);
+                return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, Verified });
+            //}
+            //catch(Exception err)
+            //{
+            //    return StatusCode(StatusCodes.Status401Unauthorized, new { token = "", msg = err.Message, err });
+            //}
         }
 
         [HttpPost]
@@ -191,7 +192,7 @@ namespace MS_Users_Auth.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("recovery/reset")]
         [Authorize]
         public async Task<IActionResult> PostResetAsync(Reset_Pass pass)
