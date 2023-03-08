@@ -37,8 +37,9 @@ namespace MS_Users_Auth.Db
         public MongoClass(IConfiguration config) 
         {
             _connection = config.GetConnectionString("CadenaMongo");
-            ClientRequest = new MongoClient(_connection).GetDatabase("Nodens_RecPassword").GetCollection<RequestModel>("Requests");
-            VerifyUsers = new MongoClient(_connection).GetDatabase("Nodens_RecPassword").GetCollection<VerifyUsersModel>("VerifyUsers");
+            var db = new MongoClient(_connection).GetDatabase("Nodens_RecVerify");
+            ClientRequest = db.GetCollection<RequestModel>("Requests");
+            VerifyUsers = db.GetCollection<VerifyUsersModel>("VerifyUsers");
         }
     }
 }

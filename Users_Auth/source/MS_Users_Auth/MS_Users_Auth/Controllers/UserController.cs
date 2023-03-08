@@ -55,27 +55,24 @@ namespace MS_Users_Auth.Controllers
                 {
                     throw new Exception(Response);
                 }
-                else
+                MongoClass mongoClass = new MongoClass(configuration);
+                IMongoCollection<MongoClass.VerifyUsersModel> VerifyUsersCollection = mongoClass.VerifyUsers;
+                Guid guid = Guid.NewGuid();
+                var timestamp = (MongoDB.Bson.BsonDateTime)DateTime.Now;
+                MongoClass.VerifyUsersModel verifyUsersModel = new MongoClass.VerifyUsersModel() 
                 {
-                    MongoClass mongoClass = new MongoClass(configuration);
-                    IMongoCollection<MongoClass.VerifyUsersModel> VerifyUsersCollection = mongoClass.VerifyUsers;
-                    Guid guid = Guid.NewGuid();
-                    var timestamp = (MongoDB.Bson.BsonDateTime)DateTime.Now;
-                    MongoClass.VerifyUsersModel verifyUsersModel = new MongoClass.VerifyUsersModel() 
+                    source = new MongoClass.SourceVerify()
                     {
-                        source = new MongoClass.SourceVerify()
-                        {
-                            email = obj.Email,
-                            unique_str = guid.ToString(),
-                        },
-                        timestamp = timestamp,
-                    };
+                        email = obj.Email,
+                        unique_str = guid.ToString(),
+                    },
+                    timestamp = timestamp,
+                };
                     
-                    await VerifyUsersCollection.InsertOneAsync(verifyUsersModel);
-                    string emailHash = BC.HashString(obj.Email);
-                    string url = $"https://localhost:44384/api/auth/verify?em={emailHash}&guid={guid.ToString()}";
-                    return StatusCode(StatusCodes.Status200OK, new { Message = Response, url });
-                }
+                await VerifyUsersCollection.InsertOneAsync(verifyUsersModel);
+                string emailHash = BC.HashString(obj.Email);
+                string url = $"https://localhost:44384/api/auth/verify?em={emailHash}&guid={guid.ToString()}";
+                return StatusCode(StatusCodes.Status200OK, new { Message = Response, url });
             }
             catch (Exception err)
             {
