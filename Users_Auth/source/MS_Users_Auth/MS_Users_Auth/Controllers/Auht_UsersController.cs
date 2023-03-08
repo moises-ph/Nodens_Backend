@@ -24,11 +24,13 @@ namespace MS_Users_Auth.Controllers
     {
         private readonly string secretKey;
         private readonly string cadenaSQL;
+        private readonly string cadenaMongo;
         private readonly IConfiguration configuration;
         public Auht_UsersController(IConfiguration config)
         {
             secretKey = config.GetSection("settings").GetSection("secretKey").Value;
             cadenaSQL = config.GetConnectionString("CadenaSQL");
+            cadenaMongo = config.GetConnectionString("CadenaMongo");
             configuration = config;
         }
 
@@ -119,7 +121,7 @@ namespace MS_Users_Auth.Controllers
                 {
                     return NotFound(new { msg = "Usuario no registrado" });
                 }
-                MongoClass mongoClass = new MongoClass(configuration);
+                MongoClass mongoClass = new MongoClass(cadenaMongo);
                 var mongoClientRequests = mongoClass.ClientRequest;
                 var timeStamp = (MongoDB.Bson.BsonDateTime)DateTime.Now;
                 Guid guid = Guid.NewGuid();
@@ -154,7 +156,7 @@ namespace MS_Users_Auth.Controllers
         {
             try
             {
-                MongoClass mongoClass = new MongoClass(configuration);
+                MongoClass mongoClass = new MongoClass(cadenaMongo);
                 var mongoClientRequests = mongoClass.ClientRequest;
                 var filter = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.email, mn);
                 var result = await mongoClientRequests.Find(filter).FirstOrDefaultAsync();
@@ -202,7 +204,7 @@ namespace MS_Users_Auth.Controllers
                 var token = new JwtSecurityToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty));
                 string? Guid = token.Payload["Guid"].ToString();
                 string? Email = token.Payload["email"].ToString();
-                MongoClass mongoClass = new MongoClass(configuration);
+                MongoClass mongoClass = new MongoClass(cadenaMongo);
                 IMongoCollection<MongoClass.RequestModel> mongoClientRequests = mongoClass.ClientRequest;
                 FilterDefinition<MongoClass.RequestModel> filter = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.source.EncodedId, Guid);
                 MongoClass.RequestModel result = await mongoClientRequests.Find(filter).FirstOrDefaultAsync();
@@ -262,7 +264,7 @@ namespace MS_Users_Auth.Controllers
             {
                 bool Error = false;
                 string Response = String.Empty;
-                MongoClass mongoClass = new MongoClass(configuration);
+                MongoClass mongoClass = new MongoClass(cadenaMongo);
                 IMongoCollection<MongoClass.VerifyUsersModel> verifyCollection = mongoClass.VerifyUsers;
                 var filter = Builders<MongoClass.VerifyUsersModel>.Filter.Eq(r => r.source.unique_str, guid);
                 var result = await verifyCollection.Find(filter).FirstOrDefaultAsync();
@@ -315,7 +317,51 @@ namespace MS_Users_Auth.Controllers
         [HttpPost("verify/req")]
         public async Task<IActionResult> RequestVerify([FromBody] VerifyReqModel verifyReq)
         {
-            return StatusCode(200,verifyReq);
+            try
+            {
+                bool exists = false;
+                using (SqlConnection connection = new SqlConnection(cadenaSQL))
+                {
+                    connection.Open();
+                    SqlCommand cmd = new SqlCommand("SP_AuthUser", connection);
+                    cmd.Parameters.AddWithValue("Email", verifyReq.email);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        reader.Read();
+                        exists = reader["Verified"] != DBNull.Value;
+                        reader.Close();
+                    }
+                    connection.Close();
+                }
+                if (!exists)
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, new { Message = "El usuario no existe, por favor regístrese" });
+                }
+
+                Guid guid = Guid.NewGuid();
+                var timestamp = (MongoDB.Bson.BsonDateTime)DateTime.Now;
+                MongoClass mongoClass = new MongoClass(cadenaMongo);
+                IMongoCollection<MongoClass.VerifyUsersModel> verifyCollection = mongoClass.VerifyUsers;
+                MongoClass.VerifyUsersModel verifyUsersModel = new MongoClass.VerifyUsersModel()
+                {
+                    source = new MongoClass.SourceVerify()
+                    {
+                        email = verifyReq.email,
+                        unique_str = guid.ToString(),
+                    },
+                    timestamp = timestamp
+                };
+
+                await verifyCollection.InsertOneAsync(verifyUsersModel);
+                string emailHash = BC.HashString(verifyReq.email);
+                string url = $"https://localhost:44384/api/auth/verify?em={emailHash}&guid={guid.ToString()}";
+                return StatusCode(StatusCodes.Status200OK, new { url , Message = "Verificación de email solicitada correctamente, vaya al enlace" });
+            }
+            catch (Exception err)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { msg = err.Message });
+            }
         }
     }
 }

@@ -158,6 +158,8 @@ go
 
 -------------------
 
+drop procedure SP_UpdateUser
+
 go
 create procedure SP_UpdateUser
 	@Email varchar(320),
@@ -167,23 +169,26 @@ create procedure SP_UpdateUser
 as
 begin transaction TX_Update_User
 	BEGIN TRY
-		if @newEmail != null and @newEmail != @Email
-		begin
-			update Users set Verified = 0 where email = @Email
-		end
-		update Users set 
-			email = ISNULL(@newEmail, email),
-			Name = ISNULL(@Name, Name),
-			Lastname = ISNULL(@Lastname, Lastname),
-			updated_at = GETDATE()
-		where email = @Email
-		COMMIT TRANSACTION TX_Update_User
-		SELECT 'Usuario actualizado correctamente' as Message, 0 as Error
+			update Users set 
+				Name = ISNULL(@Name, Name),
+				Lastname = ISNULL(@Lastname, Lastname),
+				updated_at = GETDATE()
+			where email = @Email
+			if (@newEmail != @Email) begin 
+			select 'xd'
+				update Users set Verified = 0, email = @newEmail where email = @Email 
+			end
+			COMMIT TRANSACTION TX_Update_User
+			SELECT 'Usuario actualizado correctamente' as Message, 0 as Error
 	END TRY
 	BEGIN CATCH
 		ROLLBACK TRANSACTION TX_Update_User
 		SELECT ERROR_MESSAGE() as Message, 1 as Error
 	END CATCH
 go
+
+execute SP_UpdateUser 'master@gmail.com', 'master4@gmail.com', 'Nombre2', 'Apellido2'
+
+select * from Users
 
 ------------------

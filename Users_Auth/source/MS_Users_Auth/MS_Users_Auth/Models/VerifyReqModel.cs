@@ -6,6 +6,6 @@ namespace MS_Users_Auth.Models
     {
         [Required]
         [EmailAddress]
-        public string Result { get; set; }
+        public string email { get; set; }
     }
 }

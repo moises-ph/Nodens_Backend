@@ -14,6 +14,12 @@ namespace MS_Users_Auth.Utils
     public class MailSender
     {
 
+        public class ErrorModel
+        {
+            public string Message;
+            public bool Result;
+        }
+
         IConfiguration configuration;
         public MailSender(IConfiguration configuration)
         {

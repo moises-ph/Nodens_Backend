@@ -34,10 +34,9 @@ namespace MS_Users_Auth.Db
         private readonly string _connection;
         public IMongoCollection<RequestModel> ClientRequest { get; private set; }
         public IMongoCollection<VerifyUsersModel> VerifyUsers { get; private set; }
-        public MongoClass(IConfiguration config) 
+        public MongoClass(string connString) 
         {
-            _connection = config.GetConnectionString("CadenaMongo");
-            var db = new MongoClient(_connection).GetDatabase("Nodens_RecVerify");
+            var db = new MongoClient(connString).GetDatabase("Nodens_RecVerify");
             ClientRequest = db.GetCollection<RequestModel>("Requests");
             VerifyUsers = db.GetCollection<VerifyUsersModel>("VerifyUsers");
         }

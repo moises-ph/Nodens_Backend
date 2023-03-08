@@ -19,10 +19,11 @@ namespace MS_Users_Auth.Controllers
     {
         private readonly string cadenaSQL;
         private readonly IConfiguration configuration;
+        private readonly string cadenaMongo;
         public UserController(IConfiguration config)
         {
             cadenaSQL = config.GetConnectionString("CadenaSQL");
-            configuration = config;
+            cadenaMongo = config.GetConnectionString("CadenaMongo");
         }
 
         [HttpPost("Register")]
@@ -55,7 +56,7 @@ namespace MS_Users_Auth.Controllers
                 {
                     throw new Exception(Response);
                 }
-                MongoClass mongoClass = new MongoClass(configuration);
+                MongoClass mongoClass = new MongoClass(cadenaMongo);
                 IMongoCollection<MongoClass.VerifyUsersModel> VerifyUsersCollection = mongoClass.VerifyUsers;
                 Guid guid = Guid.NewGuid();
                 var timestamp = (MongoDB.Bson.BsonDateTime)DateTime.Now;
@@ -127,8 +128,8 @@ namespace MS_Users_Auth.Controllers
                 {
                     connection.Open();
                     SqlCommand cmd = new SqlCommand("SP_UpdateUser", connection);
-                    cmd.Parameters.AddWithValue("Email", user.NewEmail);
-                    cmd.Parameters.AddWithValue("newEmail", user.OldEmail);
+                    cmd.Parameters.AddWithValue("Email", user.OldEmail);
+                    cmd.Parameters.AddWithValue("newEmail", user.NewEmail);
                     cmd.Parameters.AddWithValue("Name", user.Name);
                     cmd.Parameters.AddWithValue("Lastname", user.Lastname);
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -143,7 +144,7 @@ namespace MS_Users_Auth.Controllers
                     }
                     connection.Close();
                 }
-                return Error ? StatusCode(StatusCodes.Status500InternalServerError, new { Response }) : StatusCode(StatusCodes.Status200OK, new { Response });
+                return Error ? StatusCode(StatusCodes.Status500InternalServerError, new { Response, Message = "" }) : user.OldEmail == user.NewEmail ? StatusCode(StatusCodes.Status200OK, new { Response , Message = "" }) : StatusCode(StatusCodes.Status200OK, new { Response, Message = "Requerir una verificación de correo" });
             }
             catch (Exception err)
             {
