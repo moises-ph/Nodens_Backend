@@ -6,7 +6,6 @@ namespace MS_Users_Auth.Models
 {
     public class RegisterUser
     {
-        public int? Id { get; set; }
 
         [Required]
         [EmailAddress]
@@ -29,6 +28,5 @@ namespace MS_Users_Auth.Models
         [MinLength(8, ErrorMessage = "La contraseña debe ser de al menos ocho carácteres")]
         [StringLength(50)]
         public string Password { get; set; }
-        public bool? Verified { get; set; }
     }
 } 
