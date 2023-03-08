@@ -6,3 +6,19 @@ services:
     build:
       context: .
       dockerfile: MS_Users_Auth/Dockerfile
+  
+  mongodb_container:
+    image: mongo:latest
+
+    ports :
+        - 27017:27017
+    volumes:
+        - mongodb_data_container:/data/db
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+        MSSQL_SA_PASSWORD : 
+
+volumes:
+  mongodb_data_container:

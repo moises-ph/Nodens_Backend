@@ -1,9 +1,3 @@
 {
-  "dependencies": {
-    "mongodb1": {
-      "type": "mongodb",
-      "connectionId": "ConnectionStrings:CadenaMongo",
-      "dynamicId": null
-    }
-  }
+  "dependencies": {}
 }
