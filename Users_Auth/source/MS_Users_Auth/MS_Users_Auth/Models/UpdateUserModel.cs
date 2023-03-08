@@ -22,7 +22,6 @@ namespace MS_Users_Auth.Models
         public string OldEmail { get; set;}
 
         [AllowNull]
-        [AllowNull]
         [EmailAddress]
         public string? NewEmail { get; set;}
 

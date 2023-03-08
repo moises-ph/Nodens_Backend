@@ -315,7 +315,7 @@ namespace MS_Users_Auth.Controllers
         }
 
         [HttpPost("verify/req")]
-        public async Task<IActionResult> RequestVerify([FromBody] VerifyReqModel verifyReq)
+        public async Task<IActionResult> RequestVerify([FromBody] EmailOnlyModel verifyReq)
         {
             try
             {

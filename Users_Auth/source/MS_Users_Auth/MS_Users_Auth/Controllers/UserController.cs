@@ -83,7 +83,7 @@ namespace MS_Users_Auth.Controllers
 
         [Authorize]
         [HttpGet]
-        public IActionResult GetUser([FromBody] string email)
+        public IActionResult GetUser([FromBody] EmailOnlyModel usr)
         {
             try
             {
@@ -92,7 +92,7 @@ namespace MS_Users_Auth.Controllers
                 {
                     connection.Open();
                     SqlCommand cmd = new SqlCommand("SP_ReadUser", connection);
-                    cmd.Parameters.AddWithValue("Email", email);
+                    cmd.Parameters.AddWithValue("Email", usr.email);
                     cmd.CommandType = CommandType.StoredProcedure;
                     using (SqlDataReader rd = cmd.ExecuteReader())
                     {

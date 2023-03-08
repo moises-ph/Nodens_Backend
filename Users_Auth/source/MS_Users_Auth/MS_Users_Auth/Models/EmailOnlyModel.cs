@@ -2,7 +2,7 @@
 
 namespace MS_Users_Auth.Models
 {
-    public class VerifyReqModel
+    public class EmailOnlyModel
     {
         [Required]
         [EmailAddress]

@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  ms_users_auth:
+    image: ${DOCKER_REGISTRY-}msusersauth
+    build:
+      context: .
+      dockerfile: MS_Users_Auth/Dockerfile
