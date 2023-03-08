@@ -36,8 +36,8 @@ namespace MS_Users_Auth.Controllers
         [Route("login")]
         public IActionResult Post([FromBody]Auth_User usr)
         {
-            //try
-            //{
+            try
+            {
                 string? password = null;
                 bool Verified = false;
                 using (var connection = new SqlConnection(cadenaSQL))
@@ -80,11 +80,11 @@ namespace MS_Users_Auth.Controllers
                 var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
                 string tokencreado = tokenHandler.WriteToken(tokenConfig);
                 return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, Verified });
-            //}
-            //catch(Exception err)
-            //{
-            //    return StatusCode(StatusCodes.Status401Unauthorized, new { token = "", msg = err.Message, err });
-            //}
+            }
+            catch(Exception err)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, new { token = "", msg = err.Message, err });
+            }
         }
 
         [HttpPost]
@@ -310,6 +310,12 @@ namespace MS_Users_Auth.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { msg = err.Message });
             }
+        }
+
+        [HttpPost("verify/req")]
+        public async Task<IActionResult> RequestVerify([FromBody] VerifyReqModel verifyReq)
+        {
+            return StatusCode(200,verifyReq);
         }
     }
 }

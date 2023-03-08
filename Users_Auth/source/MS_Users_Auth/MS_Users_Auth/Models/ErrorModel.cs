@@ -1,8 +1,11 @@
-﻿namespace MS_Users_Auth.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace MS_Users_Auth.Models
 {
-    public class ErrorModel
+    public class VerifyReqModel
     {
-        public string Message { get; set; }
-        public Boolean Result { get; set; }
+        [Required]
+        [EmailAddress]
+        public string Result { get; set; }
     }
 }
