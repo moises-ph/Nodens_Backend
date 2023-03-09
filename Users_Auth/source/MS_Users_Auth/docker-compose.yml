@@ -16,9 +16,16 @@ services:
         - mongodb_data_container:/data/db
 
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/mssql/server:latest
     environment:
-        MSSQL_SA_PASSWORD : 
+        MSSQL_SA_PASSWORD : 1234_(!)Pass
+        ACCEPT_EULA : Y
+        MSSQ_PID : Express
+    ports:
+        - 1433:1433 
+    volumes:
+        - ~/docker/sqlserver-data:/var/opt/mssql
+
 
 volumes:
   mongodb_data_container:
