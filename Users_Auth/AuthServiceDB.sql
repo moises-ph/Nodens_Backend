@@ -175,7 +175,6 @@ begin transaction TX_Update_User
 				updated_at = GETDATE()
 			where email = @Email
 			if (@newEmail != @Email) begin 
-			select 'xd'
 				update Users set Verified = 0, email = @newEmail where email = @Email 
 			end
 			COMMIT TRANSACTION TX_Update_User
