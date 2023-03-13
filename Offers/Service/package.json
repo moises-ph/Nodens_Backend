@@ -1,0 +1,42 @@
+{
+  "name": "service_offers",
+  "version": "0.1.0",
+  "description": "Microservice offers for Nodens web App",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "start powershell && tsc -w -p tsconfig.json",
+    "dev": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moises-ph/Nodens_Backend.git"
+  },
+  "keywords": [
+    "Nodens",
+    "Music",
+    "Job",
+    "API",
+    "WEBAPP",
+    "PWA",
+    "Web",
+    "Server"
+  ],
+  "author": "Nodens DevTeam",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/type-provider-typebox": "^2.4.0",
+    "@sinclair/typebox": "^0.25.24",
+    "fastify": "^4.13.0",
+    "jose": "^4.13.1",  
+    "mongoose": "^6.10.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.14.1",
+    "nodemon": "^2.0.20",
+    "typescript": "^4.9.5"
+  },
+  "bugs": {
+    "url": "https://github.com/moises-ph/Nodens_Backend/issues"
+  },
+  "homepage": "https://github.com/moises-ph/Nodens_Backend#readme"
+}
