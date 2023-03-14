@@ -54,7 +54,7 @@ namespace MS_Users_Auth.Controllers
                         if (reader["password"] != DBNull.Value)
                         {
                             password = reader["password"].ToString();
-                            Verified = reader["Verified"].ToString() == "1";
+                            Verified = Convert.ToInt32(reader["Verified"]) == 1;
                         }
                         else
                         {
