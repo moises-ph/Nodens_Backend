@@ -26,8 +26,9 @@
   "dependencies": {
     "@fastify/type-provider-typebox": "^2.4.0",
     "@sinclair/typebox": "^0.25.24",
+    "dotenv": "^16.0.3",
     "fastify": "^4.13.0",
-    "jose": "^4.13.1",  
+    "jose": "^4.13.1",
     "mongoose": "^6.10.0"
   },
   "devDependencies": {

@@ -41,8 +41,6 @@ create table RolePermissions(
 
 INSERT into Role(name) values ('Musician'),('Organizer')
 
-select * from Users
-
 --------------------------------------------------------------------------------------------------------
 
 go
@@ -72,8 +70,6 @@ begin transaction TX_New_User
 go
 ---------------------------------
 
-execute SP_CreateUser 'email@gmail.com', 'Juan', 'Eduardo', '1234', 'Musician'
-
 go
 create procedure SP_ReadUser
 	@Email varchar(320)
@@ -82,8 +78,6 @@ begin
 	SELECT Name, Lastname, (select name from Role where id = role_id) as Role, email, Verified from Users where email = @Email
 end
 go
-
-execute SP_ReadUser 'email@gmail.com'
 
 ---------------------------------
 
@@ -158,8 +152,6 @@ go
 
 -------------------
 
-drop procedure SP_UpdateUser
-
 go
 create procedure SP_UpdateUser
 	@Email varchar(320),
@@ -185,9 +177,4 @@ begin transaction TX_Update_User
 		SELECT ERROR_MESSAGE() as Message, 1 as Error
 	END CATCH
 go
-
-execute SP_UpdateUser 'master@gmail.com', 'master4@gmail.com', 'Nombre2', 'Apellido2'
-
-select * from Users
-
 ------------------
