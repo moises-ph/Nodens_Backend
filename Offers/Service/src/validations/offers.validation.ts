@@ -1,6 +1,7 @@
 import { Static, Type } from "@sinclair/typebox";
 import { IApplicant, IEventUbication, IOffer, IRequeriments } from "../models/offers.model";
 
+
 export const OfferSchema = Type.Object({
     Title : Type.Optional(Type.String()),
     Description : Type.Optional(Type.String()),

@@ -17,7 +17,7 @@ export interface IEventUbication{
     Town : string
 }
 
-export interface IOffer{
+export interface IOffer {
     Title : string,
     Description : string,
     Creation_Date : Date,
