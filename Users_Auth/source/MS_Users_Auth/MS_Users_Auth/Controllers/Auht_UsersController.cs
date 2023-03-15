@@ -10,10 +10,10 @@ using System.IdentityModel.Tokens.Jwt;
 using BC = BCrypt.Net.BCrypt;
 using System.Text;
 using MS_Users_Auth.Utils;
-using Microsoft.VisualBasic.FileIO;
 using Microsoft.AspNetCore.Authorization;
 using MS_Users_Auth.Db;
 using MongoDB.Driver;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace MS_Users_Auth.Controllers
 {
@@ -23,15 +23,50 @@ namespace MS_Users_Auth.Controllers
     public class Auht_UsersController : ControllerBase
     {
         private readonly string secretKey;
+        private readonly string renewKey;
         private readonly string cadenaSQL;
         private readonly string cadenaMongo;
         private readonly IConfiguration configuration;
         public Auht_UsersController(IConfiguration config)
         {
             secretKey = config.GetSection("settings").GetSection("secretKey").Value;
+            renewKey = config.GetSection("settings").GetSection("renewTokenKey").Value;
             cadenaSQL = config.GetConnectionString("CadenaSQL");
             cadenaMongo = config.GetConnectionString("CadenaMongo");
             configuration = config;
+        }
+
+        [HttpPut("renew")]
+        public IActionResult RenewToken(string token)
+        {
+            try
+            {
+                var cookieKey = Request.Cookies["RenewKey"];
+                if(cookieKey == null || !BC.Verify(renewKey, cookieKey))
+                {
+                    return StatusCode(StatusCodes.Status401Unauthorized, new { message = "Invalid Cookies" });
+                }
+                JsonWebToken jsonWebToken = new JsonWebToken(token);
+                var claims = new ClaimsIdentity(jsonWebToken.Claims);
+                var keyBytes = Encoding.ASCII.GetBytes(secretKey);
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = claims,
+                    Expires = DateTime.UtcNow.AddMinutes(15),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
+                };
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
+                string tokencreado = tokenHandler.WriteToken(tokenConfig);
+                var RenewKey = BC.HashString(renewKey);
+                Response.Cookies.Delete("RenewKey");
+                Response.Cookies.Append("RenewKey", RenewKey);
+                return StatusCode(StatusCodes.Status200OK, new { ttoken = tokencreado });
+            }
+            catch (Exception ex) 
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, new { token = "", msg = ex.Message });
+            }
         }
 
         [HttpPost]
@@ -42,6 +77,7 @@ namespace MS_Users_Auth.Controllers
             {
                 string? password = null;
                 bool Verified = false;
+                int Id = 0;
                 using (var connection = new SqlConnection(cadenaSQL))
                 {
                     connection.Open();
@@ -55,6 +91,7 @@ namespace MS_Users_Auth.Controllers
                         {
                             password = reader["password"].ToString();
                             Verified = Convert.ToInt32(reader["Verified"]) == 1;
+                            Id = Convert.ToInt32(reader["id"]);
                         }
                         else
                         {
@@ -72,15 +109,18 @@ namespace MS_Users_Auth.Controllers
                 var keyBytes = Encoding.ASCII.GetBytes(secretKey);
                 var claims = new ClaimsIdentity();
                 claims.AddClaim(new Claim(ClaimTypes.Email, usr.Email));
+                claims.AddClaim(new Claim("Id", Id.ToString()));
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = claims,
-                    Expires = DateTime.UtcNow.AddMinutes(60),
+                    Expires = DateTime.UtcNow.AddMinutes(15),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
                 };
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
                 string tokencreado = tokenHandler.WriteToken(tokenConfig);
+                var RenewKey = BC.HashString(renewKey);
+                Response.Cookies.Append("RenewKey", RenewKey);
                 return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, Verified });
             }
             catch(Exception err)

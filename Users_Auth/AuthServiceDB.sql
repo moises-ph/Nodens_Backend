@@ -87,7 +87,7 @@ create procedure SP_AuthUser
 as
 begin
 	if exists(SELECT id from Users where email = @Email)
-		SELECT password, Verified from Users where email = @Email
+		SELECT password, Verified, id from Users where email = @Email
 	else
 		SELECT null as password, null as Verified
 end
