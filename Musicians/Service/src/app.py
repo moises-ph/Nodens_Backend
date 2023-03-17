@@ -1,19 +1,22 @@
 #reunir el codigo y iniciar el svr
-
 from controllers import musiciansController
 from flask import Flask, redirect, url_for
 
 app = Flask(__name__)
 
-app.add_url_rule('/<email>',"index", musiciansController.getInfomusician, methods=["GET"])
-
+#app.add_url_rule('/<email>',"index", musiciansController.getInfomusician, methods=["GET"])
+"""
 @app.route('/musician', methods=["GET"])
 def musician():
     return redirect(url_for('index'))
-
+"""
 @app.route('/', methods=["GET"])
-def holi():
-    return musiciansController.getInfomusician()
+def home():
+    return musiciansController.home()
+
+@app.route("/musician", methods=["POST"])
+def addMusician():
+    return musiciansController.postInfomusician()
 
 """
 @app.route('/musician/<option>')
