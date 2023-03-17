@@ -1,6 +1,13 @@
-from flask import jsonify, request, url_for,redirect
+from flask import jsonify, request, url_for,redirect,Response
 from Database import db as Database
+from bson import json_util
 from validations.MusicianInfo import musicianinfo as infoMusician
+
+### ========> Solucionar errores <======== ###
+# Solcionar objectid
+# Terminar GET
+# iniciar hacer delete y put
+# linea 40
 
 
 
@@ -12,9 +19,15 @@ def getMusician(email):
 
 def home():
     return jsonify({"Message":"pong"})
+### GET ###
+def getInfomusician ():
+    db = Database.dbConnection()
+    users = list(db.users.find())
+    response = json_util.dumps(users)
+    return Response(response, mimetype="application/json")
 
-#POST
 
+### POST ###
 def postInfomusician():
     # recive datos
     username = request.json["username"]
@@ -36,8 +49,23 @@ def postInfomusician():
         return response
     else:
         return not_Found()
+    
+"""
+### method put ###
+def edit(product_name):
+    products = db["products"]
+    name = request.form["name"]
+    price = request.form["price"]
+    quantity = request.form["quantity"]
+    
+    if name and price and quantity:
+        products.update_one({"name" : product_name}, {"$set" : {"name" : name, "price" : price, "quantity" : quantity}})
+        response = jsonify({"message" : "Producto" + product_name + "actualizado correctamente"})
+        return redirect(url_for("home"))
+    else:
+        return not_Found()
 
-
+"""
 """
 def postInfomusician():
     MusicianInfos = Database["MusicianInfos"]

@@ -10,13 +10,21 @@ app = Flask(__name__)
 def musician():
     return redirect(url_for('index'))
 """
+### GET ###
+#
 @app.route('/', methods=["GET"])
 def home():
     return musiciansController.home()
-
+#
+@app.route("/musician", methods=["GET"])
+def getmusicians():
+    return musiciansController.getInfomusician()
+### POST ###
 @app.route("/musician", methods=["POST"])
 def addMusician():
     return musiciansController.postInfomusician()
+#
+
 
 """
 @app.route('/musician/<option>')
