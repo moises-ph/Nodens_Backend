@@ -27,30 +27,28 @@ def deleteMusician(id):
 ### POST ###
 def postInfomusician():
     # recive datos
-    username = request.json["username"]
-    years = request.json["years"]
-    email = request.json["email"]
+
     #se mandan los datos
-    if username and email and years:
+
         db = Database.dbConnection()
 
         id = db.Musicians.insert_one(
-            {"username": username,"email": email,"years": years}
+            request.json
         )
         response = {
             "id": str(id.inserted_id),
-            "username": username,
-            "years": years,
-            "email": email
         }
         return response
-    else:
-        return not_Found()
+
 ### PUT ###
 def putMusician (id):
     username = request.json["username"]
     years = request.json["years"]
     email = request.json["email"]
+    
+    # if !MusicianValidator.validate(request.json):
+    #   return BadRequest()    
+    
     if username and years and email:
         db = Database.dbConnection()
         db.Musicians.update_one({"_id": ObjectId(id)}, {"$set": {

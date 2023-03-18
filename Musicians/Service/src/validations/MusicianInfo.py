@@ -1,34 +1,24 @@
-from wtforms import (StringField, TextAreaField, IntegerField, BooleanField,
-                     RadioField)
-from wtforms.validators import InputRequired, Length, ValidationError
-from wtforms import validators
+from wtforms import (StringField, EmailField, FieldList, FormField,
+                     RadioField, DateField)
+from wtforms.validators import InputRequired, Length
 from flask_wtf import FlaskForm
 
-class InstrumentValdator(FlaskForm):
+class InstrumentValidator(FlaskForm):
     nombre = StringField("Nombre instrumento", validators=InputRequired())
     nivel = StringField("Nivel en el instrumentioo", validators=InputRequired())
-
-
-def validatorInstrumentos(form):
-    if type(form) != "list":
-        raise ValidationError('Instruments must be a list')
-    else:
-        for element in form:
-            if not InstrumentValdator.validate(element):
-                raise ValidationError("Información de instrumento no válida")
 
 class musicianInstrument(FlaskForm):
     _id = StringField("id", validators=[InputRequired(),
                                         ])
-    fecha_nacimiento = StringField("date", validators=[InputRequired(),
-                                                       Length(min=8, max=10)
+    fecha_nacimiento = DateField("date", validators=[InputRequired()
                                                        ])
-    email = StringField("email", validators=[InputRequired(),
+    email = EmailField("email", validators=[InputRequired(),
                                              Length(min=8)
                                              ])
-    instrumentos = StringField("instrument",
+    instrumentos = FieldList("instrument",
                                validators=[InputRequired(), 
-                                           validatorInstrumentos])
+                                           FormField(InstrumentValidator)])
+    
     genero = StringField("genero", validators=[InputRequired()
                                                ])
     pais = StringField("pais", validators=[InputRequired()
