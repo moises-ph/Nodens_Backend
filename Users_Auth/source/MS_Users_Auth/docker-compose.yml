@@ -1,32 +1,11 @@
 version: '3.4'
 
 services:
-
   ms_users_auth:
     image: ${DOCKER_REGISTRY-}msusersauth
+    environment:
+        - CadenaSQL=Server=192.168.0.17,1433; Database=AuthServiceDB; User ID=Nodens; Password=yourStrong(!)Password;
+        - CadenaMongo=mongodb://Nodens:secret@192.168.0.17:27018/
     build:
       context: .
       dockerfile: MS_Users_Auth/Dockerfile
-  
-  mongodb_container:
-    image: mongo:latest
-    container_name: MongoDB
-    ports :
-        - 27017
-    volumes:
-        - mongodb_data_container:/data/db
-
-  sqlserver:
-    container_name: SQLServer
-    image: mcr.microsoft.com/mssql/server:latest
-    environment:
-        MSSQL_SA_PASSWORD : 1234_(!)Pass
-        ACCEPT_EULA : Y
-    ports:
-        - 1433:1433 
-    volumes:
-        - ~/docker/sqlserver-data:/var/opt/mssql/data
-
-
-volumes:
-  mongodb_data_container:

@@ -9,6 +9,7 @@ using BC = BCrypt.Net.BCrypt;
 using MS_Users_Auth.Utils;
 using MongoDB.Driver;
 using MS_Users_Auth.Db;
+using Microsoft.Extensions.Options;
 
 namespace MS_Users_Auth.Controllers
 {
@@ -20,10 +21,12 @@ namespace MS_Users_Auth.Controllers
         private readonly string cadenaSQL;
         private readonly IConfiguration configuration;
         private readonly string cadenaMongo;
-        public UserController(IConfiguration config)
+        private readonly EnvironmentConfig environmentConfig;
+        public UserController(IConfiguration config, IOptions<EnvironmentConfig> options)
         {
-            cadenaSQL = config.GetConnectionString("CadenaSQL");
-            cadenaMongo = config.GetConnectionString("CadenaMongo");
+            environmentConfig = options.Value;
+            cadenaSQL = environmentConfig.CadenaSQL;
+            cadenaMongo = environmentConfig.CadenaMongo;
         }
 
         [HttpPost("Register")]

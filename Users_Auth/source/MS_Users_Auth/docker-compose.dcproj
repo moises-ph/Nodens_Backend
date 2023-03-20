@@ -3,7 +3,7 @@
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
-    <ProjectGuid>95a35691-a63c-49e2-845d-f4de0c4c0e19</ProjectGuid>
+    <ProjectGuid>4f652801-89b4-4f54-87fc-cc1fb2d86390</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
     <DockerServiceName>ms_users_auth</DockerServiceName>

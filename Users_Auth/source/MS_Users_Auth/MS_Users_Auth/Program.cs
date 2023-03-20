@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using MS_Users_Auth.Utils;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,7 +25,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Configuration.AddJsonFile("appsettings.json");
+builder.Configuration.AddJsonFile("appsettings.json").AddEnvironmentVariables();
 var secretKey = builder.Configuration.GetSection("settings").GetSection("secretKey").Value;
 var keyBytes = Encoding.UTF8.GetBytes(secretKey);
 builder.Services.AddAuthentication(config => {
@@ -41,6 +43,8 @@ builder.Services.AddAuthentication(config => {
         ValidateLifetime = true
     };
 });
+
+builder.Services.Configure<EnvironmentConfig>(builder.Configuration);
 
 var app = builder.Build();
 

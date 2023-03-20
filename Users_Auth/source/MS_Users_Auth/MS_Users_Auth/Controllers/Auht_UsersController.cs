@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using MS_Users_Auth.Db;
 using MongoDB.Driver;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.Extensions.Options;
 
 namespace MS_Users_Auth.Controllers
 {
@@ -27,12 +28,14 @@ namespace MS_Users_Auth.Controllers
         private readonly string cadenaSQL;
         private readonly string cadenaMongo;
         private readonly IConfiguration configuration;
-        public Auht_UsersController(IConfiguration config)
+        private readonly EnvironmentConfig environmentConfig;
+        public Auht_UsersController(IConfiguration config, IOptions<EnvironmentConfig> options)
         {
+            environmentConfig = options.Value;
             secretKey = config.GetSection("settings").GetSection("secretKey").Value;
             renewKey = config.GetSection("settings").GetSection("renewTokenKey").Value;
-            cadenaSQL = config.GetConnectionString("CadenaSQL");
-            cadenaMongo = config.GetConnectionString("CadenaMongo");
+            cadenaSQL = environmentConfig.CadenaSQL;
+            cadenaMongo = environmentConfig.CadenaMongo;
             configuration = config;
         }
 
