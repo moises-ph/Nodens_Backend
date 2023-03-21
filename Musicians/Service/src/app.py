@@ -1,7 +1,10 @@
 #reunir el codigo y iniciar el svr
-from controllers import musiciansController
-from flask import Flask, redirect, request, url_for
+from flask import Flask, request, jsonify
 from flask_optional_routes import OptionalRoutes
+from Database import db as Database
+from bson import json_util
+from bson.objectid import  ObjectId
+from validations import MusicianInfo
 
 from utils.tokenValidator import token_required
 
@@ -9,66 +12,80 @@ app = Flask(__name__)
 
 optional = OptionalRoutes(app)
 
-# ### HOME ###
-# app.add_url_rule("/","home1", musiciansController.home, methods=["GET"])
-# ### GETALL ###
-# app.add_url_rule("/musician","getAll", musiciansController.getAllmusician, methods=["GET"])
-# ### POST ###
-# app.add_url_rule("/musician","postMusician", musiciansController.postInfomusician, methods=["POST"])
-# ### GETONLY ###
-# app.add_url_rule("/musician/<id>","onlyInfo", musiciansController.getMusician, methods=["GET"])
-# ### DELETE ###
-# app.add_url_rule('/musician/<id>',"deleteMusician", musiciansController.deleteMusician, methods=["DELETE"])
-# ### PUT ###
-# app.add_url_rule('/musician/<id>',"updateMusician", musiciansController.putMusician, methods=["PUT"])
-# #
+### GETALL ###
+@app.route("/musician", methods=["GET"])
+def getAllmusician ():
+    db = Database.dbConnection()
+    users = list(db.Musicians.find())
+    response = json_util.dumps(users)
+    return response #Response(response, mimetype="application/json")
 
-# ### HOME ###
-# @app.route("/", methods=["GET"])
-# def viewHome():
-#     return redirect(url_for("home1"))
-
-# ### GETALL ###
-# @app.route("/musician", methods=["GET"])
-# def musicianGetAll():
-#     return redirect(url_for("getAll"))
-
-# ### GETONLY ###
-# @app.route("/musician/<id>", methods=["GET"])
-# def musicianGet():
-#     return redirect(url_for("onlyInfo"))
-
-# ### POST ###
-# @app.route("/musician", methods=["POST"])
-# def musicianPost():
-#     return redirect(url_for("postMusician"))
-
-# ### DELETE ###
-# @app.route("/musician", methods=["DELETE"])
-# def musicianDelete():
-#     return redirect(url_for("deleteMusician"))
-
-# ### PUT ###
-# @app.route("/musician/<id>", methods=["PUT"])
-# def musicianPut():
-#     return redirect(url_for("updateMusician"))
-
-
-### Rutas Optimizadas ###
-
-@optional.routes('/musician/<id>?', methods=["POST","GET","DELETE","PUT"])
+### GETONLY ###
+@app.route("/musician", methods=["GET"])
 @token_required
-def musicians(id):
+def getMusician(id):
+    db = Database.dbConnection()
+    user = db.Musicians.find_one({"_id" : ObjectId(id)})
+    response = json_util.dumps(user)
+    return response
+
+
+### POST ###
+@app.route("/musician", methods=["POST"])
+@token_required
+def postInfomusician(id):
+    # recive datos
+
+    form = MusicianInfo.musicianInstrument()
+    if not form.validate_on_submit():
+        return "No form"
+
+    #se mandan los datos
+
     print(id)
-    match request.method:      
-        case "PUT":
-            return musiciansController.putMusician(id=id)
-        case "GET":
-            return musiciansController.getMusician(id=id)
-        case "DELETE":
-            return musiciansController.deleteMusician(id=id)
-        case "POST":
-            return musiciansController.postInfomusician(id=id)
+
+    # db = Database.dbConnection()
+
+    # id = db.Musicians.insert_one(
+    #     request.json
+    # )
+    # response = {
+    #     "id": str(id.inserted_id),
+    # }
+    return "Ok"
+
+
+### DELETE ###
+@app.route("/musician", methods=["DELETE"])
+@token_required
+def deleteMusician(id):
+    db = Database.dbConnection()
+    db.Musicians.delete_one({"_id": ObjectId(id)})
+    response = jsonify({"message": "user" + id + "was deleted successfully"})
+    return response
+
+
+### PUT ###
+@app.route("/musician", methods=["PUT"])
+@token_required
+def putMusician (id):
+    
+    # if !MusicianValidator.validate(request.json):
+    #   return BadRequest()    
+
+    db = Database.dbConnection()
+    db.Musicians.update_one({"_id": ObjectId(id)}, {"x$set": request.json})
+    responde = jsonify({"message": "user" + id + "was updated successsfully"})
+    return responde
+
+
+@app.errorhandler(404)
+def not_Found(error=None):
+    message = jsonify({
+        "message" : "resource not found" + request.url,
+        "status": 404
+    })
+
 
 
 if __name__ =="__main__":  

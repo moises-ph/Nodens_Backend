@@ -10,10 +10,13 @@ def token_required(f):
         if 'x-acces-token' in request.headers:
             token = request.headers['x-acces-token']
 
+        print(token)
+
         if not token:
             return jsonify({'message' : 'No token valid was sent'})
         try:
-            data = jwt.decode(token, '||NODENS-Authorized||')
+            data = jwt.decode(token, "||NODENS-Authorized||", algorithms=["HS256"])
+            print(data)
             IdSQL = data['Id']
         except:
             return jsonify({'message':'Token is invalid'})
