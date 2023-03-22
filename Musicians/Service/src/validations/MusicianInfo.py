@@ -12,6 +12,10 @@ class EducacionValidator(FlaskForm):
     fecha_inicio = DateField("Fecha de inicio", validators=[InputRequired()],str="%Y-%m-%d")
     fecha_fin = DateField("Fecha de fin", validators=[InputRequired()],str="%Y-%m-%d")
 
+class RedesSocialesValidator(FlaskForm):
+    nombre = StringField("Red Social", validators=[InputRequired()])
+    url = StringField("Url del perfil en red social", validators=[InputRequired()])
+
 class musicianInstrument(FlaskForm):
     IdAuth = IntegerField("Id in Auth Service")
 
@@ -35,6 +39,6 @@ class musicianInstrument(FlaskForm):
 
     url_video_presentacion = StringField("Foto de perfil")
 
-    redes_sociales = FieldList(EducacionValidator)
+    redes_sociales = FieldList(RedesSocialesValidator)
 
 print (len("64151854e036763b1c55896d"))

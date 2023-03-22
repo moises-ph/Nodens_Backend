@@ -14,6 +14,7 @@ optional = OptionalRoutes(app)
 
 ### GETALL ###
 @app.route("/musician", methods=["GET"])
+@token_required
 def getAllmusician ():
     db = Database.dbConnection()
     users = list(db.Musicians.find())
@@ -21,7 +22,7 @@ def getAllmusician ():
     return response #Response(response, mimetype="application/json")
 
 ### GETONLY ###
-@app.route("/musician", methods=["GET"])
+@app.route("/musician/si", methods=["GET"])
 @token_required
 def getMusician(id):
     db = Database.dbConnection()

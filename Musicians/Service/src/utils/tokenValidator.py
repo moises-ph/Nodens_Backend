@@ -7,11 +7,10 @@ def token_required(f):
     def decorator(*args, **kwargs):
         token = None
 
-        if 'x-acces-token' in request.headers:
-            token = request.headers['x-acces-token']
-
-        print(token)
-
+        if 'token' in request.headers:
+            token = request.headers['token']
+            print(token)
+        
         if not token:
             return jsonify({'message' : 'No token valid was sent'})
         try:
