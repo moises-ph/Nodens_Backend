@@ -1,10 +1,12 @@
 #reunir el codigo y iniciar el svr
+from collections import namedtuple
 from flask import Flask, request, jsonify, Response
 from flask_optional_routes import OptionalRoutes
 from Database import db as Database
 from bson import json_util
 from bson.objectid import  ObjectId
 from validations import MusicianInfo
+from werkzeug.datastructures import MultiDict
 
 from utils.tokenValidator import token_required
 
@@ -35,17 +37,46 @@ def getMusician(id):
 @app.route("/musician", methods=["POST"])
 @token_required
 def postInfomusician(id):
+
+    request.json['IdAuth'] = int(id)
+
+    # print(request.get_json())
     
-    print(request.json)
+    data = []
 
-    request.json['IdAuth'] = id
-    print(request.json)
+    for key in request.json:
+        temp = []
+        if type(request.json[key]) == list:
+            listNamed = None
+            if key == "instrumentos":
+                listNamed = namedtuple('instrumentos',['nombre','nivel'])
+            elif key == "educacion":
+                listNamed = namedtuple('educacion',['nombre','Institucion','fecha_inicio','fecha_fin'])
+            elif key == "redes_sociales":
+                listNamed = namedtuple('redes_sociales',['nombre','url'])
+            list2 = request.json[key]
+            for element in range(len(list2)):
+                temp2 = []
+                for key2 in list2[element]:
+                    temp2.append((key2, list2[element][key2]))
+                temp.append(temp2)
+        if len(temp) > 0:
+            data.append((key,temp))
+        else:
+            data.append((key, request.json[key]))
+    
+    print(data)
 
-    form = MusicianInfo.musicianInstrument()
+    ReqForm = MultiDict(data)
+
+    print(ReqForm)
+
+    form = MusicianInfo.musicianInstrument(ReqForm)
     if not form.validate():
         response = jsonify({"message" : "No Valid form"})
         response.status_code = 428
         return response
+        # return response
 
     #se mandan los datos
 

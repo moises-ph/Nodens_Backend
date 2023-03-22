@@ -17,28 +17,26 @@ class RedesSocialesValidator(FlaskForm):
     url = StringField("Url del perfil en red social", validators=[InputRequired()])
 
 class musicianInstrument(FlaskForm):
-    IdAuth = IntegerField("Id in Auth Service")
+    IdAuth = IntegerField(label="IdAuth")
 
-    fecha_nacimiento = DateField("date", validators=[InputRequired()],format="%Y-%m-%d")
+    fecha_nacimiento = DateField(label="fecha_nacimiento", validators=[InputRequired()],format="%Y-%m-%d")
 
-    email = EmailField("email", validators=[InputRequired(),Length(min=8)])
+    email = EmailField(label="email", validators=[InputRequired(),Length(min=8)])
 
-    instrumentos = FieldList(FormField(InstrumentosValidator))
+    instrumentos = FieldList(FormField(InstrumentosValidator),label="instrumentos")
     
-    genero = StringField("genero", validators=[InputRequired()])
+    genero = StringField(label="genero", validators=[InputRequired()])
     
-    pais = StringField("pais", validators=[InputRequired()])
+    pais = StringField(label="pais", validators=[InputRequired()])
     
-    ciudad = StringField("ciudad", validators=[InputRequired()])
+    ciudad = StringField(label="ciudad", validators=[InputRequired()])
     
-    experiencia = FieldList(FormField(EducacionValidator))
+    experiencia = StringField(label="experiencia", validators=[InputRequired()])
 
-    educacion = StringField("educacion",)
+    educacion = FieldList(FormField(EducacionValidator))
 
-    url_foto_perfil = StringField("Foto de perfil")
+    url_foto_perfil = StringField(label="url_foto_perfil")
 
-    url_video_presentacion = StringField("Foto de perfil")
+    url_video_presentacion = StringField(label="url_video_presentiacion")
 
-    redes_sociales = FieldList(FormField(RedesSocialesValidator))
-
-print (len("64151854e036763b1c55896d"))
+    redes_sociales = FieldList(FormField(RedesSocialesValidator), label="redes_sociales")
