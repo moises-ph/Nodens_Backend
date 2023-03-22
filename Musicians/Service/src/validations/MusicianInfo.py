@@ -1,4 +1,4 @@
-from wtforms import StringField, EmailField, FieldList, IntegerField, DateField
+from wtforms import StringField, EmailField, FieldList, IntegerField, DateField, FormField
 from wtforms.validators import InputRequired, Length
 from flask_wtf import FlaskForm
 
@@ -9,8 +9,8 @@ class InstrumentosValidator(FlaskForm):
 class EducacionValidator(FlaskForm):
     nombre = StringField("Nombre del titulo", validators=[InputRequired()])
     institucion = StringField("Nombre de la Institución", validators=[InputRequired()])
-    fecha_inicio = DateField("Fecha de inicio", validators=[InputRequired()],str="%Y-%m-%d")
-    fecha_fin = DateField("Fecha de fin", validators=[InputRequired()],str="%Y-%m-%d")
+    fecha_inicio = DateField("Fecha de inicio", validators=[InputRequired()],format="%Y-%m-%d")
+    fecha_fin = DateField("Fecha de fin", validators=[InputRequired()],format="%Y-%m-%d")
 
 class RedesSocialesValidator(FlaskForm):
     nombre = StringField("Red Social", validators=[InputRequired()])
@@ -19,11 +19,11 @@ class RedesSocialesValidator(FlaskForm):
 class musicianInstrument(FlaskForm):
     IdAuth = IntegerField("Id in Auth Service")
 
-    fecha_nacimiento = DateField("date", validators=[InputRequired()],str="%Y-%m-%d")
+    fecha_nacimiento = DateField("date", validators=[InputRequired()],format="%Y-%m-%d")
 
     email = EmailField("email", validators=[InputRequired(),Length(min=8)])
 
-    instrumentos = FieldList(InstrumentosValidator)
+    instrumentos = FieldList(FormField(InstrumentosValidator))
     
     genero = StringField("genero", validators=[InputRequired()])
     
@@ -31,7 +31,7 @@ class musicianInstrument(FlaskForm):
     
     ciudad = StringField("ciudad", validators=[InputRequired()])
     
-    experiencia = FieldList(EducacionValidator)
+    experiencia = FieldList(FormField(EducacionValidator))
 
     educacion = StringField("educacion",)
 
@@ -39,6 +39,6 @@ class musicianInstrument(FlaskForm):
 
     url_video_presentacion = StringField("Foto de perfil")
 
-    redes_sociales = FieldList(RedesSocialesValidator)
+    redes_sociales = FieldList(FormField(RedesSocialesValidator))
 
 print (len("64151854e036763b1c55896d"))

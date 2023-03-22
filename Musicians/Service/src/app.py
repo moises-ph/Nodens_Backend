@@ -1,5 +1,5 @@
 #reunir el codigo y iniciar el svr
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_optional_routes import OptionalRoutes
 from Database import db as Database
 from bson import json_util
@@ -9,7 +9,7 @@ from validations import MusicianInfo
 from utils.tokenValidator import token_required
 
 app = Flask(__name__)
-
+app.secret_key = "dfdgdfgfgf"
 optional = OptionalRoutes(app)
 
 ### GETALL ###
@@ -35,25 +35,33 @@ def getMusician(id):
 @app.route("/musician", methods=["POST"])
 @token_required
 def postInfomusician(id):
-    # recive datos
+    
+    print(request.json)
+
+    request.json['IdAuth'] = id
+    print(request.json)
 
     form = MusicianInfo.musicianInstrument()
-    if not form.validate_on_submit():
-        return "No form"
+    if not form.validate():
+        response = jsonify({"message" : "No Valid form"})
+        response.status_code = 428
+        return response
 
     #se mandan los datos
 
     print(id)
 
-    # db = Database.dbConnection()
+    db = Database.dbConnection()
 
-    # id = db.Musicians.insert_one(
-    #     request.json
-    # )
-    # response = {
-    #     "id": str(id.inserted_id),
-    # }
-    return "Ok"
+    id = db.Musicians.insert_one(
+        request.json
+    )
+    response = {
+        "id": str(id.inserted_id),
+    }
+    response = jsonify({"message" : "Información del músico creada correctamente"})
+    response.status_code = 200
+    return response
 
 
 ### DELETE ###

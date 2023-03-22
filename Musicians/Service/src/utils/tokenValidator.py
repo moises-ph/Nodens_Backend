@@ -7,8 +7,8 @@ def token_required(f):
     def decorator(*args, **kwargs):
         token = None
 
-        if 'token' in request.headers:
-            token = request.headers['token']
+        if 'Authorization' in request.headers:
+            token = request.headers['Authorization'].replace("Bearer ","")
             print(token)
         
         if not token:

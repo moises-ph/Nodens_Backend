@@ -15,5 +15,3 @@ export const postOffer = async (req : any, reply : any) => {
         return reply.code(500).send(err);
     }
 }
-
-
