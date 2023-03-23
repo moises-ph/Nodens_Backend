@@ -1,6 +1,7 @@
 from functools import wraps
 from flask import jsonify, request
 import jwt
+from settings import config
 
 def token_required(f):
     @wraps(f)
@@ -13,7 +14,7 @@ def token_required(f):
         if not token:
             return jsonify({'message' : 'No token valid was sent'})
         try:
-            data = jwt.decode(token, "||NODENS-Authorized||", algorithms=["HS256"])
+            data = jwt.decode(token, config.SECRET, algorithms=["HS256"])
             IdSQL = data['Id']
         except:
             response = jsonify({'message':'Token is invalid'})

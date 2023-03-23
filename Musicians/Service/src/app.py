@@ -19,7 +19,7 @@ optional = OptionalRoutes(app)
 ma = Marshmallow(app)
 
 ### GETALL ###
-@app.route("/musician", methods=["GET"])
+@app.route("/musician/all", methods=["GET"])
 def getAllmusician ():
     db = Database.dbConnection()
     users = list(db.Musicians.find())
@@ -27,11 +27,11 @@ def getAllmusician ():
     return response #Response(response, mimetype="application/json")
 
 ### GETONLY ###
-@app.route("/musician/si", methods=["GET"])
+@app.route("/musician", methods=["GET"])
 @token_required
 def getMusician(id):
     db = Database.dbConnection()
-    user = db.Musicians.find_one({"_id" : ObjectId(id)})
+    user = db.Musicians.find_one({"IdAuth" : int(id)})
     response = json_util.dumps(user)
     return response
 
@@ -142,4 +142,4 @@ def not_Found(error=None):
 
 
 if __name__ =="__main__":  
-    app.run(debug = True, port=5000)  
+    app.run(host="0.0.0.0",debug = True, port=5000)
