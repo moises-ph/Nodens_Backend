@@ -22,11 +22,13 @@ namespace MS_Users_Auth.Controllers
         private readonly IConfiguration configuration;
         private readonly string cadenaMongo;
         private readonly EnvironmentConfig environmentConfig;
+        private readonly string APPURI;
         public UserController(IConfiguration config, IOptions<EnvironmentConfig> options)
         {
             environmentConfig = options.Value;
             cadenaSQL = environmentConfig.CadenaSQL;
             cadenaMongo = environmentConfig.CadenaMongo;
+            APPURI = environmentConfig.APPURL;
         }
 
         [HttpPost("Register")]
@@ -75,7 +77,17 @@ namespace MS_Users_Auth.Controllers
                     
                 await VerifyUsersCollection.InsertOneAsync(verifyUsersModel);
                 string emailHash = BC.HashString(obj.Email);
-                string url = $"https://localhost:44384/api/auth/verify?em={emailHash}&guid={guid.ToString()}";
+                string url = $"https://{APPURI}/api/auth/verify?em={emailHash}&guid={guid.ToString()}";
+                MailSender.ErrorModel sent = null;
+                MailSender mailSender = new MailSender(configuration);
+                if (obj.Email.EndsWith("@gmail.com"))
+                {
+                    sent = await mailSender.SendEmailGmailAsync(obj.Email, "Verifica tu cuenta Nodens", $"<a href='{url}' target='_blank'>Verificala aquí</a>");
+                }
+                else if (obj.Email.EndsWith("@hotmail.com") || obj.Email.EndsWith("@outlook.com"))
+                {
+                    sent = await mailSender.SendEmailOutlook(obj.Email, "Verifica tu cuenta Nodens", $"<a href='{url}' target='_blank'>Verificala aquí</a>");
+                }
                 return StatusCode(StatusCodes.Status200OK, new { Message = Response, url });
             }
             catch (Exception err)

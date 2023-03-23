@@ -42,28 +42,12 @@ def postInfomusician(id):
 
     # print(request.get_json())
     
-    data = []
+    data = {
+        'fecha_nacimiento' : request.json['fecha_nacimiento'] if request.json['fecha_nacimiento'] else None,
+        
+    }
 
-    for key in request.json:
-        temp = []
-        if type(request.json[key]) == list:
-            listNamed = None
-            if key == "instrumentos":
-                listNamed = namedtuple('instrumentos',['nombre','nivel'])
-            elif key == "educacion":
-                listNamed = namedtuple('educacion',['nombre','Institucion','fecha_inicio','fecha_fin'])
-            elif key == "redes_sociales":
-                listNamed = namedtuple('redes_sociales',['nombre','url'])
-            list2 = request.json[key]
-            for element in range(len(list2)):
-                temp2 = []
-                for key2 in list2[element]:
-                    temp2.append((key2, list2[element][key2]))
-                temp.append(temp2)
-        if len(temp) > 0:
-            data.append((key,temp))
-        else:
-            data.append((key, request.json[key]))
+    
     
     print(data)
 

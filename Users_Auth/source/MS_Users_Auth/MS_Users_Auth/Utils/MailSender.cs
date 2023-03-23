@@ -64,37 +64,45 @@ namespace MS_Users_Auth.Utils
             }
         }
 
-        public void SendEmailOutlook(String receptor, String asunto, String mensaje)
+        public async Task<ErrorModel> SendEmailOutlook(String receptor, String asunto, String mensaje)
         {
-            MailMessage mail = new MailMessage();
+            try
+            {
+                MailMessage mail = new MailMessage();
 
-            String usermail = this.configuration["usuariooutlook"];
-            String passwordmail = this.configuration["passwordoutlook"];
+                String usermail = this.configuration["usuariooutlook"];
+                String passwordmail = this.configuration["passwordoutlook"];
 
-            mail.From = new MailAddress(usermail);
-            mail.To.Add(new MailAddress(receptor));
-            mail.Subject = asunto;
-            mail.Body = mensaje;
-            mail.IsBodyHtml = true;
-            mail.Priority = MailPriority.Normal;
+                mail.From = new MailAddress(usermail);
+                mail.To.Add(new MailAddress(receptor));
+                mail.Subject = asunto;
+                mail.Body = mensaje;
+                mail.IsBodyHtml = true;
+                mail.Priority = MailPriority.Normal;
 
-            String smtpserver = this.configuration["hostoutlook"];
-            int port = int.Parse(this.configuration["portoutlook"]);
-            bool ssl = bool.Parse(this.configuration["ssloutlook"]);
-            bool defaultcreadentials = bool.Parse(this.configuration["defaultcredentialsoutlook"]);
+                String smtpserver = this.configuration["hostoutlook"];
+                int port = int.Parse(this.configuration["portoutlook"]);
+                bool ssl = bool.Parse(this.configuration["ssloutlook"]);
+                bool defaultcreadentials = bool.Parse(this.configuration["defaultcredentialsoutlook"]);
 
-            SmtpClient smtpClient = new SmtpClient();
+                SmtpClient smtpClient = new SmtpClient();
 
-            smtpClient.Host = smtpserver;
-            smtpClient.Port = port;
-            smtpClient.EnableSsl = ssl;
-            smtpClient.UseDefaultCredentials = defaultcreadentials;
+                smtpClient.Host = smtpserver;
+                smtpClient.Port = port;
+                smtpClient.EnableSsl = ssl;
+                smtpClient.UseDefaultCredentials = defaultcreadentials;
 
 
-            NetworkCredential usercredential = new NetworkCredential(usermail, passwordmail);
+                NetworkCredential usercredential = new NetworkCredential(usermail, passwordmail);
 
-            smtpClient.Credentials = usercredential;
-            smtpClient.Send(mail);
+                smtpClient.Credentials = usercredential;
+                await smtpClient.SendMailAsync(mail);
+                return new ErrorModel() { Message = "Correo enviado con exito", Result = true };
+            }
+            catch (Exception ex)
+            {
+                return new ErrorModel() { Message = ex.Message, Result = false };
+            }
         }
     }
 }
