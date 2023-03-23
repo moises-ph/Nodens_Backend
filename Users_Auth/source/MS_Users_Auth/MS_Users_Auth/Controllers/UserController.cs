@@ -88,7 +88,7 @@ namespace MS_Users_Auth.Controllers
                 {
                     sent = await mailSender.SendEmailOutlook(obj.Email, "Verifica tu cuenta Nodens", $"<a href='{url}' target='_blank'>Verificala aquí</a>");
                 }
-                return StatusCode(StatusCodes.Status200OK, new { Message = Response, url });
+                return StatusCode(StatusCodes.Status200OK, new { Message = Response, url, sent });
             }
             catch (Exception err)
             {

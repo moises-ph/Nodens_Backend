@@ -2,11 +2,13 @@
 from collections import namedtuple
 from flask import Flask, request, jsonify, Response
 from flask_optional_routes import OptionalRoutes
+from marshmallow import ValidationError
 from Database import db as Database
 from bson import json_util
 from bson.objectid import  ObjectId
 from validations import MusicianInfo
 from werkzeug.datastructures import MultiDict
+from flask_marshmallow import Marshmallow
 
 from utils.tokenValidator import token_required
 
@@ -14,9 +16,10 @@ app = Flask(__name__)
 app.secret_key = "dfdgdfgfgf"
 optional = OptionalRoutes(app)
 
+ma = Marshmallow(app)
+
 ### GETALL ###
 @app.route("/musician", methods=["GET"])
-@token_required
 def getAllmusician ():
     db = Database.dbConnection()
     users = list(db.Musicians.find())
@@ -37,46 +40,43 @@ def getMusician(id):
 @app.route("/musician", methods=["POST"])
 @token_required
 def postInfomusician(id):
-
-    request.json['IdAuth'] = int(id)
-
-    # print(request.get_json())
-    
-    data = {
-        'fecha_nacimiento' : request.json['fecha_nacimiento'] if request.json['fecha_nacimiento'] else None,
+    try:
+        # Comprueba si el músico existe en la base de datos
+        db = Database.dbConnection()
+        exists = db.Musicians.find_one({'IdAuth' : int(id)}) # el argumento id está dentro del token y viene del validador del token
+        if exists: # Si existe no se guardará la información
+            response = jsonify({"message" : "El músico existe actualmente"})
+            response.status_code = 400
+            return response
         
-    }
+        # Valida que los datos del request estén dentro del schema de validación
+        # Si los datos del request no pasan la validación se llamará a la excepcion "ValidationError" y 
+        # se dirá en la respuesta el campo que no pasó la validación */
+        request.json['IdAuth'] = int(id)
+        form = MusicianInfo.MusicianSchemaCreate().load(request.json)
 
-    
-    
-    print(data)
-
-    ReqForm = MultiDict(data)
-
-    print(ReqForm)
-
-    form = MusicianInfo.musicianInstrument(ReqForm)
-    if not form.validate():
-        response = jsonify({"message" : "No Valid form"})
-        response.status_code = 428
+        # Los bucles for son para validar los campos que son arreglos de otro tipo de schema dentro del form ya validado.
+        # Cada campo se recorre y cada elemento dentro de esa lista se valida con los métodos correspondientes al campo
+        instruments = []
+        for instrument in form['instrumentos']:
+            instruments.append(MusicianInfo.InstrumentsField().load(instrument))
+        educacion = []
+        for educ in form['educacion']:
+            educacion.append(MusicianInfo.EducacionField().load(educ))
+        redes_sociales = []
+        for social in form['redes_sociales']:
+            redes_sociales.append(MusicianInfo.RedesSocialesField().load(social))
+        
+        #En este punto los datos pasan la validación, se procede a guardar la información del músico en la base de datos
+        result = db.Musicians.insert_one(request.json)
+        response = jsonify({"message" : "Información del músico creada correctamente"})
+        response.status_code = 200
         return response
-        # return response
-
-    #se mandan los datos
-
-    print(id)
-
-    db = Database.dbConnection()
-
-    id = db.Musicians.insert_one(
-        request.json
-    )
-    response = {
-        "id": str(id.inserted_id),
-    }
-    response = jsonify({"message" : "Información del músico creada correctamente"})
-    response.status_code = 200
-    return response
+    except ValidationError as err:
+        print(err.messages)
+        response = jsonify(err.messages)
+        response.status_code = 418
+        return response
 
 
 ### DELETE ###
@@ -84,8 +84,8 @@ def postInfomusician(id):
 @token_required
 def deleteMusician(id):
     db = Database.dbConnection()
-    db.Musicians.delete_one({"_id": ObjectId(id)})
-    response = jsonify({"message": "user" + id + "was deleted successfully"})
+    db.Musicians.delete_one({'IdAuth' : int(id)})
+    response = jsonify({"message": "user deleted successfully"})
     return response
 
 
@@ -94,13 +94,42 @@ def deleteMusician(id):
 @token_required
 def putMusician (id):
     
-    # if !MusicianValidator.validate(request.json):
-    #   return BadRequest()    
+    try:
+        #Aquí se validan los datos como en el POST
+        request.json['IdAuth'] = int(id)
+        form = MusicianInfo.MusicianSchemaUpdate().load(request.json)
 
-    db = Database.dbConnection()
-    db.Musicians.update_one({"_id": ObjectId(id)}, {"x$set": request.json})
-    responde = jsonify({"message": "user" + id + "was updated successsfully"})
-    return responde
+        # La diferencia aquí es que como se actualizan los datos no hay necesidad de que el cliente envíe información
+        # que no ha sido actualizada, por ende se valida el form con un esquema que tenga todos los campos opcionales,
+        # algún campo que esté debe cumplir con la validación y los campos que no estén en el esquema no se aceptan.
+
+        # Se debe comprobar que los campos que son listas existan dentro del request
+        if 'instrumentos' in form:
+            instruments = []
+            for instrument in form['instrumentos']:
+                instruments.append(MusicianInfo.InstrumentsField().load(instrument))
+        
+        if 'educacion' in form:
+            educacion = []
+            for educ in form['educacion']:
+                educacion.append(MusicianInfo.EducacionField().load(educ))
+        
+        if 'redes_sociales' in form:
+            redes_sociales = []
+            for social in form['redes_sociales']:
+                redes_sociales.append(MusicianInfo.RedesSocialesField().load(social))
+        
+        #Se actualizan los datos
+        db = Database.dbConnection()
+        result = db.Musicians.update_one({'IdAuth' : int(id)}, { "$set" : request.json})
+        response = jsonify({"message" : "Información del músico actualizada correctamente", "modified_count" : result.modified_count})
+        response.status_code = 200
+        return response
+    except ValidationError as err:
+        print(err.messages)
+        response = jsonify(err.messages)
+        response.status_code = 418
+        return response
 
 
 @app.errorhandler(404)

@@ -1,42 +1,41 @@
-from wtforms import StringField, EmailField, FieldList, IntegerField, DateField, FormField
-from wtforms.validators import InputRequired, Length
-from flask_wtf import FlaskForm
+from marshmallow import Schema, fields
 
-class InstrumentosValidator(FlaskForm):
-    nombre = StringField("Nombre instrumento", validators=[InputRequired()])
-    nivel = StringField("Nivel en el instrumentioo", validators=[InputRequired()])
+class InstrumentsField(Schema):
+    nombre = fields.String()
+    nivel = fields.String()
 
-class EducacionValidator(FlaskForm):
-    nombre = StringField("Nombre del titulo", validators=[InputRequired()])
-    institucion = StringField("Nombre de la Institución", validators=[InputRequired()])
-    fecha_inicio = DateField("Fecha de inicio", validators=[InputRequired()],format="%Y-%m-%d")
-    fecha_fin = DateField("Fecha de fin", validators=[InputRequired()],format="%Y-%m-%d")
+class EducacionField(Schema):
+    nombre = fields.String()
+    institucion = fields.String()
+    fecha_inicio = fields.Date()
+    fecha_fin = fields.Date()
 
-class RedesSocialesValidator(FlaskForm):
-    nombre = StringField("Red Social", validators=[InputRequired()])
-    url = StringField("Url del perfil en red social", validators=[InputRequired()])
+class RedesSocialesField(Schema):
+    nombre = fields.String()
+    url = fields.String()
 
-class musicianInstrument(FlaskForm):
-    IdAuth = IntegerField(label="IdAuth")
+class MusicianSchemaCreate(Schema):
+    IdAuth = fields.Integer()
+    fecha_nacimiento = fields.Date()
+    instrumentos = fields.List(fields.Dict())
+    generos = fields.List(fields.String()) 
+    pais = fields.String()
+    ciudad = fields.String()
+    experiencia = fields.String()
+    educacion = fields.List(fields.Dict())
+    url_foto_perfil = fields.String()
+    url_video_presentacion = fields.String()
+    redes_sociales = fields.List(fields.Dict())
 
-    fecha_nacimiento = DateField(label="fecha_nacimiento", validators=[InputRequired()],format="%Y-%m-%d")
-
-    email = EmailField(label="email", validators=[InputRequired(),Length(min=8)])
-
-    instrumentos = FieldList(FormField(InstrumentosValidator),label="instrumentos")
-    
-    genero = StringField(label="genero", validators=[InputRequired()])
-    
-    pais = StringField(label="pais", validators=[InputRequired()])
-    
-    ciudad = StringField(label="ciudad", validators=[InputRequired()])
-    
-    experiencia = StringField(label="experiencia", validators=[InputRequired()])
-
-    educacion = FieldList(FormField(EducacionValidator))
-
-    url_foto_perfil = StringField(label="url_foto_perfil")
-
-    url_video_presentacion = StringField(label="url_video_presentiacion")
-
-    redes_sociales = FieldList(FormField(RedesSocialesValidator), label="redes_sociales")
+class MusicianSchemaUpdate(Schema):
+    IdAuth = fields.Integer(required=True)
+    fecha_nacimiento = fields.Date(required=False)
+    instrumentos = fields.List(fields.Dict(), required=False)
+    generos = fields.List(fields.String(), required=False) 
+    pais = fields.String(required=False)
+    ciudad = fields.String(required=False)
+    experiencia = fields.String(required=False)
+    educacion = fields.List(fields.Dict(), required=False)
+    url_foto_perfil = fields.String(required=False)
+    url_video_presentacion = fields.String(required=False)
+    redes_sociales = fields.List(fields.Dict(), required=False)
