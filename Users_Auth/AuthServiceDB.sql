@@ -87,9 +87,9 @@ create procedure SP_AuthUser
 as
 begin
 	if exists(SELECT id from Users where email = @Email)
-		SELECT password, Verified, id from Users where email = @Email
+		SELECT Users.password as 'password', Users.Verified as 'Verified', Users.id as 'id', Role.name as 'Role' from Users inner join Role on Users.role_id = Role.id where email = @Email 
 	else
-		SELECT null as password, null as Verified
+		SELECT null as password, null as Verified, null as Role
 end
 go
 

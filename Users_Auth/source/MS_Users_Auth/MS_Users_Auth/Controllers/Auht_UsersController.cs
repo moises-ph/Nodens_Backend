@@ -80,9 +80,10 @@ namespace MS_Users_Auth.Controllers
         {
             try
             {
-                string? password = null;
+                string? password = String.Empty;
                 bool Verified = false;
                 int Id = 0;
+                string? Role = String.Empty;
                 using (var connection = new SqlConnection(cadenaSQL))
                 {
                     connection.Open();
@@ -97,6 +98,7 @@ namespace MS_Users_Auth.Controllers
                             password = reader["password"].ToString();
                             Verified = Convert.ToInt32(reader["Verified"]) == 1;
                             Id = Convert.ToInt32(reader["id"]);
+                            Role = reader["Role"].ToString();
                         }
                         else
                         {
@@ -115,6 +117,7 @@ namespace MS_Users_Auth.Controllers
                 var claims = new ClaimsIdentity();
                 claims.AddClaim(new Claim(ClaimTypes.Email, usr.Email));
                 claims.AddClaim(new Claim("Id", Id.ToString()));
+                claims.AddClaim(new Claim(ClaimTypes.Role, Role));
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = claims,
