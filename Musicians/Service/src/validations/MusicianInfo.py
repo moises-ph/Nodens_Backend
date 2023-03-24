@@ -25,7 +25,7 @@ class MusicianSchemaCreate(Schema):
     experiencia = fields.String(required=True)
     educacion = fields.List(fields.Dict(),required=True)
     url_foto_perfil = fields.String(required=True)
-    url_video_presentacion = fields.String(required=True)
+    url_video_presentacion = fields.List(fields.String(),required=True, allow_none=True)
     redes_sociales = fields.List(fields.Dict(),required=True)
 
 class MusicianSchemaUpdate(Schema):
@@ -38,5 +38,5 @@ class MusicianSchemaUpdate(Schema):
     experiencia = fields.String(required=False)
     educacion = fields.List(fields.Dict(), required=False)
     url_foto_perfil = fields.String(required=False)
-    url_video_presentacion = fields.String(required=False)
+    url_video_presentacion = fields.List(fields.String(),required=False, allow_none=True)
     redes_sociales = fields.List(fields.Dict(), required=False)
