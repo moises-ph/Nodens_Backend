@@ -216,3 +216,5 @@ def not_Found(error=None):
 
 if __name__ =="__main__":  
     app.run(host="0.0.0.0",debug = True, port=5000)
+
+### Cuando moises me mando hacer un micro servicio no tenia ni la menor idea de como iniciar pero tuve fe y ayuda de moises XD ###
