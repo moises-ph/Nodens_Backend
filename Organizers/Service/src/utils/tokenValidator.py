@@ -15,12 +15,15 @@ def token_required(f):
             return jsonify({'message' : 'No token valid was sent'})
         try:
             data = jwt.decode(token, config.SECRET, algorithms=["HS256"])
-            if data['Role'] != "Musician":
-                response = jsonify({'message':'Role not authorized'})
-                response.status_code = 401
-                return response
+            isOrganizer = False
+            if data['Role'] == "Organizer":
+                isOrganizer = True
             
             IdSQL = data['Id']
+            claims = {
+                "IdAuth" : IdSQL,
+                "isMusician" : isOrganizer
+            }
         except:
             response = jsonify({'message':'Token is invalid'})
             response.status_code = 401

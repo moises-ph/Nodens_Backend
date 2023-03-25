@@ -29,6 +29,42 @@ optional = OptionalRoutes(app)
 
 ma = Marshmallow(app)
 
+
+# Route para el perfil
+@app.route('/musician/profile', methods=["POST"])
+@token_required
+def uploadProfile(claims):
+    try:
+        id = claims['IdAuth']
+        if not claims['isMusician']:
+            response = jsonify({"message" : "Rol no autorizado para esta función"})
+            response.status_code = 400
+            return response
+        
+        if not request.headers['Content-Type'].startswith("multipart/form-data"):
+            response = jsonify({"message" : "No valid MIME Type for content"})
+            response.status_code = 400
+            return response
+        
+        files = request.files.lists()
+        img = None
+        for element in files:
+            img = element[1][0]
+        
+        print(img)
+
+        if not img.mimetype.startswith("image") :
+            response = jsonify({"message" : "Extensión de archivo no válida"})
+            response.status_code = 400
+            return response
+        
+        
+
+        return "ok"
+
+    except Exception as err:
+        return jsonify(err)
+
 # Route para subir videos
 @app.route("/musician/uploadVideo", methods=["POST"])
 @token_required
