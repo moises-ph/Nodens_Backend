@@ -29,5 +29,5 @@ def token_required(f):
             response.status_code = 401
             return response
         
-        return f(IdSQL, *args,**kwargs)
+        return f(claims, *args,**kwargs)
     return decorator

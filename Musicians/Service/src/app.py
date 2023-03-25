@@ -51,15 +51,14 @@ def uploadProfile(claims):
         for element in files:
             img = element[1][0]
         
-        print(img)
 
         if not img.mimetype.startswith("image") :
             response = jsonify({"message" : "Extensión de archivo no válida"})
             response.status_code = 400
             return response
         
-        uploadResult = cloudinary.uploader.upload_image(img.stream, public_id="profile"+id, unique_filename=True)
-        print(uploadResult)
+        uploadResult = cloudinary.uploader.upload_image(img.stream, public_id="profileMu"+id, unique_filename=True)
+
         db = Database.dbConnection()
         db.Musicians.update_one({"IdAuth": int(id)}, {"$set" : { "url_foto_perfil" : uploadResult.url }})
 

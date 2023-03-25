@@ -29,47 +29,41 @@ optional = OptionalRoutes(app)
 
 ma = Marshmallow(app)
 
-# Route para subir videos
-@app.route("/Organizer/uploadVideo", methods=["POST"])
+# Route para el perfil
+@app.route('/Organizer/profile', methods=["POST"])
 @token_required
-def uploadMusician(claims):
+def uploadProfile(claims):
     try:
         id = claims['IdAuth']
         if not claims['isOrganizer']:
             response = jsonify({"message" : "Rol no autorizado para esta función"})
             response.status_code = 400
             return response
-
+        
         if not request.headers['Content-Type'].startswith("multipart/form-data"):
             response = jsonify({"message" : "No valid MIME Type for content"})
             response.status_code = 400
             return response
         
         files = request.files.lists()
-        
-        db = Database.dbConnection()
-        UserVideos = db.Organizers.find_one({"IdAuth" : int(id)},{"url_video_presentacion" : 1})
-        videosUrl = []
+        img = None
         for element in files:
-            for singleFile in element[1]:
-                assetName = "{usid}-{number}".format(usid = id, number = (len(UserVideos['url_video_presentacion'])+1) + (len(videosUrl)))
-                if singleFile.mimetype.startswith("video"):
-                    url = cloudinary.uploader.upload(singleFile.stream,resource_type="video", public_id="video"+assetName, unique_filename = True)
-                    videosUrl.append(url['url'])
-                elif singleFile.mimetype.startswith("image"):
-                    url = cloudinary.uploader.upload(singleFile.stream,resource_type="image", public_id="image"+assetName, unique_filename = True)
-                    videosUrl.append(url['url'])
-                else:
-                    response = jsonify({"message" : "Extensión de archivo no válida"})
-                    response.status_code = 400
-                    return response
+            img = element[1][0]
+        
 
-        for element in videosUrl:
-            db.Musicians.update_one({"IdAuth" : int(id)},{"$push" : { "url_video_presentacion" : element }}, upsert=True)
+        if not img.mimetype.startswith("image") :
+            response = jsonify({"message" : "Extensión de archivo no válida"})
+            response.status_code = 400
+            return response
+        
+        uploadResult = cloudinary.uploader.upload_image(img.stream, public_id="profileOrg"+id, unique_filename=True)
+        db = Database.dbConnection()
+        db.Musicians.update_one({"IdAuth": int(id)}, {"$set" : { "url_foto_perfil" : uploadResult.url }})
 
-        response = jsonify({"message" : "Ok"})
+        response = jsonify({"message" : "Foto de perfil actualizada correctamente"})
         response.status_code = 200
         return response
+
     except Exception as err:
         return jsonify(err)
 
@@ -103,11 +97,11 @@ def postInfomusician(claims):
             return response
 
         id = claims["IdAuth"]
-        # Comprueba si el músico existe en la base de datos
+        # Comprueba si el Organizador existe en la base de datos
         db = Database.dbConnection()
         exists = db.Organizers.find_one({'IdAuth' : int(id)}) # el argumento id está dentro del token y viene del validador del token
         if exists: # Si existe no se guardará la información
-            response = jsonify({"message" : "El músico existe actualmente"})
+            response = jsonify({"message" : "El Organizador existe actualmente"})
             response.status_code = 400
             return response
         
@@ -123,9 +117,9 @@ def postInfomusician(claims):
         for social in form['redes_sociales']:
             redes_sociales.append(Organizersinfo.RedesSocialesField().load(social))
         
-        #En este punto los datos pasan la validación, se procede a guardar la información del músico en la base de datos
-        result = db.Musicians.insert_one(request.json)
-        response = jsonify({"message" : "Información del músico creada correctamente"})
+        #En este punto los datos pasan la validación, se procede a guardar la información del organizador en la base de datos
+        result = db.Organizers.insert_one(request.json)
+        response = jsonify({"message" : "Información del Organizador creada correctamente"})
         response.status_code = 200
         return response
     except ValidationError as err:
@@ -138,7 +132,13 @@ def postInfomusician(claims):
 ### DELETE ###
 @app.route("/Organizer", methods=["DELETE"])
 @token_required
-def deleteMusician(id):
+def deleteMusician(claims):
+    if not claims["isOrganizer"]:
+            response = jsonify({"message" : "Rol no autorizado para esta función"})
+            response.status_code = 400
+            return response
+        
+    id = claims["IdAuth"]
     db = Database.dbConnection()
     db.Organizers.delete_one({'IdAuth' : int(id)})
     response = jsonify({"message": "user deleted successfully"})
@@ -148,9 +148,14 @@ def deleteMusician(id):
 ### PUT ###
 @app.route("/Organizer", methods=["PUT"])
 @token_required
-def putMusician (id):
-    
+def putMusician (claims):
     try:
+        if not claims["isOrganizer"]:
+            response = jsonify({"message" : "Rol no autorizado para esta función"})
+            response.status_code = 400
+            return response
+        
+        id = claims["IdAuth"]
         #Aquí se validan los datos como en el POST
         request.json['IdAuth'] = int(id)
         form = Organizersinfo.OrganizerSchemaUpdate().load(request.json)
