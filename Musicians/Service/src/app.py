@@ -58,9 +58,14 @@ def uploadProfile(claims):
             response.status_code = 400
             return response
         
-        
+        uploadResult = cloudinary.uploader.upload_image(img.stream, public_id="profile"+id, unique_filename=True)
+        print(uploadResult)
+        db = Database.dbConnection()
+        db.Musicians.update_one({"IdAuth": int(id)}, {"$set" : { "url_foto_perfil" : uploadResult.url }})
 
-        return "ok"
+        response = jsonify({"message" : "Foto de perfil actualizada correctamente"})
+        response.status_code = 200
+        return response
 
     except Exception as err:
         return jsonify(err)
@@ -250,7 +255,7 @@ def not_Found(error=None):
 
 
 
-if __name__ =="__main__":  
-    app.run(host="0.0.0.0",debug = True, port=5000)
+# if __name__ =="__main__":  
+#     app.run(debug = True, port=5000)
 
 ### Cuando moises me mando hacer un micro servicio no tenia ni la menor idea de como iniciar pero tuve fe y ayuda de moises XD ###

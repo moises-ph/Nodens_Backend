@@ -1,0 +1,20 @@
+version: '3.5'
+
+services:
+    api:
+        container_name: NodensMusicians
+        build: .
+        working_dir: /app
+        environment:
+            - FLASK_APP=src/app.py
+            - MONGODB_URI=mongodb://Nodens:secret@192.168.0.17:27018/
+            - SECRET=||NODENS-Authorized||
+        command: flask run --host=0.0.0.0
+
+    webserver:
+        container_name: Nginx
+        image: nginx:latest
+        ports:
+            - 8000:80
+        volumes:
+            - ./nginx/conf.d/:/etc/nginx/conf.d/
