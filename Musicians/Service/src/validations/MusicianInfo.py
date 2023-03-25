@@ -27,6 +27,7 @@ class MusicianSchemaCreate(Schema):
     url_foto_perfil = fields.String(required=True)
     url_video_presentacion = fields.List(fields.String(),required=True, allow_none=True)
     redes_sociales = fields.List(fields.Dict(),required=True)
+    telefono = fields.String(required=True)
 
 class MusicianSchemaUpdate(Schema):
     IdAuth = fields.Integer(required=True)
@@ -40,3 +41,4 @@ class MusicianSchemaUpdate(Schema):
     url_foto_perfil = fields.String(required=False)
     url_video_presentacion = fields.List(fields.String(),required=False, allow_none=True)
     redes_sociales = fields.List(fields.Dict(), required=False)
+    telefono = fields.String(required=True)

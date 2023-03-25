@@ -1,42 +1,30 @@
 from marshmallow import Schema, fields
 
-class InstrumentsField(Schema):
-    nombre = fields.String(required=True)
-    nivel = fields.String(required=True)
-
-class EducacionField(Schema):
-    nombre = fields.String(required=True)
-    institucion = fields.String(required=True)
-    fecha_inicio = fields.Date(required=True)
-    fecha_fin = fields.Date(required=True)
-
+### Validacion redes sociales ###
 class RedesSocialesField(Schema):
     nombre = fields.String(required=True)
     url = fields.String(required=True)
-
-class MusicianSchemaCreate(Schema):
+### Validacion de create Organizadores ###
+class OrganizerSchemaCreate(Schema):
     IdAuth = fields.Integer(required=True)
-    fecha_nacimiento = fields.Date(required=True)
-    instrumentos = fields.List(fields.Dict(),required=True)
-    genero = fields.String(required=True)
-    generosMusicales = fields.List(fields.String(),required=True)
+    telefono = fields.String(required=True)
+    nombre_empresa = fields.String(required=True)
+    descripcion_empresa = fields.String(required=True)
     pais = fields.String(required=True)
     ciudad = fields.String(required=True)
-    experiencia = fields.String(required=True)
-    educacion = fields.List(fields.Dict(),required=True)
+    url_logo = fields.String(required=True)
     url_foto_perfil = fields.String(required=True)
-    url_video_presentacion = fields.String(required=True)
+    genero = fields.String(required=True)
     redes_sociales = fields.List(fields.Dict(),required=True)
-
-class MusicianSchemaUpdate(Schema):
+### Validacion de update Organizadores ###
+class OrganizerSchemaUpdate(Schema):
     IdAuth = fields.Integer(required=True)
-    fecha_nacimiento = fields.Date(required=False)
-    instrumentos = fields.List(fields.Dict(), required=False)
-    generosMusicales = fields.List(fields.String(), required=False) 
+    telefono = fields.String(required=False)
+    nombre_empresa = fields.String(required=False)
+    descripcion_empresa = fields.String(required=False)
     pais = fields.String(required=False)
     ciudad = fields.String(required=False)
-    experiencia = fields.String(required=False)
-    educacion = fields.List(fields.Dict(), required=False)
+    url_logo = fields.String(required=False)
     url_foto_perfil = fields.String(required=False)
-    url_video_presentacion = fields.String(required=False)
-    redes_sociales = fields.List(fields.Dict(), required=False)
+    genero = fields.String(required=False)
+    redes_sociales = fields.List(fields.Dict(),required=False)
