@@ -190,14 +190,7 @@ namespace MS_Users_Auth.Controllers
                 MailSender mailSender = new MailSender(configuration);
                 string url = $"https://{APPURI}/api/auth/recovery/request?gdusr={guid.ToString()}&mn={Email.Replace("@", "%40")}";
                 MailSender.ErrorModel sent = null;
-                if (Email.Contains("@gmail.com"))
-                {
-                   sent  = await mailSender.SendEmailGmailAsync(Email, "Recuperar Contraseña en tu Cuenta Nodens", $"<a href={url}?mn={Email.Replace("@", "%40")}' target='_blank'>Recupera tu contraseña aquí</a>");
-                }
-                else if (Email.Contains("@hotmail.com") || Email.Contains("@outlook.com"))
-                {
-                    sent = await mailSender.SendEmailOutlook(Email, "Recuperar Contraseña en tu Cuenta Nodens", $"<a href={url}?mn={Email.Replace("@", "%40")}' target='_blank'>Recupera tu contraseña aquí</a>");
-                }
+                sent = await mailSender.SendEmailOutlook(Email, "Recuperar Contraseña en tu Cuenta Nodens", $"<a href={url}?mn={Email.Replace("@", "%40")}' target='_blank'>Recupera tu contraseña aquí</a>");
                 
                 return StatusCode(StatusCodes.Status200OK, new { guid = guid.ToString(), Email , email = result.email, source = result.source, timestamp = result.timestamp.ToString(), sent });
             }

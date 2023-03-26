@@ -78,16 +78,8 @@ namespace MS_Users_Auth.Controllers
                 await VerifyUsersCollection.InsertOneAsync(verifyUsersModel);
                 string emailHash = BC.HashString(obj.Email);
                 string url = $"https://{APPURI}/api/auth/verify?em={emailHash}&guid={guid.ToString()}";
-                MailSender.ErrorModel sent = null;
                 MailSender mailSender = new MailSender(configuration);
-                if (obj.Email.EndsWith("@gmail.com"))
-                {
-                    sent = await mailSender.SendEmailGmailAsync(obj.Email, "Verifica tu cuenta Nodens", $"<a href='{url}' target='_blank'>Verificala aquí</a>");
-                }
-                else if (obj.Email.EndsWith("@hotmail.com") || obj.Email.EndsWith("@outlook.com"))
-                {
-                    sent = await mailSender.SendEmailOutlook(obj.Email, "Verifica tu cuenta Nodens", $"<a href='{url}' target='_blank'>Verificala aquí</a>");
-                }
+                MailSender.ErrorModel sent = await mailSender.SendEmailOutlook(obj.Email, "Verifica tu cuenta Nodens", $"<a href='{url}' target='_blank'>Verificala aquí</a>");
                 return StatusCode(StatusCodes.Status200OK, new { Message = Response, url, sent });
             }
             catch (Exception err)
