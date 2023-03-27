@@ -37,9 +37,12 @@ namespace MS_Users_Auth.Controllers
             environmentConfig = options.Value;
             secretKey = config.GetSection("settings").GetSection("secretKey").Value;
             renewKey = config.GetSection("settings").GetSection("renewTokenKey").Value;
-            cadenaSQL = environmentConfig.CadenaSQL;
-            cadenaMongo = environmentConfig.CadenaMongo;
-            APPURI = environmentConfig.APPURL;
+            cadenaSQL = config.GetConnectionString("CadenaSQL");
+            cadenaMongo = config.GetConnectionString("CadenaMongo");
+            //cadenaSQL = environmentConfig.CadenaSQL;
+            //cadenaMongo = environmentConfig.CadenaMongo;
+            //APPURI = environmentConfig.APPURL;
+            APPURI = "http://nodens-auth.somee.com/";
             configuration = config;
         }
 

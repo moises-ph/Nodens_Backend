@@ -28,9 +28,13 @@ namespace MS_Users_Auth.Controllers
         public UserController(IConfiguration config, IOptions<EnvironmentConfig> options)
         {
             environmentConfig = options.Value;
-            cadenaSQL = environmentConfig.CadenaSQL;
-            cadenaMongo = environmentConfig.CadenaMongo;
-            APPURI = environmentConfig.APPURL;
+            cadenaSQL = config.GetConnectionString("CadenaSQL");
+            cadenaMongo = config.GetConnectionString("CadenaMongo");
+            //cadenaSQL = environmentConfig.CadenaSQL;
+            //cadenaMongo = environmentConfig.CadenaMongo;
+            //APPURI = environmentConfig.APPURL;
+            APPURI = "http://nodens-auth.somee.com/";
+            configuration = config;
         }
 
         [HttpPost("Register")]
