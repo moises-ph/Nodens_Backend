@@ -33,7 +33,7 @@ ma = Marshmallow(app)
 #CORS
 CORS(app)
 
-# Route para el perfil
+### Route para el perfil ###
 @app.route('/musician/profile', methods=["POST"])
 @token_required
 def uploadProfile(claims):
@@ -72,7 +72,7 @@ def uploadProfile(claims):
     except Exception as err:
         return jsonify(err)
 
-# Route para subir videos
+### Se crea la Route para subir videos ###
 @app.route("/musician/uploadVideo", methods=["POST"])
 @token_required
 def uploadMusician(claims):
@@ -116,7 +116,7 @@ def uploadMusician(claims):
     except Exception as err:
         return jsonify(err)
 
-### GETALL ###
+### Se crea el metodo "GETALL" para traer a todos los musicos ###
 @app.route("/musician/all", methods=["GET"])
 def getAllmusician():
     db = Database.dbConnection()
@@ -124,7 +124,7 @@ def getAllmusician():
     response = json_util.dumps(users)
     return response #Response(response, mimetype="application/json")
 
-### GETONLY ###
+### Se crea el metodo "GETONLY" para traer a 1 solo musico ###
 @app.route("/musician", methods=["GET"])
 @token_required
 def getMusician(claims):
@@ -135,7 +135,7 @@ def getMusician(claims):
     return response
 
 
-### POST ###
+### Se crea el metodo "POST" ###
 @app.route("/musician", methods=["POST"])
 @token_required
 def postInfomusician(claims):
@@ -184,7 +184,7 @@ def postInfomusician(claims):
         return response
 
 
-### DELETE ###
+### Aqui se crea el metodo "DELETE"  ###
 @app.route("/musician", methods=["DELETE"])
 @token_required
 def deleteMusician(claims):
@@ -256,8 +256,12 @@ def not_Found(error=None):
     })
 
 
+### LEER ESTO ### 
+### Crear el entorno virtual de esta forma (python -m venv env) ###
+### coloca de esta forma el comentario ###
+"""
+if __name__ =="__main__":  
+    app.run(debug = True, port=5000)
 
-# if __name__ =="__main__":  
-#     app.run(debug = True, port=5000)
-
+"""
 ### Cuando moises me mando hacer un micro servicio no tenia ni la menor idea de como iniciar pero tuve fe y ayuda de moises XD ###
