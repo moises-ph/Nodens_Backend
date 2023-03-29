@@ -9,6 +9,7 @@ from bson.objectid import  ObjectId
 from validations import MusicianInfo
 from werkzeug.datastructures import MultiDict
 from flask_marshmallow import Marshmallow
+from flask_cors import CORS
 
 from utils.tokenValidator import token_required
 
@@ -29,6 +30,8 @@ optional = OptionalRoutes(app)
 
 ma = Marshmallow(app)
 
+#CORS
+CORS(app)
 
 # Route para el perfil
 @app.route('/musician/profile', methods=["POST"])
