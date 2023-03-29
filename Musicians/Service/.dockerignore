@@ -1,2 +1,5 @@
 .env
 env
+.gitignore
+.dockerignore
+Dockerfile

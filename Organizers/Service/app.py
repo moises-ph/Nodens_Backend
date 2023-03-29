@@ -3,14 +3,15 @@ from collections import namedtuple
 from flask import Flask, request, jsonify, Response
 from flask_optional_routes import OptionalRoutes
 from marshmallow import ValidationError
-from Database import db as Database
+import db as Database
 from bson import json_util
 from bson.objectid import  ObjectId
-from validations import Organizersinfo
+import Organizersinfo
 from werkzeug.datastructures import MultiDict
 from flask_marshmallow import Marshmallow
+from flask_cors import CORS
 
-from utils.tokenValidator import token_required
+from tokenValidator import token_required
 
 import cloudinary
 import cloudinary.uploader
@@ -28,6 +29,8 @@ app.secret_key = "dfdgdfgfgf"
 optional = OptionalRoutes(app)
 
 ma = Marshmallow(app)
+
+CORS(app)
 
 # Route para el perfil
 @app.route('/Organizer/profile', methods=["POST"])

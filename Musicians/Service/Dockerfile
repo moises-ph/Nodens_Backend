@@ -1,14 +1,24 @@
-FROM ubuntu:20.04
+FROM python:slim
 
-RUN apt update
-RUN apt install python3-pip -y
+RUN apt-get clean \
+    && apt-get -y update
+
+RUN apt-get -y install nginx \
+    && apt-get -y install python3-dev \
+    && apt-get -y install build-essential
+
+RUN python -m pip install --upgrade pip
 
 WORKDIR /app
 
 COPY requeriments.txt requeriments.txt
 
-RUN pip3 install -r requeriments.txt
-
 COPY . .
 
-CMD ["python3", "src/app.py"]
+COPY nginx.conf /etc/nginx
+
+RUN pip install -r requeriments.txt
+
+RUN chmod +x ./start.sh
+
+CMD ["/app/start.sh"]
