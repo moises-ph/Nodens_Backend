@@ -21,4 +21,4 @@ RUN pip install -r requeriments.txt
 
 RUN chmod +x ./start.sh
 
-CMD ["/app/start.sh"]
+CMD ["sh","/app/start.sh"]
