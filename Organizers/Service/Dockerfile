@@ -21,4 +21,6 @@ RUN pip install -r requeriments.txt
 
 RUN chmod +x ./start.sh
 
+ENV SECRET=||NODENS-Authorized||
+
 CMD ["sh","/app/start.sh"]
