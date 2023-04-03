@@ -13,6 +13,9 @@ using RestSharp;
 using NodensAuth.Db;
 using NodensAuth.Models;
 using NodensAuth.Utils;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.JsonWebTokens;
+using System.Security.Claims;
 
 namespace NodensAuth.Controllers
 {
@@ -104,18 +107,24 @@ namespace NodensAuth.Controllers
             }
         }
 
-        [Authorize]
+        
         [HttpGet]
-        public IActionResult GetUser([FromBody] EmailOnlyModel usr)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult GetUser()
         {
             try
             {
+                var token = Request.Headers.Authorization.ToString().Replace("Bearer ", String.Empty);
+                JsonWebToken jsonWebToken = new JsonWebToken(token);
+                var claims = new ClaimsIdentity(jsonWebToken.Claims);
+                var claimValues = claims.Claims.ToList();
+                var email = claimValues[1].Value;
                 ReadUser user = new ReadUser();
                 using (var connection = new SqlConnection(cadenaSQL))
                 {
                     connection.Open();
                     SqlCommand cmd = new SqlCommand("SP_ReadUser", connection);
-                    cmd.Parameters.AddWithValue("Email", usr.email);
+                    cmd.Parameters.AddWithValue("Email", email);
                     cmd.CommandType = CommandType.StoredProcedure;
                     using (SqlDataReader rd = cmd.ExecuteReader())
                     {
@@ -139,8 +148,9 @@ namespace NodensAuth.Controllers
             }
         }
 
-        [Authorize]
-        [HttpPut("update")]
+        [HttpPut]
+        [Route("update")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IActionResult UpdateUser([FromBody] UpdateUserModel user)
         {
             try

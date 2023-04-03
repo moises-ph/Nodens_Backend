@@ -27,7 +27,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Configuration.AddJsonFile("appsettings.json").AddEnvironmentVariables();
 var secretKey = builder.Configuration.GetSection("settings").GetSection("secretKey").Value;
-var keyBytes = Encoding.ASCII.GetBytes(secretKey);
+var keyBytes = Encoding.UTF8.GetBytes(secretKey);
 builder.Services.AddAuthentication(config => {
     config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;

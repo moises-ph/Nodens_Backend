@@ -55,12 +55,12 @@ namespace NodensAuth.Controllers
                 }
                 JsonWebToken jsonWebToken = new JsonWebToken(token);
                 var claims = new ClaimsIdentity(jsonWebToken.Claims);
-                var keyBytes = Encoding.ASCII.GetBytes(secretKey);
+                var keyBytes = Encoding.UTF8.GetBytes(secretKey);
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = claims,
                     Expires = DateTime.UtcNow.AddMinutes(15),
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256)
                 };
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
@@ -119,27 +119,24 @@ namespace NodensAuth.Controllers
                     return StatusCode(StatusCodes.Status401Unauthorized, new { token = "", message = "Contraseña Incorrecta" });
                 }
 
-                var keyBytes = Encoding.ASCII.GetBytes(secretKey);
-                var claims = new ClaimsIdentity();
-                claims.AddClaim(new Claim(ClaimTypes.Email, usr.Email));
-                claims.AddClaim(new Claim("Id", Id.ToString()));
-                claims.AddClaim(new Claim(ClaimTypes.Role, Role));
-                var tokenDescriptor = new SecurityTokenDescriptor
+                var keyBytes = Encoding.UTF8.GetBytes(secretKey);
+                var securityKey = new SymmetricSecurityKey(keyBytes);
+                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+                var claims = new[]
                 {
-                    Subject = claims,
-                    Expires = DateTime.UtcNow.AddMinutes(15),
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
+                    new Claim("Role", Role),
+                    new Claim("Email", usr.Email),
+                    new Claim("Id", Id.ToString())
                 };
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
-                string tokencreado = tokenHandler.WriteToken(tokenConfig);
+                var token = new JwtSecurityToken(null,null, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
+                var tokencreado = new JwtSecurityTokenHandler().WriteToken(token);
                 var RenewKey = BC.HashString(renewKey);
                 Response.Cookies.Append("RenewKey", RenewKey);
                 return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, Verified, Name, Lastname });
             }
             catch (Exception err)
             {
-                return StatusCode(StatusCodes.Status401Unauthorized, new { token = "", msg = err.Message, err });
+                return StatusCode(StatusCodes.Status401Unauthorized, new { token = "", msg = err.Message });
             }
         }
 

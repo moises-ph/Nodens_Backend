@@ -14,11 +14,9 @@ namespace NodensAuth.Models
         public string Lastname { get; set; }
 
         [Required]
-        [AllowNull]
         [EmailAddress]
         public string OldEmail { get; set; }
 
-        [AllowNull]
         [EmailAddress]
         public string? NewEmail { get; set; }
 
