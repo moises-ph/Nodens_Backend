@@ -16,7 +16,7 @@ def token_required(f):
         try:
             data = jwt.decode(token, config.SECRET, algorithms=["HS256"])
             isMusician = False
-            if data['role'] == "Musician":
+            if data['Role'] == "Musician":
                 isMusician = True
             
             IdSQL = data['Id']
