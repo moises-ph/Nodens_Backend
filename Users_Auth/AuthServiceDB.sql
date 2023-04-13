@@ -13,8 +13,7 @@ create table Users(
 	id int primary key identity(1,1),
 	email varchar(320) unique not null,
 	password varchar(max) not null,
-	Name varchar(100) not null,
-	Lastname varchar(100) not null,
+	userName varchar(100) not null,
 	created_at date not null,
 	updated_at date,
 	Verified bit not null default 0,
@@ -46,8 +45,7 @@ INSERT into Role(name) values ('Musician'),('Organizer')
 go
 create procedure SP_CreateUser
 	@Email varchar(320),
-	@Name varchar(100),
-	@Lastname varchar(100),
+	@userName varchar(100),
 	@Password varchar(max),
 	@Role varchar(50)
 as
@@ -55,8 +53,8 @@ begin transaction TX_New_User
 	BEGIN TRY
 		if @Role = 'Musician' or @Role = 'Organizer'
 		begin
-			INSERT INTO Users(email,password, Name, Lastname, created_at, role_id)
-			values (@Email, @Password, @Name, @Lastname, GETDATE(), (select id from Role where name = @Role))
+			INSERT INTO Users(email,password, userName, created_at, role_id)
+			values (@Email, @Password, @userName,GETDATE(), (select id from Role where name = @Role))
 
 			COMMIT TRANSACTION TX_New_User
 			SELECT 'Usuario Creado Correctamente' as Message, 0 as Error
@@ -75,7 +73,7 @@ create procedure SP_ReadUser
 	@Email varchar(320)
 as
 begin
-	SELECT Name, Lastname, (select name from Role where id = role_id) as Role, email, Verified from Users where email = @Email
+	SELECT userName, (select name from Role where id = role_id) as Role, email, Verified from Users where email = @Email
 end
 go
 
@@ -87,7 +85,7 @@ create procedure SP_AuthUser
 as
 begin
 	if exists(SELECT id from Users where email = @Email)
-		SELECT Users.password as 'password', Users.Verified as 'Verified', Users.id as 'id', Users.Name as 'Name', Users.Lastname as 'Lastname', Role.name as 'Role' from Users inner join Role on Users.role_id = Role.id where email = @Email 
+		SELECT Users.password as 'password', Users.Verified as 'Verified', Users.id as 'id', Users.userName as 'userName', Role.name as 'Role' from Users inner join Role on Users.role_id = Role.id where email = @Email 
 	else
 		SELECT null as password, null as Verified, null as Role
 end
@@ -156,14 +154,12 @@ go
 create procedure SP_UpdateUser
 	@Email varchar(320),
 	@newEmail varchar(320),
-	@Name varchar(100),
-	@Lastname varchar(100)
+	@userName varchar(100)
 as
 begin transaction TX_Update_User
 	BEGIN TRY
 			update Users set 
-				Name = ISNULL(@Name, Name),
-				Lastname = ISNULL(@Lastname, Lastname),
+				userName = ISNULL(@userName, userName),
 				updated_at = GETDATE()
 			where email = @Email
 			if (@newEmail != @Email) begin 

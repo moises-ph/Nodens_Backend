@@ -22,7 +22,7 @@ def token_required(f):
             IdSQL = data['Id']
             claims = {
                 "IdAuth" : IdSQL,
-                "isMusician" : isOrganizer
+                "isOrganizer" : isOrganizer
             }
         except:
             response = jsonify({'message':'Token is invalid'})

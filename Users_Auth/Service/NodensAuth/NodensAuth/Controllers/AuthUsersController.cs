@@ -29,7 +29,7 @@ namespace NodensAuth.Controllers
         private readonly string renewKey;
         private readonly string cadenaSQL;
         private readonly string cadenaMongo;
-        private readonly string APPURI;
+        private readonly string APPURI = "<none>";
         private readonly IConfiguration configuration;
         private readonly EnvironmentConfig environmentConfig;
         public Auht_UsersController(IConfiguration config, IOptions<EnvironmentConfig> options)
@@ -37,9 +37,11 @@ namespace NodensAuth.Controllers
             environmentConfig = options.Value;
             secretKey = config.GetSection("settings").GetSection("secretKey").Value;
             renewKey = config.GetSection("settings").GetSection("renewTokenKey").Value;
-            cadenaSQL = environmentConfig.CadenaSQL;
-            cadenaMongo = environmentConfig.CadenaMongo;
-            APPURI = environmentConfig.APPURL;
+            cadenaSQL = config.GetConnectionString("CadenaSQL");
+            cadenaMongo = config.GetConnectionString("CadenaMongo");
+            //cadenaSQL = environmentConfig.CadenaSQL;
+            //cadenaMongo = environmentConfig.CadenaMongo;
+            //APPURI = environmentConfig.APPURL;
             configuration = config;
         }
 
@@ -86,8 +88,7 @@ namespace NodensAuth.Controllers
                 bool Verified = false;
                 int Id = 0;
                 string? Role = String.Empty;
-                string? Name = String.Empty;
-                string? Lastname = String.Empty;
+                string? userName = String.Empty;
                 using (var connection = new SqlConnection(cadenaSQL))
                 {
                     connection.Open();
@@ -103,8 +104,7 @@ namespace NodensAuth.Controllers
                             Verified = Convert.ToInt32(reader["Verified"]) == 1;
                             Id = Convert.ToInt32(reader["id"]);
                             Role = reader["Role"].ToString();
-                            Name = reader["Name"].ToString();
-                            Lastname = reader["Lastname"].ToString();
+                            userName = reader["userName"].ToString();
                         }
                         else
                         {
@@ -132,7 +132,7 @@ namespace NodensAuth.Controllers
                 var tokencreado = new JwtSecurityTokenHandler().WriteToken(token);
                 var RenewKey = BC.HashString(renewKey);
                 Response.Cookies.Append("RenewKey", RenewKey);
-                return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, Verified, Name, Lastname });
+                return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, Verified, userName });
             }
             catch (Exception err)
             {

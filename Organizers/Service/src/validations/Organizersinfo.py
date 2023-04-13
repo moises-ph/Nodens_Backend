@@ -7,6 +7,8 @@ class RedesSocialesField(Schema):
 ### Validacion de create Organizadores ###
 class OrganizerSchemaCreate(Schema):
     IdAuth = fields.Integer(required=True)
+    Name = fields.String(required=True)
+    Lastname = fields.String(required=True)
     telefono = fields.String(required=True)
     nombre_empresa = fields.String(required=True)
     descripcion_empresa = fields.String(required=True)
@@ -19,6 +21,8 @@ class OrganizerSchemaCreate(Schema):
 ### Validacion de update Organizadores ###
 class OrganizerSchemaUpdate(Schema):
     IdAuth = fields.Integer(required=True)
+    Name = fields.String(required=False)
+    Lastname = fields.String(required=False)
     telefono = fields.String(required=False)
     nombre_empresa = fields.String(required=False)
     descripcion_empresa = fields.String(required=False)

@@ -16,6 +16,8 @@ class RedesSocialesField(Schema):
 
 class MusicianSchemaCreate(Schema):
     IdAuth = fields.Integer(required=True)
+    Name = fields.String(required=True)
+    Lastname = fields.String(required=True)
     fecha_nacimiento = fields.Date(required=True)
     instrumentos = fields.List(fields.Dict(),required=True)
     genero = fields.String(required=True)
@@ -32,6 +34,8 @@ class MusicianSchemaCreate(Schema):
 
 class MusicianSchemaUpdate(Schema):
     IdAuth = fields.Integer(required=True)
+    Name = fields.String(required=False)
+    Lastname = fields.String(required=False)
     fecha_nacimiento = fields.Date(required=False)
     instrumentos = fields.List(fields.Dict(), required=False)
     genero = fields.String(required=False)

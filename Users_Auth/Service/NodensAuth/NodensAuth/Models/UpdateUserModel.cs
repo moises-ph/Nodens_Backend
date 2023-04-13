@@ -7,11 +7,7 @@ namespace NodensAuth.Models
     {
         [Required]
         [AllowNull]
-        public string Name { get; set; }
-
-        [Required]
-        [AllowNull]
-        public string Lastname { get; set; }
+        public string userName { get; set; }
 
         [Required]
         [EmailAddress]

@@ -28,13 +28,15 @@ namespace NodensAuth.Controllers
         private readonly IConfiguration configuration;
         private readonly string cadenaMongo;
         private readonly EnvironmentConfig environmentConfig;
-        private readonly string APPURI;
+        private readonly string APPURI = "<none>";
         public UserController(IConfiguration config, IOptions<EnvironmentConfig> options)
         {
             environmentConfig = options.Value;
-            cadenaSQL = environmentConfig.CadenaSQL;
-            cadenaMongo = environmentConfig.CadenaMongo;
-            APPURI = environmentConfig.APPURL;
+            cadenaSQL = config.GetConnectionString("CadenaSQL");
+            cadenaMongo = config.GetConnectionString("CadenaMongo");
+            //cadenaSQL = environmentConfig.CadenaSQL;
+            //cadenaMongo = environmentConfig.CadenaMongo;
+            //APPURI = environmentConfig.APPURL;
             configuration = config;
         }
 
@@ -50,8 +52,7 @@ namespace NodensAuth.Controllers
                     connection.Open();
                     var cmd = new SqlCommand("SP_CreateUser", connection);
                     cmd.Parameters.AddWithValue("Email", obj.Email);
-                    cmd.Parameters.AddWithValue("Name", obj.Name);
-                    cmd.Parameters.AddWithValue("Lastname", obj.Lastname);
+                    cmd.Parameters.AddWithValue("userName", obj.userName);
                     cmd.Parameters.AddWithValue("Role", obj.Rol);
                     cmd.Parameters.AddWithValue("Password", BC.HashPassword(obj.Password, 10));
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -93,7 +94,7 @@ namespace NodensAuth.Controllers
                 request.AddParameter("domain", "sandbox6562cab7a1654c4aa48c3a000ddc12f8.mailgun.org", ParameterType.UrlSegment);
                 request.Resource = "{domain}/messages";
                 request.AddParameter("from", "Mailgun Sandbox <postmaster@sandbox6562cab7a1654c4aa48c3a000ddc12f8.mailgun.org>");
-                request.AddParameter("to", $"{obj.Name} {obj.Lastname} <{obj.Email}>");
+                request.AddParameter("to", $"{obj.userName} <{obj.Email}>");
                 request.AddParameter("subject", "Verifica tu correo de Nodens");
                 request.AddParameter("template", "nodensvalidation");
                 request.AddParameter("h:X-Mailgun-Variables", "{'url': '" + url + "'}");
@@ -130,8 +131,7 @@ namespace NodensAuth.Controllers
                     {
                         while (rd.Read())
                         {
-                            user.Name = rd["Name"].ToString();
-                            user.Lastname = rd["Lastname"].ToString();
+                            user.userName = rd["userName"].ToString();
                             user.Email = rd["email"].ToString();
                             user.Rol = rd["Role"].ToString();
                             user.Verified = Convert.ToInt16(rd["Verified"]) == 1;
@@ -163,8 +163,7 @@ namespace NodensAuth.Controllers
                     SqlCommand cmd = new SqlCommand("SP_UpdateUser", connection);
                     cmd.Parameters.AddWithValue("Email", user.OldEmail);
                     cmd.Parameters.AddWithValue("newEmail", user.NewEmail);
-                    cmd.Parameters.AddWithValue("Name", user.Name);
-                    cmd.Parameters.AddWithValue("Lastname", user.Lastname);
+                    cmd.Parameters.AddWithValue("userName", user.userName);
                     cmd.CommandType = CommandType.StoredProcedure;
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {

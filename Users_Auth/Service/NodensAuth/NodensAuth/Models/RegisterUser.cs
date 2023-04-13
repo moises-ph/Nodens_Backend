@@ -12,11 +12,7 @@ namespace NodensAuth.Models
 
         [Required]
         [StringLength(50)]
-        public string Name { get; set; }
-
-        [Required]
-        [StringLength(50)]
-        public string Lastname { get; set; }
+        public string userName { get; set; }
 
         [Required]
         [StringLength(9)]
