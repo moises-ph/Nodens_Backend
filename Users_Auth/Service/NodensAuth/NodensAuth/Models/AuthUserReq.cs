@@ -2,7 +2,7 @@
 
 namespace NodensAuth.Models
 {
-    public class Auth_User
+    public class AuthUserReq
     {
         [EmailAddress(ErrorMessage = "Ingrese un email válido")]
         [Required]

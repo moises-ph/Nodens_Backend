@@ -17,6 +17,7 @@ using RestSharp;
 using NodensAuth.Db;
 using NodensAuth.Models;
 using NodensAuth.Utils;
+using static NodensAuth.Db.SQL;
 
 namespace NodensAuth.Controllers
 {
@@ -32,17 +33,19 @@ namespace NodensAuth.Controllers
         private readonly string APPURI = "<none>";
         private readonly IConfiguration configuration;
         private readonly EnvironmentConfig environmentConfig;
+        private readonly SQL SQLHandler;
         public Auht_UsersController(IConfiguration config, IOptions<EnvironmentConfig> options)
         {
             environmentConfig = options.Value;
             secretKey = config.GetSection("settings").GetSection("secretKey").Value;
             renewKey = config.GetSection("settings").GetSection("renewTokenKey").Value;
-            cadenaSQL = config.GetConnectionString("CadenaSQL");
-            cadenaMongo = config.GetConnectionString("CadenaMongo");
-            //cadenaSQL = environmentConfig.CadenaSQL;
-            //cadenaMongo = environmentConfig.CadenaMongo;
-            //APPURI = environmentConfig.APPURL;
+            //cadenaSQL = config.GetConnectionString("CadenaSQL");
+            //cadenaMongo = config.GetConnectionString("CadenaMongo");
+            cadenaSQL = environmentConfig.CadenaSQL;
+            cadenaMongo = environmentConfig.CadenaMongo;
+            APPURI = environmentConfig.APPURL;
             configuration = config;
+            SQLHandler = new SQL(cadenaSQL);
         }
 
         [HttpPut("renew")]
@@ -80,41 +83,17 @@ namespace NodensAuth.Controllers
 
         [HttpPost]
         [Route("login")]
-        public IActionResult Post([FromBody] Auth_User usr)
+        public IActionResult Post([FromBody] AuthUserReq usr)
         {
             try
             {
-                string? password = String.Empty;
-                bool Verified = false;
-                int Id = 0;
-                string? Role = String.Empty;
-                string? userName = String.Empty;
-                using (var connection = new SqlConnection(cadenaSQL))
+                ReadAuthUser? readAuthUser = new ReadAuthUser();
+                readAuthUser = SQLHandler.AuthUser(usr.Email);
+                if (readAuthUser == null)
                 {
-                    connection.Open();
-                    var cmd = new SqlCommand("SP_AuthUser", connection);
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("Email", usr.Email);
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        reader.Read();
-                        if (reader["password"] != DBNull.Value)
-                        {
-                            password = reader["password"].ToString();
-                            Verified = Convert.ToInt32(reader["Verified"]) == 1;
-                            Id = Convert.ToInt32(reader["id"]);
-                            Role = reader["Role"].ToString();
-                            userName = reader["userName"].ToString();
-                        }
-                        else
-                        {
-                            return StatusCode(StatusCodes.Status404NotFound, new { token = "", message = "Usuario no encontrado" });
-                        }
-                        reader.Close();
-                    }
-                    connection.Close();
+                    return BadRequest(new { Message = "El usuario no existe" });
                 }
-                if (!BC.Verify(usr.Password, password))
+                if (!BC.Verify(usr.Password, readAuthUser.password))
                 {
                     return StatusCode(StatusCodes.Status401Unauthorized, new { token = "", message = "Contraseña Incorrecta" });
                 }
@@ -124,15 +103,15 @@ namespace NodensAuth.Controllers
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
                 var claims = new[]
                 {
-                    new Claim("Role", Role),
+                    new Claim("Role", readAuthUser.Role),
                     new Claim("Email", usr.Email),
-                    new Claim("Id", Id.ToString())
+                    new Claim("Id", readAuthUser.Id.ToString())
                 };
                 var token = new JwtSecurityToken(null,null, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
                 var tokencreado = new JwtSecurityTokenHandler().WriteToken(token);
                 var RenewKey = BC.HashString(renewKey);
                 Response.Cookies.Append("RenewKey", RenewKey);
-                return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, Verified, userName });
+                return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, readAuthUser.Verified, readAuthUser.userName });
             }
             catch (Exception err)
             {
@@ -148,29 +127,14 @@ namespace NodensAuth.Controllers
             {
                 if (Email == null)
                 {
-                    return BadRequest(new { msg = "Email no válido" });
+                    return BadRequest(new { Message = "Email no válido" });
                 }
-                bool isRegistered = false;
-                int? UserId = 0;
-                using (var connection = new SqlConnection(cadenaSQL))
-                {
-                    connection.Open();
-                    var cmd = new SqlCommand("SP_AuthUser", connection);
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("Email", Email);
-                    cmd.Parameters.AddWithValue("Password", Password);
-                    using (SqlDataReader rd = await cmd.ExecuteReaderAsync())
-                    {
-                        rd.Read();
-                        isRegistered = rd["Password"] != DBNull.Value;
-                        UserId = rd["Password"] != DBNull.Value ? Convert.ToInt32(rd["Id"].ToString()) : null;
-                        rd.Close();
-                    }
-                    connection.Close();
-                }
+                ReadAuthUser? readAuthUser = new ReadAuthUser();
+                readAuthUser = SQLHandler.AuthUser(Email);
+                bool isRegistered = readAuthUser != null;
                 if (!isRegistered)
                 {
-                    return NotFound(new { msg = "Usuario no registrado" });
+                    return NotFound(new { Message = "Usuario no registrado" });
                 }
                 MongoClass mongoClass = new MongoClass(cadenaMongo);
                 var mongoClientRequests = mongoClass.ClientRequest;
@@ -180,7 +144,7 @@ namespace NodensAuth.Controllers
                 {
                     source = new MongoClass.SourceRequest()
                     {
-                        UserId = UserId,
+                        UserId = readAuthUser.Id,
                         EncodedId = guid.ToString(),
                         Verified = false
                     },
@@ -204,7 +168,7 @@ namespace NodensAuth.Controllers
                 request.Method = Method.Post;
                 RestResponse response = await client.ExecuteAsync(request);
 
-                return StatusCode(StatusCodes.Status200OK, new { guid = guid.ToString(), Email, email = result.email, source = result.source, timestamp = result.timestamp.ToString(), response });
+                return StatusCode(StatusCodes.Status200OK, new { guid = guid.ToString(), Email, email = result.email, source = result.source, timestamp = result.timestamp.ToString() });
             }
             catch (Exception err)
             {
@@ -284,38 +248,26 @@ namespace NodensAuth.Controllers
                     return BadRequest(new { msg = "Vuelva a solicitar el restablecimiento de su contraseña" });
                 }
 
-                int isError = 0;
-                string? msg = string.Empty;
 
                 string passwordCrypt = BC.HashPassword(pass.Password, 10);
 
-                using (var connection = new SqlConnection(cadenaSQL))
+                SQLResult sqlresult = new SQLResult();
+
+                sqlresult = await SQLHandler.ChangePassword(new AuthUserReq() { Email = Email, Password = passwordCrypt });
+
+                if (sqlresult.Error)
                 {
-                    connection.Open();
-                    var cmd = new SqlCommand("SP_ChangePassword", connection);
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("Email", Email);
-                    cmd.Parameters.AddWithValue("Password", passwordCrypt);
-                    using (var rd = await cmd.ExecuteReaderAsync())
-                    {
-                        while (rd.Read())
-                        {
-                            isError = Convert.ToInt32(rd["Error"].ToString());
-                            msg = rd["Respuesta"].ToString();
-                        }
-                        rd.Close();
-                    }
-                    connection.Close();
+                    return StatusCode(500, new { Message = sqlresult.Message });
                 }
 
                 var delFilter = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.source.EncodedId, Guid);
                 DeleteResult deleteResult = await mongoClientRequests.DeleteManyAsync(delFilter);
 
-                return StatusCode(200, new { msg = "Contraseña cambiada exitosamente" });
+                return StatusCode(200, new { Message = "Contraseña cambiada exitosamente" });
             }
             catch (Exception err)
             {
-                return StatusCode(StatusCodes.Status401Unauthorized, new { msg = err.Message });
+                return StatusCode(StatusCodes.Status401Unauthorized, new { Message = err.Message });
             }
         }
 
@@ -324,7 +276,6 @@ namespace NodensAuth.Controllers
         {
             try
             {
-                bool Error = false;
                 string Response = String.Empty;
                 MongoClass mongoClass = new MongoClass(cadenaMongo);
                 IMongoCollection<MongoClass.VerifyUsersModel> verifyCollection = mongoClass.VerifyUsers;
@@ -336,39 +287,22 @@ namespace NodensAuth.Controllers
                     return StatusCode(StatusCodes.Status404NotFound, new { Message = "Url Expirada, intente de nuevo" });
                 }
 
-                bool isEmail = BC.Verify(result.source.email, em);
-                bool isGuid = result.source.unique_str == guid;
+                SQLResult sqlresult = new SQLResult();
 
-                if (isEmail && isGuid)
+                if (BC.Verify(result.source.email, em) && result.source.unique_str == guid)
                 {
                     string email = result.source.email;
-                    using (SqlConnection connection = new SqlConnection(cadenaSQL))
-                    {
-                        connection.Open();
-                        var cmd = new SqlCommand("SP_VerifyUser", connection);
-                        cmd.Parameters.AddWithValue("Email", email);
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                Error = Convert.ToInt32(reader["Error"].ToString()) == 1;
-                                Response = reader["Message"].ToString();
-                            }
-                            reader.Close();
-                        }
-                        connection.Close();
-                    }
+                    sqlresult = SQLHandler.VerifyUser(email);
                 }
 
-                if (Error)
+                if (sqlresult.Error)
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, new { Response, Message = "Vuelva a intentarlo" });
                 }
 
                 DeleteResult deleteResult = await verifyCollection.DeleteManyAsync(filter);
 
-                return StatusCode(StatusCodes.Status200OK, new { Response });
+                return StatusCode(StatusCodes.Status200OK, new { Response, Message = sqlresult.Message });
             }
             catch (Exception err)
             {
@@ -381,22 +315,8 @@ namespace NodensAuth.Controllers
         {
             try
             {
-                bool exists = false;
-                using (SqlConnection connection = new SqlConnection(cadenaSQL))
-                {
-                    connection.Open();
-                    SqlCommand cmd = new SqlCommand("SP_AuthUser", connection);
-                    cmd.Parameters.AddWithValue("Email", verifyReq.email);
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        reader.Read();
-                        exists = reader["Verified"] != DBNull.Value;
-                        reader.Close();
-                    }
-                    connection.Close();
-                }
-                if (!exists)
+                ReadAuthUser? result = SQLHandler.AuthUser(verifyReq.email);
+                if (result == null)
                 {
                     return StatusCode(StatusCodes.Status404NotFound, new { Message = "El usuario no existe, por favor regístrese" });
                 }
@@ -417,7 +337,7 @@ namespace NodensAuth.Controllers
 
                 await verifyCollection.InsertOneAsync(verifyUsersModel);
                 string emailHash = BC.HashString(verifyReq.email);
-                string url = $"https://localhost:44384/api/auth/verify?em={emailHash}&guid={guid.ToString()}";
+                string url = $"https://localhost:44384/api/auth/verify?em={emailHash}&guid={guid}";
                 return StatusCode(StatusCodes.Status200OK, new { url, Message = "Verificación de email solicitada correctamente, vaya al enlace" });
             }
             catch (Exception err)

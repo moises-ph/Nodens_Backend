@@ -13,7 +13,7 @@ create table Users(
 	id int primary key identity(1,1),
 	email varchar(320) unique not null,
 	password varchar(max) not null,
-	userName varchar(100) not null,
+	userName varchar(100) unique not null,
 	created_at date not null,
 	updated_at date,
 	Verified bit not null default 0,
