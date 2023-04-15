@@ -25,7 +25,6 @@ namespace NodensAuth.Controllers
     public class UserController : ControllerBase
     {
         private readonly string cadenaSQL;
-        private readonly IConfiguration configuration;
         private readonly string cadenaMongo;
         private readonly EnvironmentConfig environmentConfig;
         private readonly string APPURI = "<none>";
@@ -37,7 +36,6 @@ namespace NodensAuth.Controllers
             //cadenaSQL = environmentConfig.CadenaSQL;
             //cadenaMongo = environmentConfig.CadenaMongo;
             //APPURI = environmentConfig.APPURL;
-            configuration = config;
         }
 
         [HttpPost("Register")]
