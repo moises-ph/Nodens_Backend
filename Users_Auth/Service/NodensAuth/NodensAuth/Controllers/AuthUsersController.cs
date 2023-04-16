@@ -1,23 +1,20 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
-using System.Data;
-using System.Data.SqlClient;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using BC = BCrypt.Net.BCrypt;
-using System.Text;
-using Microsoft.AspNetCore.Authorization;
-using MongoDB.Driver;
-using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using RestSharp.Authenticators;
-using RestSharp;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 using NodensAuth.Db;
 using NodensAuth.Models;
 using NodensAuth.Utils;
+using RestSharp;
+using RestSharp.Authenticators;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using static NodensAuth.Db.SQL;
+using BC = BCrypt.Net.BCrypt;
 
 namespace NodensAuth.Controllers
 {
@@ -107,7 +104,7 @@ namespace NodensAuth.Controllers
                     new Claim("Email", usr.Email),
                     new Claim("Id", readAuthUser.Id.ToString())
                 };
-                var token = new JwtSecurityToken(null,null, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
+                var token = new JwtSecurityToken(null, null, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
                 var tokencreado = new JwtSecurityTokenHandler().WriteToken(token);
                 var RenewKey = BC.HashString(renewKey);
                 Response.Cookies.Append("RenewKey", RenewKey);

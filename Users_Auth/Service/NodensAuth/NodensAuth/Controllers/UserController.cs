@@ -1,22 +1,18 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Cors;
-using System.Data;
-using System.Data.SqlClient;
-using BC = BCrypt.Net.BCrypt;
-using System.Text;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using MongoDB.Driver;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using RestSharp.Authenticators;
-using RestSharp;
+using Microsoft.IdentityModel.JsonWebTokens;
+using MongoDB.Driver;
 using NodensAuth.Db;
 using NodensAuth.Models;
 using NodensAuth.Utils;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.JsonWebTokens;
+using RestSharp;
+using RestSharp.Authenticators;
 using System.Security.Claims;
 using static NodensAuth.Db.SQL;
+using BC = BCrypt.Net.BCrypt;
 
 namespace NodensAuth.Controllers
 {
@@ -89,7 +85,7 @@ namespace NodensAuth.Controllers
             }
         }
 
-        
+
         [HttpGet]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IActionResult GetUser()

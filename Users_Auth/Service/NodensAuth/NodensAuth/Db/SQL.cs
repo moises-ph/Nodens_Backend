@@ -1,6 +1,6 @@
 ﻿using NodensAuth.Models;
-using System.Data.SqlClient;
 using System.Data;
+using System.Data.SqlClient;
 using BC = BCrypt.Net.BCrypt;
 
 namespace NodensAuth.Db
@@ -16,7 +16,7 @@ namespace NodensAuth.Db
 
         public SQL(string conString)
         {
-             connectionString = conString;
+            connectionString = conString;
         }
 
         public SQLResult CreateUser(RegisterUser user)

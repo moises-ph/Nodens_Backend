@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using NodensAuth.Utils;
 using System.Text;
@@ -28,10 +27,12 @@ builder.Services.AddSwaggerGen();
 builder.Configuration.AddJsonFile("appsettings.json").AddEnvironmentVariables();
 var secretKey = builder.Configuration.GetSection("settings").GetSection("secretKey").Value;
 var keyBytes = Encoding.UTF8.GetBytes(secretKey);
-builder.Services.AddAuthentication(config => {
+builder.Services.AddAuthentication(config =>
+{
     config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(config => {
+}).AddJwtBearer(config =>
+{
     config.RequireHttpsMetadata = false;
     config.SaveToken = false;
     config.TokenValidationParameters = new TokenValidationParameters
