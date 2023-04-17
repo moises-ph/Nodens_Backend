@@ -1,6 +1,6 @@
 import { Offer } from "../models/offers.model";
 
-export const getOffers = async (req : any, reply : any) => {
+export const getAllOffers = async (req : any, reply : any) => {
     const Offers = await Offer.find();
     return reply.code(200).send(Offers);
 }

@@ -23,12 +23,13 @@ export interface IOffer {
     Creation_Date : Date,
     Event_Date : Date,
     Payment : number,
-    OrganizerId : ObjectId,
+    OrganizerId : number,
     Event_Ubication : IEventUbication,
     Applicants : IApplicant[] | null,
     Img : string,
     Requeriments : IRequeriments[] | null,
-    Vacants : number
+    Vacants : number,
+    isAvailable : boolean
 }
 
 const RequerimentsSchema = new Schema<IRequeriments>({
@@ -53,12 +54,13 @@ const OfferSchema = new Schema<IOffer>({
     Creation_Date : { type : Schema.Types.Date, required : true },
     Event_Date : { type : Schema.Types.Date, required : true },
     Payment : { type : Schema.Types.Number, required : true },
-    OrganizerId : { type : Schema.Types.ObjectId, required : true },
+    OrganizerId : { type : Schema.Types.Number, required : true },
     Event_Ubication : { type : SchemaEventUbication, required : true },
     Applicants : { type : [ApplicantSchema], required : false, default : [] },
     Img : { type : Schema.Types.String, required : false },
     Requeriments : { type : [RequerimentsSchema], required : true },
     Vacants : { type : Schema.Types.Number, required : true },
+    isAvailable : { type : Schema.Types.Boolean, required : true }
 });
 
 export const Offer = model<IOffer>("Offers", OfferSchema);

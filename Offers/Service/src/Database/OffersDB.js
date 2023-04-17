@@ -10,7 +10,7 @@ db.createCollection("Offers", {
             required : ["Title", "Description", "Creation_Date", "Event_Date", "Payment", "OrganizerId", "Event_Ubication", "Requeriments", "Vacants"],
             properties : {
                 OrganizerId : {
-                    bsonType : "objectId",
+                    bsonType : "int",
                     description : "El organizador debe tener un id válido"
                 },
                 Title : {
@@ -60,6 +60,9 @@ db.createCollection("Offers", {
                 },
                 Vacants : {
                     bsonType : "int"
+                },
+                isAvailable : {
+                    bsonType : "boolean"
                 }
             }
         }
