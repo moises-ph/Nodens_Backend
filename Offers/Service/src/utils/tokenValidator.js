@@ -38,15 +38,12 @@ const config_1 = require("../configuration/config");
 function validateToken(request, reply, next) {
     return __awaiter(this, void 0, void 0, function* () {
         let requestToken = request.headers.authorization || null;
-        console.log(request.headers);
         if (requestToken) {
             try {
                 requestToken = requestToken.replace("Bearer ", "");
                 const { payload } = yield jose.jwtVerify(requestToken, new TextEncoder().encode(config_1._SECRET));
-                console.log(payload);
                 request.body.OrganizerId = payload.Id;
-                // next();
-                reply.code(200).send({ ok: "Validated" });
+                next();
             }
             catch (err) {
                 reply.code(401).send(err);

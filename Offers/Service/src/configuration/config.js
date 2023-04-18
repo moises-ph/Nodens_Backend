@@ -27,4 +27,4 @@ exports._MONGODB_URI = exports._SECRET = void 0;
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 exports._SECRET = process.env.SECRET;
-exports._MONGODB_URI = process.env.MONGODB_URI;
+exports._MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/Nodens_Offers";
