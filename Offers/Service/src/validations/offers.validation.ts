@@ -1,29 +1,54 @@
 import { Static, Type } from "@sinclair/typebox";
+import { FromSchema } from "json-schema-to-ts";
 
-export const OfferSchema = Type.Object({
-    Title : Type.String(),
-    Description : Type.String(),
-    Creation_Date : Type.Date(),
-    Event_Date : Type.Date(),
-    Payment : Type.Number(),
-    OrganizerId : Type.Optional(Type.Number({default : 0})), // The Id for the Organizer is the Auth Id, not mongo Id. 
-    Event_Ubication : Type.Optional(Type.Array(Type.Object({
-        Career : Type.String(),
-        Street : Type.String(),
-        City : Type.String(),
-        SiteNumber : Type.String(),
-        Town : Type.String()
-    }))),
-    Applicants : Type.Optional(Type.Array(Type.Object({
-        ApplicantId : Type.Number(), // The Id for the Applicants is the Auth Id, not mongo Id. 
-        PostulationDate : Type.Date()
-    }))),
-    Img : (Type.String()),
-    Requeriments : Type.Array(Type.Object({
-        Description : (Type.String())
-    })),
-    Vacants : Type.Number(),
-    isAvailable : Type.Boolean()
-});
+export const OfferSchema = {
+    type : "object",
+    properties : {
+        Title : { type : "string" },
+        Description : { type : "string" },
+        Creation_Date : { type : "string", format : "date" },
+        Event_Date : { type : "string", format : "date" },
+        Payment : { type : "integer" },
+        OrganizerId : { type : "integer" },
+        Event_Ubication : { 
+            type : "object",
+            properties : {
+                Career : { type : "string" },
+                Street : { type : "string" },
+                City : { type : "string" },
+                SiteNumber : { type : "string" },
+                Town : { type : "string" }
+            },
+            required : ["City", "Town", "SiteNumber"]
+        },
+        Applicants : {
+            type : "array",
+            items : {
+                type : "object",
+                properties : {
+                    ApplicantId : { type : "string" },
+                    PostulationDate : { type : "string" }
+                },
+                required : ["ApplicantId", "PostulationDate"]
+            },
+            minItems : 0
+        },
+        Img : { type : "string" },
+        Requeriments : {
+            type : "array",
+            items : {
+                type : "object",
+                properties : {
+                    Description : { type : "string" }
+                },
+                required : ["Description"]
+            },
+            minItems : 1
+        },
+        Vacants : { type : "integer" },
+        isAvailable : { type : "boolean" }
+    },
+    required : ["Title", "Description", "Vacants", "isAvailable", "Creation_Date", "Event_Date", "Payment", "Event_Ubication", "Requeriments"]
+} as const;
 
-export type OfferType = Static<typeof OfferSchema>;
+export type OfferType = FromSchema<typeof OfferSchema>;

@@ -37,13 +37,24 @@ const jose = __importStar(require("jose"));
 const config_1 = require("../configuration/config");
 function validateToken(request, reply, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        let requestToken = request.headers.Authorization || null;
+        let requestToken = request.headers.authorization || null;
+        console.log(request.headers);
         if (requestToken) {
-            requestToken = requestToken.replace("Bearer ", "");
-            const { payload } = yield jose.jwtVerify(requestToken, new TextEncoder().encode(config_1._SECRET));
-            console.log(payload);
+            try {
+                requestToken = requestToken.replace("Bearer ", "");
+                const { payload } = yield jose.jwtVerify(requestToken, new TextEncoder().encode(config_1._SECRET));
+                console.log(payload);
+                request.body.OrganizerId = payload.Id;
+                // next();
+                reply.code(200).send({ ok: "Validated" });
+            }
+            catch (err) {
+                reply.code(401).send(err);
+            }
         }
-        next();
+        else {
+            reply.code(401).send({ message: "Must send Authorization Token" });
+        }
     });
 }
 exports.validateToken = validateToken;

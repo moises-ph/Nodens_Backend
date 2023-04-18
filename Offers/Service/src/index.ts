@@ -1,6 +1,7 @@
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import Fastify from "fastify";
 import { OffersRoutes } from "./routes/offers.routes";
+import "./Database/mongoose";
 
 const server = Fastify({
     logger: true

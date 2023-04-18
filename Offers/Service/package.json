@@ -29,6 +29,7 @@
     "dotenv": "^16.0.3",
     "fastify": "^4.13.0",
     "jose": "^4.13.1",
+    "json-schema-to-ts": "^2.8.0",
     "mongoose": "^6.10.0"
   },
   "devDependencies": {
