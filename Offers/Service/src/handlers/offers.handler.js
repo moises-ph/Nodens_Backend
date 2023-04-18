@@ -19,6 +19,7 @@ exports.getAllOffers = getAllOffers;
 const postOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newOffer = new offers_model_1.Offer(req.body);
+        console.log(newOffer.isNew);
         yield newOffer.save();
         return reply.code(200).send({ message: "Oferta creada correctamente", id: newOffer.id });
     }

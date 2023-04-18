@@ -17,8 +17,12 @@ const routes = {
     }
 };
 const OffersRoutes = (fastify, options, done) => {
+    //This is a Plugin that configures all the routes in Fastify
+    // Route for Get All Offers
     fastify.get(options.url, routes.getAllOffers);
+    // Route for Post a new Offer
     fastify.post(options.url, routes.postOffer);
+    // Plugin Done
     done();
 };
 exports.OffersRoutes = OffersRoutes;

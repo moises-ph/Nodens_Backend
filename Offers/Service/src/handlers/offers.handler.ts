@@ -8,6 +8,7 @@ export const getAllOffers = async (req : any, reply : any) => {
 export const postOffer = async (req : any, reply : any) => {
     try{
         const newOffer = new Offer(req.body);
+        console.log(newOffer.isNew);
         await newOffer.save();
         return reply.code(200).send({message : "Oferta creada correctamente", id : newOffer.id});
     }

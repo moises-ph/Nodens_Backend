@@ -5,9 +5,8 @@ import { _MONGODB_URI } from "../configuration/config";
 
 mongoose
     .connect(_MONGODB_URI)
-    .then(()=> {console.log("DB Connected")})
+    .then(()=> console.log("DB Connected"))
     .catch(err => {
-        console.log(_MONGODB_URI);
         console.error(err); 
         process.exit(1)
     });

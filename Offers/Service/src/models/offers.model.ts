@@ -27,17 +27,23 @@ export interface IOffer {
     Event_Ubication : IEventUbication,
     Applicants : IApplicant[] | null,
     Img : string,
-    Requeriments : IRequeriments[] | null,
+    Requeriments : IRequeriments[],
     Vacants : number,
     isAvailable : boolean
 }
 
 const RequerimentsSchema = new Schema<IRequeriments>({
     Description : { type : Schema.Types.String, required : true }
+},{
+    _id : false,
+    versionKey : false
 });
 
 const ApplicantSchema = new Schema<IApplicant>({
     ApplicantId : { type : Schema.Types.ObjectId }
+},{
+    _id : false,
+    versionKey : false
 });
 
 const SchemaEventUbication = new Schema<IEventUbication>({
@@ -46,6 +52,9 @@ const SchemaEventUbication = new Schema<IEventUbication>({
     Career : { type : Schema.Types.String, required : false },
     SiteNumber : { type : Schema.Types.String, required : true },
     Town : { type : Schema.Types.String, required : true },
+},{
+    _id : false,
+    versionKey : false
 });
 
 const OfferSchema = new Schema<IOffer>({
@@ -61,6 +70,8 @@ const OfferSchema = new Schema<IOffer>({
     Requeriments : { type : [RequerimentsSchema], required : true },
     Vacants : { type : Schema.Types.Number, required : true },
     isAvailable : { type : Schema.Types.Boolean, required : true }
+},{
+    versionKey : false
 });
 
 export const Offer = model<IOffer>("Offers", OfferSchema);

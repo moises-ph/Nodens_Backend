@@ -35,22 +35,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateToken = void 0;
 const jose = __importStar(require("jose"));
 const config_1 = require("../configuration/config");
-function validateToken(request, reply, next) {
+function validateToken(request, reply, done) {
     return __awaiter(this, void 0, void 0, function* () {
-        let requestToken = request.headers.authorization || null;
-        if (requestToken) {
-            try {
+        try {
+            let requestToken = request.headers.authorization || null;
+            if (requestToken) {
                 requestToken = requestToken.replace("Bearer ", "");
-                const { payload } = yield jose.jwtVerify(requestToken, new TextEncoder().encode(config_1._SECRET));
-                request.body.OrganizerId = payload.Id;
-                next();
+                return jose.jwtVerify(requestToken, new TextEncoder().encode(config_1._SECRET)).then(data => {
+                    request.body.OrganizerId = data.payload.Id;
+                    return done();
+                }).catch(err => reply.code(401).send({ message: "Token is Invalid or Expired" }));
             }
-            catch (err) {
-                reply.code(401).send(err);
+            else {
+                return reply.code(401).send({ message: "Must send Authorization Token" });
             }
         }
-        else {
-            reply.code(401).send({ message: "Must send Authorization Token" });
+        catch (err) {
+            return reply.code(401).send(err);
         }
     });
 }
