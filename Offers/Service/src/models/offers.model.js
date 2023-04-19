@@ -9,7 +9,8 @@ const RequerimentsSchema = new mongoose_1.Schema({
     versionKey: false
 });
 const ApplicantSchema = new mongoose_1.Schema({
-    ApplicantId: { type: mongoose_1.Schema.Types.ObjectId }
+    PostulationDate: { type: mongoose_1.Schema.Types.Date, required: true },
+    ApplicantId: { type: mongoose_1.Schema.Types.ObjectId, required: true }
 }, {
     _id: false,
     versionKey: false
@@ -32,7 +33,7 @@ const OfferSchema = new mongoose_1.Schema({
     Payment: { type: mongoose_1.Schema.Types.Number, required: true },
     OrganizerId: { type: mongoose_1.Schema.Types.Number, required: true },
     Event_Ubication: { type: SchemaEventUbication, required: true },
-    Applicants: { type: [ApplicantSchema], required: false, default: [] },
+    Applicants: { type: [], required: false, default: [] },
     Img: { type: mongoose_1.Schema.Types.String, required: false },
     Requeriments: { type: [RequerimentsSchema], required: true },
     Vacants: { type: mongoose_1.Schema.Types.Number, required: true },

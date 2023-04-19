@@ -25,7 +25,7 @@ export interface IOffer {
     Payment : number,
     OrganizerId : number,
     Event_Ubication : IEventUbication,
-    Applicants : IApplicant[] | null,
+    Applicants : IApplicant[],
     Img : string,
     Requeriments : IRequeriments[],
     Vacants : number,
@@ -40,7 +40,8 @@ const RequerimentsSchema = new Schema<IRequeriments>({
 });
 
 const ApplicantSchema = new Schema<IApplicant>({
-    ApplicantId : { type : Schema.Types.ObjectId }
+    PostulationDate : { type : Schema.Types.Date, required : true },
+    ApplicantId : { type : Schema.Types.ObjectId, required : true }
 },{
     _id : false,
     versionKey : false
@@ -65,7 +66,7 @@ const OfferSchema = new Schema<IOffer>({
     Payment : { type : Schema.Types.Number, required : true },
     OrganizerId : { type : Schema.Types.Number, required : true },
     Event_Ubication : { type : SchemaEventUbication, required : true },
-    Applicants : { type : [ApplicantSchema], required : false, default : [] },
+    Applicants : { type : [], required : false, default : [] },
     Img : { type : Schema.Types.String, required : false },
     Requeriments : { type : [RequerimentsSchema], required : true },
     Vacants : { type : Schema.Types.Number, required : true },

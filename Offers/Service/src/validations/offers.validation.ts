@@ -66,7 +66,7 @@ export type ParamsType = FromSchema<typeof IParams>;
 export const IPostulateMusician ={
     type : "object",
     properties : {
-        ApplicantId : { type : "string" },
+        ApplicantId : { type : "integer" },
         PostulationDate : { type : "string", format : "date" }
     },
     required : [ "PostulationDate"]
