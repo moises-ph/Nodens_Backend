@@ -22,7 +22,7 @@ server.register(offers_routes_1.OffersRoutes, { url: "/offers" });
 server.get("/ping", (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
     return reply.send("pong");
 }));
-server.listen({ port: 8001 }, (err, address) => {
+server.listen({ port: 8000 }, (err, address) => {
     if (err) {
         console.error(err);
         process.exit(1);

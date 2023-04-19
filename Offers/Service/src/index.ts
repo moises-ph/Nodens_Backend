@@ -13,7 +13,7 @@ server.get("/ping", async (request : any, reply : any) => {
     return reply.send("pong");
 });
 
-server.listen({ port: 8001 }, (err : any, address : any) => {
+server.listen({ port: 8000 }, (err : any, address : any) => {
     if(err){
         console.error(err);
         process.exit(1);

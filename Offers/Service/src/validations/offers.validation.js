@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IParams = exports.OfferSchema = void 0;
+exports.IPostulateMusician = exports.IParams = exports.OfferSchema = void 0;
 exports.OfferSchema = {
     type: "object",
     properties: {
@@ -27,7 +27,7 @@ exports.OfferSchema = {
                 type: "object",
                 properties: {
                     ApplicantId: { type: "string" },
-                    PostulationDate: { type: "string" }
+                    PostulationDate: { type: "string", format: "date" }
                 },
                 required: ["ApplicantId", "PostulationDate"]
             },
@@ -56,4 +56,12 @@ exports.IParams = {
         id: { type: "string" }
     },
     required: ["id"]
+};
+exports.IPostulateMusician = {
+    type: "object",
+    properties: {
+        ApplicantId: { type: "string" },
+        PostulationDate: { type: "string", format: "date" }
+    },
+    required: ["PostulationDate"]
 };

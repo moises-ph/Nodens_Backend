@@ -21,3 +21,16 @@ export const getSingleOffer = async (req: any, reply : any) => {
     const offer = await Offer.findById(req.params.id);
     return reply.code(200).send(offer);
 }
+
+export const postulateMusician = async (req: any, reply : any) =>{
+    try{
+        await Offer.findByIdAndUpdate(req.params.id,{
+            $push :{
+                Applicants : req.body
+            }
+        });
+        return reply.code(200).send({message : `Musico ${req.body.ApplicantId} Postulado Correctamente`});
+    }catch(err){
+        return reply.code(500).send(err)
+    }
+}

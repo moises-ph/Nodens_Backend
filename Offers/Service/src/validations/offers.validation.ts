@@ -27,7 +27,7 @@ export const OfferSchema = {
                 type : "object",
                 properties : {
                     ApplicantId : { type : "string" },
-                    PostulationDate : { type : "string" }
+                    PostulationDate : { type : "string", format : "date" }
                 },
                 required : ["ApplicantId", "PostulationDate"]
             },
@@ -62,3 +62,14 @@ export const IParams = {
 } as const;
 
 export type ParamsType = FromSchema<typeof IParams>;
+
+export const IPostulateMusician ={
+    type : "object",
+    properties : {
+        ApplicantId : { type : "string" },
+        PostulationDate : { type : "string", format : "date" }
+    },
+    required : [ "PostulationDate"]
+} as const;
+
+export type PostulateMusicianType = FromSchema<typeof IPostulateMusician>;

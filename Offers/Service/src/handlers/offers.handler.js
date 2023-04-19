@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSingleOffer = exports.postOffer = exports.getAllOffers = void 0;
+exports.postulateMusician = exports.getSingleOffer = exports.postOffer = exports.getAllOffers = void 0;
 const offers_model_1 = require("../models/offers.model");
 const getAllOffers = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     const Offers = yield offers_model_1.Offer.find();
@@ -33,3 +33,17 @@ const getSingleOffer = (req, reply) => __awaiter(void 0, void 0, void 0, functio
     return reply.code(200).send(offer);
 });
 exports.getSingleOffer = getSingleOffer;
+const postulateMusician = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield offers_model_1.Offer.findByIdAndUpdate(req.params.id, {
+            $push: {
+                Applicants: req.body
+            }
+        });
+        return reply.code(200).send({ message: `Musico ${req.body.ApplicantId} Postulado Correctamente` });
+    }
+    catch (err) {
+        return reply.code(500).send(err);
+    }
+});
+exports.postulateMusician = postulateMusician;

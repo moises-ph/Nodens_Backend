@@ -20,6 +20,14 @@ const routes = {
         schema: {
             body: offers_validation_1.OfferSchema
         }
+    },
+    postulateMusician: {
+        handler: offers_handler_1.postulateMusician,
+        preHandler: tokenValidator_1.validateToken,
+        schema: {
+            body: offers_validation_1.IPostulateMusician,
+            params: offers_validation_1.IParams
+        }
     }
 };
 const OffersRoutes = (fastify, options, done) => {
@@ -30,6 +38,8 @@ const OffersRoutes = (fastify, options, done) => {
     fastify.get(`${options.url}/:id`, routes.getSingleOffer);
     // Route for Post a new Offer
     fastify.post(options.url, routes.postOffer);
+    // Route for postulate a Musician to an Offer
+    fastify.put(`${options.url}/:id`, routes.postulateMusician);
     // Plugin Done
     done();
 };
