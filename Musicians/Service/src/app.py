@@ -33,7 +33,7 @@ ma = Marshmallow(app)
 #CORS
 CORS(app)
 
-### Route para el perfil ###
+### Route para el perfil, imagen ###
 @app.route('/musician/profile', methods=["POST"])
 @token_required
 def uploadProfile(claims):
@@ -125,12 +125,10 @@ def getAllmusician():
     return response #Response(response, mimetype="application/json")
 
 ### Se crea el metodo "GETONLY" para traer a 1 solo musico ###
-@app.route("/musician", methods=["GET"])
-@token_required
-def getMusician(claims):
-    id = claims['IdAuth']
+@app.route("/musician/<id>", methods=["GET"])
+def getMusician(id):
     db = Database.dbConnection()
-    user = db.Musicians.find_one({"IdAuth" : int(id)})
+    user = db.Musicians.find_one({"_id" : ObjectId(id)})
     response = json_util.dumps(user)
     return response
 
@@ -199,7 +197,7 @@ def deleteMusician(claims):
     return response
 
 
-### PUT ###
+### Update with PUT ###
 @app.route("/musician", methods=["PUT"])
 @token_required
 def putMusician (claims):
