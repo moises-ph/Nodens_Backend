@@ -80,16 +80,10 @@ def getAllmusician ():
     return response #Response(response, mimetype="application/json")
 
 ### GETONLY ###
-@app.route("/Organizer", methods=["GET"])
-@token_required
-def getMusician(claims):
-    if not claims["isOrganizer"]:
-            response = jsonify({"message" : "Rol no autorizado para esta función"})
-            response.status_code = 400
-            return response
-    id = claims["IdAuth"]
+@app.route("/Organizer/<id>", methods=["GET"])
+def getMusician(id):
     db = Database.dbConnection()
-    user = db.Organizers.find_one({"IdAuth" : int(id)})
+    user = db.Organizers.find_one({"_id" : ObjectId(id)})
     response = json_util.dumps(user)
     return response
 
