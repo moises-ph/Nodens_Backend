@@ -10,10 +10,10 @@ export async function validateToken (request : any, reply : any, done : any) {
             const { payload } = await jose.jwtVerify(requestToken, new TextEncoder().encode(_SECRET))
             console.log(payload);
             if(request.method === "POST"){
-                payload.Role === "Organizer" ? request.body.OrganizerId = payload.Id : (()=>{throw new Error("Solo los organizadores pueden crear ofertas")})();
+                payload.Role === "Organizer" ? request.body.OrganizerId = payload.Id : ()=>{throw new Error("Solo los organizadores pueden crear ofertas")} ;
             }
             else if(request.method === "PUT"){
-                payload.Role === "Musician" ? request.body.ApplicantId = payload.Id : (()=>{throw new Error("Solo los músicos pueden postularse")})() ;
+                payload.Role === "Musician" ? request.body.ApplicantId = payload.Id : ()=>{throw new Error("Solo los músicos pueden postularse")} ;
             }
         }
         else{
