@@ -29,14 +29,30 @@ export const getSingleOffer = async (req: any, reply : any) => {
 
 export const postulateMusician = async (req: any, reply : any) =>{
     try{
-        console.log(req.body);
-        console.log(req.params);
         await Offer.findByIdAndUpdate(req.params.id,{
             $push :{
                 Applicants : req.body
             }
         });
         return reply.code(200).send({message : `Musico ${req.body.ApplicantId} Postulado Correctamente`});
+    }catch(err){
+        return reply.code(500).send(err)
+    }
+}
+
+export const deleteOffer = async (req : any, reply : any)  => {
+    try{
+        await Offer.findByIdAndDelete(req.params.id);
+        return reply.code(200).send({message : "Oferta eliminada correctamente"});
+    }catch(err){
+        return reply.code(500).send(err)
+    }
+};
+
+export const disableOffer = async (req: any, reply : any) => {
+    try{
+        await setNotAvailable(req.params.id);
+        return reply.code(200).send({message : "Oferta deshabilidata exitosamente"});
     }catch(err){
         return reply.code(500).send(err)
     }

@@ -1,4 +1,4 @@
-import { getAllOffers, getSingleOffer, postOffer, postulateMusician } from "../handlers/offers.handler";
+import { deleteOffer, disableOffer, getAllOffers, getSingleOffer, postOffer, postulateMusician } from "../handlers/offers.handler";
 import { validateToken } from "../utils/tokenValidator";
 import { IParams, IPostulateMusician, OfferSchema, OfferType, ParamsType, PostulateMusicianType } from "../validations/offers.validation";
 import { FastifyInstance } from "fastify";
@@ -27,6 +27,20 @@ const routes = {
             body : IPostulateMusician,
             params : IParams
         }
+    },
+    deleteOffer : {
+        handler : deleteOffer,
+        preHandler : validateToken,
+        schema : {
+            params : IParams
+        }
+    },
+    disableOffer : {
+        handler : disableOffer,
+        preHandler : validateToken,
+        schema : {
+            params : IParams
+        }
     }
 }
 
@@ -44,6 +58,12 @@ export const OffersRoutes = (fastify : FastifyInstance, options : any, done : an
 
     // Route for postulate a Musician to an Offer
     fastify.put<{ Params : ParamsType, Body : PostulateMusicianType }>(`${options.url}/:id`, routes.postulateMusician);
+
+    // Route for delete an Offer
+    fastify.delete<{ Params : ParamsType }>(`${options.url}/:id`, routes.deleteOffer);
+
+    // Route for disable an Offer
+    fastify.patch<{ Params : ParamsType }>(`${options.url}/:id`, routes.disableOffer);
 
     // Plugin Done
     done();
