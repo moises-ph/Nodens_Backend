@@ -10,6 +10,7 @@ from .validations import Organizersinfo
 from werkzeug.datastructures import MultiDict
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
+from werkzeug.exceptions import HTTPException
 
 from .utils.tokenValidator import token_required
 
@@ -69,8 +70,7 @@ def uploadProfile(claims):
 
     except Exception as err:
         return jsonify(err)
-
-
+    
 ### GETALL ###
 @app.route("/Organizer/all", methods=["GET"])
 def getAllmusician ():
@@ -79,6 +79,17 @@ def getAllmusician ():
     response = json_util.dumps(users)
     return response #Response(response, mimetype="application/json")
 
+### GETLOGIN ##
+@app.route("/Organizer", methods=["GET"])
+@token_required
+def getlogin (claims):
+    db = Database.dbConnection()
+    id = claims["IdAuth"]
+    user = db.Organizers.find_one({'IdAuth' : int(id)})
+    response = json_util.dumps(user)
+    return response
+
+
 ### GETONLY ###
 @app.route("/Organizer/<id>", methods=["GET"])
 def getMusician(id):
@@ -86,7 +97,7 @@ def getMusician(id):
     user = db.Organizers.find_one({"_id" : ObjectId(id)})
     response = json_util.dumps(user)
     return response
-
+    
 
 ### POST ###
 @app.route("/Organizer", methods=["POST"])
@@ -188,11 +199,14 @@ def putMusician (claims):
 
 @app.errorhandler(404)
 def not_Found(error=None):
-    message = jsonify({
-        "message" : "resource not found" + request.url,
-        "status": 404
-    })
+    message = {"message" : "resource not found" + request.url}
+    response = jsonify(message)
+    return response, 404
 
+@app.errorhandler(Exception)
+def handle_exception(e):
+    error = { "error" : {"Message": "{}, status 400 Bad request".format(e)}}
+    return jsonify(error), 500
 
 
 if __name__ =="__main__":  
