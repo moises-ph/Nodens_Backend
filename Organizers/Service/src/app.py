@@ -83,6 +83,11 @@ def getAllmusician ():
 @app.route("/Organizer", methods=["GET"])
 @token_required
 def getlogin (claims):
+    if not claims["isOrganizer"]:
+        response = jsonify({"message" : "Rol no autorizado para esta función"})
+        response.status_code = 400
+        return response
+        
     db = Database.dbConnection()
     id = claims["IdAuth"]
     user = db.Organizers.find_one({'IdAuth' : int(id)})
