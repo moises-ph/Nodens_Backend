@@ -1,0 +1,33 @@
+{
+  "name": "nodensmailservice",
+  "version": "1.0.0",
+  "description": "The Mail Service for Nodens",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moises-ph/Nodens_Backend.git"
+  },
+  "keywords": [
+    "node",
+    "nodemailer",
+    "typescript",
+    "hotmail",
+    "microservice"
+  ],
+  "author": "Nodens Development Team",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/moises-ph/Nodens_Backend/issues"
+  },
+  "homepage": "https://github.com/moises-ph/Nodens_Backend#readme",
+  "dependencies": {
+    "fastify": "^4.15.0",
+    "nodemailer": "^6.9.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4"
+  }
+}

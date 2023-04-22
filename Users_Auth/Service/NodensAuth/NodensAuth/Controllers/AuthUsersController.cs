@@ -152,19 +152,6 @@ namespace NodensAuth.Controllers
                 var filter = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.email, Email);
                 var result = await mongoClientRequests.Find(filter).FirstOrDefaultAsync();
                 string url = $"https://{APPURI}/api/auth/recovery/request?gdusr={guid.ToString()}&mn={Email.Replace("@", "%40")}";
-                RestClient client = new RestClient("https://api.mailgun.net/v3");
-                RestRequest request = new RestRequest();
-                request.Authenticator = new HttpBasicAuthenticator("api", "baed881d980ce8198d7e53e47a7c89fa-d51642fa-8eb94240");
-                request.AddParameter("domain", "sandbox6562cab7a1654c4aa48c3a000ddc12f8.mailgun.org", ParameterType.UrlSegment);
-                request.Resource = "{domain}/messages";
-                request.AddParameter("from", "Mailgun Sandbox <postmaster@sandbox6562cab7a1654c4aa48c3a000ddc12f8.mailgun.org>");
-                request.AddParameter("to", $"<{Email}>");
-                request.AddParameter("subject", "Recuperación de contraseña");
-                request.AddParameter("template", "nodensrecovery");
-                request.AddParameter("h:X-Mailgun-Variables", "{'url': '" + url + "'}");
-                request.Method = Method.Post;
-                RestResponse response = await client.ExecuteAsync(request);
-
                 return StatusCode(StatusCodes.Status200OK, new { guid = guid.ToString(), Email, email = result.email, source = result.source, timestamp = result.timestamp.ToString() });
             }
             catch (Exception err)
