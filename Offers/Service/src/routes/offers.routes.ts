@@ -65,6 +65,6 @@ export const OffersRoutes = (fastify : FastifyInstance, options : any, done : an
     // Route for disable an Offer
     fastify.patch<{ Params : ParamsType }>(`${options.url}/:id`, routes.disableOffer);
 
-    // Plugin Done
+    // Plugin Done  
     done();
 }

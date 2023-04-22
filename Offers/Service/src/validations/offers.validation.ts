@@ -1,4 +1,3 @@
-import { Static, Type } from "@sinclair/typebox";
 import { FromSchema } from "json-schema-to-ts";
 
 export const OfferSchema = {
