@@ -4,8 +4,8 @@
   "description": "The Mail Service for Nodens",
   "main": "app.js",
   "scripts": {
-    "build": "start powershell && tsc -w -p tsconfig.json",
-    "dev": "nodemon src/index.js"
+    "build": "tsc -w -p tsconfig.json",
+    "dev": "nodemon dist/index.js"
   },
   "repository": {
     "type": "git",
