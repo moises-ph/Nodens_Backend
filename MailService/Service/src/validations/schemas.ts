@@ -4,13 +4,14 @@ export const RequestSchemaForApplication = {
   type: "object",
   properties: {
     ReceiverEmail: {type: "string", format: "email"},
+    ReceiverName: {type: "string"}, 
     OfferID: {type: "string"},
     OfferTitle: {type: "string"},
     OrganizerName: {type: "string"},
     OrganizerId: {type: "string"},
     EntrepriseName: {type: "string"}
   },
-  required: ["ReceiverEmail", "OfferID", "OfferTitle", "OrganizerId"]
+  required: ["ReceiverEmail", "ReceiverName","OfferID", "OfferTitle", "OrganizerId"]
 } as const;
 
 export type ApplicantType = FromSchema<typeof RequestSchemaForApplication>;
