@@ -26,9 +26,11 @@ export const OfferSchema = {
                 type : "object",
                 properties : {
                     ApplicantId : { type : "string" },
-                    PostulationDate : { type : "string", format : "date" }
+                    PostulationDate : { type : "string", format : "date" },
+                    PostulationFullName : { type : "string", format : "date" },
+                    PostulationStatus : { type : "integer" }
                 },
-                required : ["ApplicantId", "PostulationDate"]
+                required : ["ApplicantId", "PostulationDate", "PostulationFullName", "PostulationStatus"]
             },
             minItems : 0
         },
