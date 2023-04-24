@@ -303,7 +303,7 @@ namespace NodensAuth.Controllers
             }
             catch (Exception err)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { msg = err.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = err.Message });
             }
         }
 
