@@ -43,19 +43,26 @@ namespace NodensAuth.Db
             return result;
         }
 
-        public ReadUser ReadUser(string email)
+        public ReadUser? ReadUser(string? parameter)
         {
             SQLResult result = new SQLResult();
-            ReadUser user = new ReadUser();
+            ReadUser? user = new ReadUser();
             using (var connection = new SqlConnection(connectionString))
             {
+                int Id;
                 connection.Open();
                 SqlCommand cmd = new SqlCommand("SP_ReadUser", connection);
-                cmd.Parameters.AddWithValue("Email", email);
+                cmd.Parameters.AddWithValue("Email", parameter.Contains('@') ? parameter : DBNull.Value);
+                cmd.Parameters.AddWithValue("username", parameter.Contains('@') ? DBNull.Value : parameter);
+                cmd.Parameters.AddWithValue("Id", int.TryParse(parameter, out Id) ? Id : DBNull.Value);
                 cmd.CommandType = CommandType.StoredProcedure;
                 using (SqlDataReader rd = cmd.ExecuteReader())
                 {
-                    while (rd.Read())
+                    if (!rd.Read())
+                    {
+                        user = null;
+                    }
+                    else
                     {
                         user.userName = rd["userName"].ToString();
                         user.Email = rd["email"].ToString();

@@ -70,10 +70,12 @@ go
 
 go
 create procedure SP_ReadUser
-	@Email varchar(320)
+	@Email varchar(320) = NULL,
+	@username varchar(100) = NULL,
+	@Id int = NULL
 as
 begin
-	SELECT userName, (select name from Role where id = role_id) as Role, email, Verified from Users where email = @Email
+	SELECT userName, (select name from Role where id = role_id) as Role, email, Verified from Users where email = @Email or userName = @username or id = @Id
 end
 go
 

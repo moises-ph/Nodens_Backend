@@ -10,6 +10,7 @@ using NodensAuth.Models;
 using NodensAuth.Utils;
 using RestSharp;
 using RestSharp.Authenticators;
+using System.Linq;
 using System.Security.Claims;
 using static NodensAuth.Db.SQL;
 using BC = BCrypt.Net.BCrypt;
@@ -75,18 +76,29 @@ namespace NodensAuth.Controllers
 
 
         [HttpGet]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public IActionResult GetUser()
+        public IActionResult GetUser(string? Id)
         {
             try
             {
-                var token = Request.Headers.Authorization.ToString().Replace("Bearer ", String.Empty);
-                JsonWebToken jsonWebToken = new JsonWebToken(token);
-                var claims = new ClaimsIdentity(jsonWebToken.Claims);
-                var claimValues = claims.Claims.ToList();
-                var email = claimValues[1].Value;
-                ReadUser user = SQLHandler.ReadUser(email);
-                return StatusCode(StatusCodes.Status200OK, user);
+                string? email = null;
+                if(Request.Headers.ContainsKey("Authorization"))
+                {
+                    string? token = Request.Headers.Authorization.ToString().Replace("Bearer ", String.Empty);
+                    JsonWebToken jsonWebToken = new JsonWebToken(token);
+                    ClaimsIdentity claims = new ClaimsIdentity(jsonWebToken.Claims);
+                    List<Claim> claimValues = claims.Claims.ToList();
+                    email = claimValues[1].Value;
+                }
+                else if(Id != null)
+                {
+                    email = Id;
+                }
+                else
+                {
+                    return BadRequest(new { Message = "No data provided" });
+                }
+                ReadUser? user = SQLHandler.ReadUser(email);
+                return user != null ? StatusCode(StatusCodes.Status200OK, user) : NotFound(new { Message = "El usuario no existe" });
             }
             catch (Exception err)
             {
@@ -96,7 +108,7 @@ namespace NodensAuth.Controllers
 
         [HttpPut]
         [Route("update")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         public IActionResult UpdateUser([FromBody] UpdateUserModel user)
         {
             try
