@@ -115,6 +115,7 @@ def uploadMusician(claims):
         return response
     except Exception as err:
         return jsonify(err)
+        
 
 ### Se crea el metodo "GETALL" para traer a todos los musicos ###
 @app.route("/musician/all", methods=["GET"])
@@ -129,6 +130,20 @@ def getAllmusician():
 def getMusician(id):
     db = Database.dbConnection()
     user = db.Musicians.find_one({"_id" : ObjectId(id)})
+    response = json_util.dumps(user)
+    return response
+
+### GETLOGIN
+@app.route("/musician", methods=["GET"])
+@token_required
+def getlog(claims):
+    if not claims['isMusician']:
+        response = jsonify({"message" : "Rol no autorizado para esta función"})
+        response.status_code = 400
+        return response
+
+    db = Database.dbConnection()
+    user = db.Musicians.update_one({"IdAuth" : int(id)})
     response = json_util.dumps(user)
     return response
 
@@ -248,10 +263,14 @@ def putMusician (claims):
 
 @app.errorhandler(404)
 def not_Found(error=None):
-    message = jsonify({
-        "message" : "resource not found" + request.url,
-        "status": 404
-    })
+    message = {"message" : "resource not found" + request.url}
+    response = jsonify(message)
+    return response, 404
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    error = { "error" : {"Message": "{}, status 400 Bad request".format(e)}}
+    return jsonify(error), 500
 
 
 ### LEER ESTO ### 

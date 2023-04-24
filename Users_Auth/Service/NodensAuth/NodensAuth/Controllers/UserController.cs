@@ -65,19 +65,7 @@ namespace NodensAuth.Controllers
                 await VerifyUsersCollection.InsertOneAsync(verifyUsersModel);
                 string emailHash = BC.HashString(obj.Email);
                 string url = $"https://{APPURI}/api/auth/verify?em={emailHash}&guid={guid.ToString()}";
-                RestClient client = new RestClient("https://api.mailgun.net/v3");
-                RestRequest request = new RestRequest();
-                request.Authenticator = new HttpBasicAuthenticator("api", "baed881d980ce8198d7e53e47a7c89fa-d51642fa-8eb94240");
-                request.AddParameter("domain", "sandbox6562cab7a1654c4aa48c3a000ddc12f8.mailgun.org", ParameterType.UrlSegment);
-                request.Resource = "{domain}/messages";
-                request.AddParameter("from", "Mailgun Sandbox <postmaster@sandbox6562cab7a1654c4aa48c3a000ddc12f8.mailgun.org>");
-                request.AddParameter("to", $"{obj.userName} <{obj.Email}>");
-                request.AddParameter("subject", "Verifica tu correo de Nodens");
-                request.AddParameter("template", "nodensvalidation");
-                request.AddParameter("h:X-Mailgun-Variables", "{'url': '" + url + "'}");
-                request.Method = Method.Post;
-                RestResponse response = await client.ExecuteAsync(request);
-                return StatusCode(StatusCodes.Status200OK, new { EmailVerificationStatus = response.StatusCode.ToString(), url, Message = sqlResult.Message });
+                return StatusCode(StatusCodes.Status200OK, new { url, Message = sqlResult.Message });
             }
             catch (Exception err)
             {
