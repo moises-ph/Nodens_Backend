@@ -29,7 +29,34 @@ export const mailerForApplication = async ({applicant_email, applicant_name, off
     text: "Aplicado correctamente",
     html: templateForApplication({applicant_name, enterprise_name, organizer_name, title})
   })
+  console.log(info.messageId);  
+}
 
-  console.log(info.messageId);
-  
+export type MailerOrganizerType = {
+  organizer_mail: string,
+  offer_id: string,
+  title: string,
+  applicant_id: string,
+  applicant_name: string,
+  applicant_email: string
+}
+
+export const mailerForOrganizer = async ({applicant_email, applicant_id, applicant_name, offer_id, organizer_mail, title}:MailerOrganizerType) => {
+  let transporter = nodemailer.createTransport({
+    host: 'smtp-mail.outlook.com',
+    port: 587,
+    auth: {
+      user: EMAIL,
+      pass: PASSWORD
+    }
+  });
+
+  let info = await transporter.sendMail({
+    from: EMAIL,
+    to: organizer_mail,
+    subject: "Aplicacion a oferta",
+    text: "Alguien a aplicado a tu oferta",
+    html: `<h1>${applicant_email}, ${applicant_name}, ${offer_id}</h1>`
+  })
+  console.log(info.messageId); 
 }
