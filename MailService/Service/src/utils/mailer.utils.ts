@@ -60,3 +60,28 @@ export const mailerForOrganizer = async ({applicant_email, applicant_id, applica
   })
   console.log(info.messageId); 
 }
+
+export type MailerForVerifyingType = {
+  user_mail: string,
+  url: string
+}
+
+export const mailerForVerifying = async ({url, user_mail}:MailerForVerifyingType) => {
+  let transporter = nodemailer.createTransport({
+    host: 'smtp-mail.outlook.com',
+    port: 587,
+    auth: {
+      user: EMAIL,
+      pass: PASSWORD
+    }
+  });
+
+  let info = await transporter.sendMail({
+    from: EMAIL,
+    to: user_mail,
+    subject: "Verificar email",
+    text: "Verifica el email con el que te registraste",
+    html: `<a href="${url}">verify</a>`
+  })
+  console.log(info.messageId); 
+}

@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { ApplicantType, OrganizerType } from '../validations/schemas'
-import { MailerApplicantType, MailerOrganizerType, mailerForApplication, mailerForOrganizer } from '../utils/mailer.utils'
+import { ApplicantType, OrganizerType, EmailOrPassType } from '../validations/schemas'
+import { MailerApplicantType, MailerForVerifyingType, MailerOrganizerType, mailerForApplication, mailerForOrganizer, mailerForVerifying } from '../utils/mailer.utils'
 
 type ApplicationRequest = FastifyRequest<{Body: ApplicantType}>
 
@@ -39,6 +39,23 @@ export const sendMailToOrganizer = async (req: OrganizerRequest, res: FastifyRep
     };
     mailerForOrganizer(args);
     return res.code(200).send({message: "Alguien a aplicado a tu oferta de empleo"});
+  }
+  catch (err) {
+    return res.code(500).send(err);
+  }
+}
+
+type VerifyingRequest = FastifyRequest<{Body: EmailOrPassType}>
+
+export const sendMailForVerifying = async (req: VerifyingRequest, res: FastifyReply) => {
+  try {
+    const { ReceiverEmail, URL } = req.body;
+    const args: MailerForVerifyingType = {
+      url: URL,
+      user_mail: ReceiverEmail
+    };
+    mailerForVerifying(args);
+    return res.code(200).send({message: "Verifica tu email"});
   }
   catch (err) {
     return res.code(500).send(err);

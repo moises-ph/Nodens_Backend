@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
-import { sendMailInApplication, sendMailToOrganizer } from "../handlers/mailer";
-import {ApplicantType, OrganizerType, RequestSchemaForApplication, RequestSchemaForOrganizer} from '../validations/schemas'
+import { sendMailForVerifying, sendMailInApplication, sendMailToOrganizer } from "../handlers/mailer";
+import {ApplicantType, EmailOrPassType, OrganizerType, RequestSchemaForApplication, RequestSchemaForEmailVerificationAndChangePassWord, RequestSchemaForOrganizer} from '../validations/schemas'
 
 const routes = {
   sendApplicant: {
@@ -16,6 +16,10 @@ const routes = {
     }
   },
   verifyEmail: {
+    handler: sendMailForVerifying,
+    schema: {
+      body: RequestSchemaForEmailVerificationAndChangePassWord
+    }
 
   },
   recoveryPassword: {
@@ -26,5 +30,6 @@ const routes = {
 export const MailerRoutes = (fastify: FastifyInstance, options: any, done: any) => {
   fastify.post<{Body: ApplicantType}>(options.url, routes.sendApplicant);
   fastify.post<{Body: OrganizerType}>(`${options.url}/organizer`, routes.sendOrganizer);
+  fastify.post<{Body: EmailOrPassType}>(`${options.url}/verify`, routes.verifyEmail)
   done()
 }
