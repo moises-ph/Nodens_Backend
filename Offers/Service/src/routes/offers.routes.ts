@@ -1,6 +1,6 @@
-import { deleteOffer, disableOffer, getAllOffers, getSingleOffer, postOffer, postulateMusician } from "../handlers/offers.handler";
+import { deleteOffer, disableOffer, getAllOffers, getSingleOffer, postOffer, postulateMusician, changePostulationStatus } from "../handlers/offers.handler";
 import { validateToken } from "../utils/tokenValidator";
-import { IParams, IPostulateMusician, OfferSchema, OfferType, ParamsType, PostulateMusicianType } from "../validations/offers.validation";
+import { IParams, IPostulateMusician, OfferSchema, OfferType, ParamsTypeIdOnly, PostulateMusicianType, BodyPostulationStatusType,IBodyPostulationStatus } from "../validations/offers.validation";
 import { FastifyInstance } from "fastify";
 
 const routes = {
@@ -41,6 +41,12 @@ const routes = {
         schema : {
             params : IParams
         }
+    },
+    ChangePostulationStatus : {
+        handler : changePostulationStatus,
+        schema : {
+            body : IBodyPostulationStatus
+        }
     }
 }
 
@@ -51,19 +57,23 @@ export const OffersRoutes = (fastify : FastifyInstance, options : any, done : an
     fastify.get(options.url, routes.getAllOffers);
 
     // Route for Get Single Offer
-    fastify.get<{ Params : ParamsType }>(`${options.url}/:id`, routes.getSingleOffer);
+    fastify.get<{ Params : ParamsTypeIdOnly }>(`${options.url}/:id`, routes.getSingleOffer);
 
     // Route for Post a new Offer
     fastify.post<{ Body : OfferType }>(options.url, routes.postOffer);
 
     // Route for postulate a Musician to an Offer
-    fastify.put<{ Params : ParamsType, Body : PostulateMusicianType }>(`${options.url}/:id`, routes.postulateMusician);
+    fastify.put<{ Params : ParamsTypeIdOnly, Body : PostulateMusicianType }>(`${options.url}/:id`, routes.postulateMusician);
 
     // Route for delete an Offer
-    fastify.delete<{ Params : ParamsType }>(`${options.url}/:id`, routes.deleteOffer);
+    fastify.delete<{ Params : ParamsTypeIdOnly }>(`${options.url}/:id`, routes.deleteOffer);
 
     // Route for disable an Offer
-    fastify.patch<{ Params : ParamsType }>(`${options.url}/:id`, routes.disableOffer);
+    fastify.patch<{ Params : ParamsTypeIdOnly }>(`${options.url}/:id`, routes.disableOffer);
+
+
+    // Route for change Postulation Status
+    fastify.put<{ Body : BodyPostulationStatusType }>(`${options.url}/changestatus`, routes.ChangePostulationStatus);
 
     // Plugin Done  
     done();

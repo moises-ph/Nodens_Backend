@@ -1,13 +1,15 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { Offer } from "../models/offers.model";
 import { setNotAvailable } from "../utils/offerNotAbailable";
-import { OfferType, ParamsType, PostulateMusicianType } from "../validations/offers.validation";
+import { OfferType, ParamsTypeIdOnly, PostulateMusicianType, BodyPostulationStatusType } from "../validations/offers.validation";
 
-type RequestParams = FastifyRequest<{ Params : ParamsType }>
+type RequestParams = FastifyRequest<{ Params : ParamsTypeIdOnly }>;
 
-type RequestBody = FastifyRequest<{ Body : OfferType }>
+type RequestBody = FastifyRequest<{ Body : OfferType }>;
 
-type PostulateMusicianRequest = FastifyRequest<{Params : ParamsType, Body : PostulateMusicianType}>
+type PostulateMusicianRequest = FastifyRequest<{Params : ParamsTypeIdOnly, Body : PostulateMusicianType}>;
+
+type ChangeAplicationStatus = FastifyRequest<{Body : BodyPostulationStatusType}>;
 
 export const getAllOffers = async (req : FastifyRequest, reply : FastifyReply) => {
     const Offers = await Offer.find();
@@ -44,7 +46,7 @@ export const postulateMusician = async (req: PostulateMusicianRequest, reply : F
         });
         return reply.code(200).send({message : `Musico ${req.body.ApplicantId} Postulado Correctamente`});
     }catch(err){
-        return reply.code(500).send(err)
+        return reply.code(500).send(err);
     }
 }
 
@@ -53,7 +55,7 @@ export const deleteOffer = async (req : RequestParams, reply : FastifyReply)  =>
         await Offer.findByIdAndDelete(req.params.id);
         return reply.code(200).send({message : "Oferta eliminada correctamente"});
     }catch(err){
-        return reply.code(500).send(err)
+        return reply.code(500).send(err);
     }
 };
 
@@ -62,6 +64,23 @@ export const disableOffer = async (req: RequestParams, reply : FastifyReply) => 
         await setNotAvailable(req.params.id);
         return reply.code(200).send({message : "Oferta deshabilidata exitosamente"});
     }catch(err){
-        return reply.code(500).send(err)
+        return reply.code(500).send(err);
+    }
+}
+
+export const changePostulationStatus = async (req : ChangeAplicationStatus, reply : FastifyReply) => {
+    try{
+        await Offer.findByIdAndUpdate(req.body.OfferId, {
+             $set: {
+                "Applicants.$[element].PostulationStatus" : req.body.Action 
+            }
+        },{
+            arrayFilters : [{
+                "element.ApplicantId" : req.body.ApplicantId
+            }]
+        })
+    }
+    catch(err){
+        return reply.code(500).send(err);
     }
 }

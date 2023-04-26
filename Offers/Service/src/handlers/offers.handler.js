@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postulateMusician = exports.getSingleOffer = exports.postOffer = exports.getAllOffers = void 0;
+exports.changePostulationStatus = exports.disableOffer = exports.deleteOffer = exports.postulateMusician = exports.getSingleOffer = exports.postOffer = exports.getAllOffers = void 0;
 const offers_model_1 = require("../models/offers.model");
 const offerNotAbailable_1 = require("../utils/offerNotAbailable");
 const getAllOffers = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
@@ -42,8 +42,6 @@ const getSingleOffer = (req, reply) => __awaiter(void 0, void 0, void 0, functio
 exports.getSingleOffer = getSingleOffer;
 const postulateMusician = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log(req.body);
-        console.log(req.params);
         yield offers_model_1.Offer.findByIdAndUpdate(req.params.id, {
             $push: {
                 Applicants: req.body
@@ -56,3 +54,40 @@ const postulateMusician = (req, reply) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.postulateMusician = postulateMusician;
+const deleteOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield offers_model_1.Offer.findByIdAndDelete(req.params.id);
+        return reply.code(200).send({ message: "Oferta eliminada correctamente" });
+    }
+    catch (err) {
+        return reply.code(500).send(err);
+    }
+});
+exports.deleteOffer = deleteOffer;
+const disableOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield (0, offerNotAbailable_1.setNotAvailable)(req.params.id);
+        return reply.code(200).send({ message: "Oferta deshabilidata exitosamente" });
+    }
+    catch (err) {
+        return reply.code(500).send(err);
+    }
+});
+exports.disableOffer = disableOffer;
+const changePostulationStatus = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield offers_model_1.Offer.findByIdAndUpdate(req.body.OfferId, {
+            $set: {
+                "Applicants.$[element].PostulationStatus": req.body.Action
+            }
+        }, {
+            arrayFilters: [{
+                    "element.ApplicantId": req.body.ApplicantId
+                }]
+        });
+    }
+    catch (err) {
+        return reply.code(500).send(err);
+    }
+});
+exports.changePostulationStatus = changePostulationStatus;

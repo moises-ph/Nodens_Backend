@@ -28,6 +28,26 @@ const routes = {
             body: offers_validation_1.IPostulateMusician,
             params: offers_validation_1.IParams
         }
+    },
+    deleteOffer: {
+        handler: offers_handler_1.deleteOffer,
+        preHandler: tokenValidator_1.validateToken,
+        schema: {
+            params: offers_validation_1.IParams
+        }
+    },
+    disableOffer: {
+        handler: offers_handler_1.disableOffer,
+        preHandler: tokenValidator_1.validateToken,
+        schema: {
+            params: offers_validation_1.IParams
+        }
+    },
+    ChangePostulationStatus: {
+        handler: offers_handler_1.changePostulationStatus,
+        schema: {
+            body: offers_validation_1.IBodyPostulationStatus
+        }
     }
 };
 const OffersRoutes = (fastify, options, done) => {
@@ -40,7 +60,13 @@ const OffersRoutes = (fastify, options, done) => {
     fastify.post(options.url, routes.postOffer);
     // Route for postulate a Musician to an Offer
     fastify.put(`${options.url}/:id`, routes.postulateMusician);
-    // Plugin Done
+    // Route for delete an Offer
+    fastify.delete(`${options.url}/:id`, routes.deleteOffer);
+    // Route for disable an Offer
+    fastify.patch(`${options.url}/:id`, routes.disableOffer);
+    // Route for change Postulation Status
+    fastify.put(`${options.url}/changestatus`, routes.ChangePostulationStatus);
+    // Plugin Done  
     done();
 };
 exports.OffersRoutes = OffersRoutes;

@@ -28,7 +28,7 @@ export const OfferSchema = {
                     ApplicantId : { type : "string" },
                     PostulationDate : { type : "string", format : "date" },
                     PostulationFullName : { type : "string", format : "date" },
-                    PostulationStatus : { type : "integer" }
+                    PostulationStatus : { type : "string", enum : ["aplied", "evaluated", "acepted"] }
                 },
                 required : ["ApplicantId", "PostulationDate", "PostulationFullName", "PostulationStatus"]
             },
@@ -62,7 +62,7 @@ export const IParams = {
     required : ["id"]
 } as const;
 
-export type ParamsType = FromSchema<typeof IParams>;
+export type ParamsTypeIdOnly = FromSchema<typeof IParams>;
 
 export const IPostulateMusician ={
     type : "object",
@@ -74,3 +74,15 @@ export const IPostulateMusician ={
 } as const;
 
 export type PostulateMusicianType = FromSchema<typeof IPostulateMusician>;
+
+export const IBodyPostulationStatus = {
+    type : "object",
+    properties : {
+        OfferId : { type : "string" },
+        ApplicantId  : { type : "string" },
+        Action : { type : "string", enum : ["aplied", "evaluated", "acepted"] }
+    },
+    required : ["OfferId", "ApplicantId", "Action"]
+} as const;
+
+export type BodyPostulationStatusType = FromSchema<typeof IBodyPostulationStatus>;
