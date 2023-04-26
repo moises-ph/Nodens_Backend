@@ -49,8 +49,9 @@ type VerifyingRequest = FastifyRequest<{Body: EmailOrPassType}>
 
 export const sendMailForVerifying = async (req: VerifyingRequest, res: FastifyReply) => {
   try {
-    const { ReceiverEmail, URL } = req.body;
+    const { UserName,ReceiverEmail, URL } = req.body;
     const args: MailerForVerifyingType = {
+      user_name: UserName,
       url: URL,
       user_mail: ReceiverEmail
     };

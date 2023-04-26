@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import {EMAIL, PASSWORD} from '../config/config'
-import { templateForApplication } from '../templates/templates';
+import { templateForApplication, templateForVerifiying } from '../templates';
 
 export type MailerApplicantType = {
   applicant_email: string,
@@ -62,11 +62,12 @@ export const mailerForOrganizer = async ({applicant_email, applicant_id, applica
 }
 
 export type MailerForVerifyingType = {
+  user_name: string,
   user_mail: string,
   url: string
 }
 
-export const mailerForVerifying = async ({url, user_mail}:MailerForVerifyingType) => {
+export const mailerForVerifying = async ({user_name, url, user_mail}:MailerForVerifyingType) => {
   let transporter = nodemailer.createTransport({
     host: 'smtp-mail.outlook.com',
     port: 587,
@@ -81,7 +82,7 @@ export const mailerForVerifying = async ({url, user_mail}:MailerForVerifyingType
     to: user_mail,
     subject: "Verificar email",
     text: "Verifica el email con el que te registraste",
-    html: `<a href="${url}">verify</a>`
+    html: templateForVerifiying({user_name, url})
   })
   console.log(info.messageId); 
 }
