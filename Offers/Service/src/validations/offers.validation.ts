@@ -1,3 +1,4 @@
+import { FastifyRequest } from "fastify";
 import { FromSchema } from "json-schema-to-ts";
 
 export const OfferSchema = {
@@ -5,8 +6,8 @@ export const OfferSchema = {
     properties : {
         Title : { type : "string" },
         Description : { type : "string" },
-        Creation_Date : { type : "string", format : "date" },
-        Event_Date : { type : "string", format : "date" },
+        Creation_Date : { type : "string", format : "date-time" },
+        Event_Date : { type : "string", format : "date-time" },
         Payment : { type : "integer" },
         OrganizerId : { type : "integer" },
         Event_Ubication : { 
@@ -49,7 +50,7 @@ export const OfferSchema = {
         Vacants : { type : "integer" },
         isAvailable : { type : "boolean" }
     },
-    required : ["Title", "Description", "Vacants", "isAvailable", "Creation_Date", "Event_Date", "Payment", "Event_Ubication", "Requeriments"]
+    required : ["Title", "Description", "Vacants", "isAvailable", "Event_Date", "Payment", "Event_Ubication", "Requeriments"]
 } as const;
 
 export type OfferType = FromSchema<typeof OfferSchema>;
@@ -68,9 +69,11 @@ export const IPostulateMusician ={
     type : "object",
     properties : {
         ApplicantId : { type : "integer" },
-        PostulationDate : { type : "string", format : "date" }
+        PostulationDate : { type : "string", format : "date" },
+        PostulationFullName : { type : "string" },
+        PostulationStatus : { type : "string", enum : ["aplied", "evaluated", "acepted"] }
     },
-    required : [ "PostulationDate"]
+    required : [ "PostulationDate", "PostulationFullName"]
 } as const;
 
 export type PostulateMusicianType = FromSchema<typeof IPostulateMusician>;
@@ -82,7 +85,15 @@ export const IBodyPostulationStatus = {
         ApplicantId  : { type : "string" },
         Action : { type : "string", enum : ["aplied", "evaluated", "acepted"] }
     },
-    required : ["OfferId", "ApplicantId", "Action"]
+    required : ["OfferId", "Action"]
 } as const;
 
 export type BodyPostulationStatusType = FromSchema<typeof IBodyPostulationStatus>;
+
+
+// Headers
+
+
+export interface IHeadersAuth extends FastifyRequest{
+    authorization : string
+}

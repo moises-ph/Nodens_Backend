@@ -1,15 +1,17 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { Offer } from "../models/offers.model";
 import { setNotAvailable } from "../utils/offerNotAbailable";
-import { OfferType, ParamsTypeIdOnly, PostulateMusicianType, BodyPostulationStatusType } from "../validations/offers.validation";
+import { OfferType, ParamsTypeIdOnly, PostulateMusicianType, BodyPostulationStatusType, IHeadersAuth } from "../validations/offers.validation";
 
 type RequestParams = FastifyRequest<{ Params : ParamsTypeIdOnly }>;
 
-type RequestBody = FastifyRequest<{ Body : OfferType }>;
+type RequestParamsAuth = FastifyRequest<{ Params : ParamsTypeIdOnly, Headers : IHeadersAuth }>
 
-type PostulateMusicianRequest = FastifyRequest<{Params : ParamsTypeIdOnly, Body : PostulateMusicianType}>;
+type RequestBody = FastifyRequest<{ Body : OfferType, Headers : IHeadersAuth }>;
 
-type ChangeAplicationStatus = FastifyRequest<{Body : BodyPostulationStatusType}>;
+type PostulateMusicianRequest = FastifyRequest<{Params : ParamsTypeIdOnly, Body : PostulateMusicianType, Headers : IHeadersAuth}>;
+
+type ChangeAplicationStatus = FastifyRequest<{Body : BodyPostulationStatusType , Headers : IHeadersAuth}>;
 
 export const getAllOffers = async (req : FastifyRequest, reply : FastifyReply) => {
     const Offers = await Offer.find();
@@ -22,8 +24,9 @@ export const getAllOffers = async (req : FastifyRequest, reply : FastifyReply) =
 export const postOffer = async (req : RequestBody, reply : FastifyReply) => {
     try{
         const newOffer = new Offer(req.body);
-        if (newOffer.Event_Date.getDate < Date.now) return reply.code(400).send({ message : "La fecha del evento debe ser mayor a la fecha actual" })
-        if (newOffer.Creation_Date.getDate != Date.now) return reply.code(400).send({ message : "La fecha de creación de la oferta no coincide con la fecha actual" })
+        newOffer.Creation_Date = new Date();
+        console.log(newOffer.Event_Date);
+        if (newOffer.Event_Date < newOffer.Creation_Date) return reply.code(400).send({ message : "La fecha del evento debe ser mayor a la fecha actual" })
         await newOffer.save();
         return reply.code(200).send({message : "Oferta creada correctamente", id : newOffer.id});
     }
@@ -39,6 +42,7 @@ export const getSingleOffer = async (req: RequestParams, reply : FastifyReply) =
 
 export const postulateMusician = async (req: PostulateMusicianRequest, reply : FastifyReply) =>{
     try{
+        req.body.PostulationStatus = "aplied";
         await Offer.findByIdAndUpdate(req.params.id,{
             $push :{
                 Applicants : req.body
@@ -50,7 +54,7 @@ export const postulateMusician = async (req: PostulateMusicianRequest, reply : F
     }
 }
 
-export const deleteOffer = async (req : RequestParams, reply : FastifyReply)  => {
+export const deleteOffer = async (req : RequestParamsAuth, reply : FastifyReply)  => {
     try{
         await Offer.findByIdAndDelete(req.params.id);
         return reply.code(200).send({message : "Oferta eliminada correctamente"});
@@ -59,7 +63,7 @@ export const deleteOffer = async (req : RequestParams, reply : FastifyReply)  =>
     }
 };
 
-export const disableOffer = async (req: RequestParams, reply : FastifyReply) => {
+export const disableOffer = async (req: RequestParamsAuth, reply : FastifyReply) => {
     try{
         await setNotAvailable(req.params.id);
         return reply.code(200).send({message : "Oferta deshabilidata exitosamente"});
@@ -78,7 +82,8 @@ export const changePostulationStatus = async (req : ChangeAplicationStatus, repl
             arrayFilters : [{
                 "element.ApplicantId" : req.body.ApplicantId
             }]
-        })
+        });
+        return reply.code(200).send({ message : "Estado de postulación cambiado correctamente" });
     }
     catch(err){
         return reply.code(500).send(err);

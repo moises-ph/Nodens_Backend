@@ -23,10 +23,10 @@ exports.getAllOffers = getAllOffers;
 const postOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newOffer = new offers_model_1.Offer(req.body);
-        if (newOffer.Event_Date.getDate < Date.now)
+        newOffer.Creation_Date = new Date();
+        console.log(newOffer.Event_Date);
+        if (newOffer.Event_Date < newOffer.Creation_Date)
             return reply.code(400).send({ message: "La fecha del evento debe ser mayor a la fecha actual" });
-        if (newOffer.Creation_Date.getDate != Date.now)
-            return reply.code(400).send({ message: "La fecha de creación de la oferta no coincide con la fecha actual" });
         yield newOffer.save();
         return reply.code(200).send({ message: "Oferta creada correctamente", id: newOffer.id });
     }
@@ -42,6 +42,7 @@ const getSingleOffer = (req, reply) => __awaiter(void 0, void 0, void 0, functio
 exports.getSingleOffer = getSingleOffer;
 const postulateMusician = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        req.body.PostulationStatus = "aplied";
         yield offers_model_1.Offer.findByIdAndUpdate(req.params.id, {
             $push: {
                 Applicants: req.body
@@ -85,6 +86,7 @@ const changePostulationStatus = (req, reply) => __awaiter(void 0, void 0, void 0
                     "element.ApplicantId": req.body.ApplicantId
                 }]
         });
+        return reply.code(200).send({ message: "Estado de postulación cambiado correctamente" });
     }
     catch (err) {
         return reply.code(500).send(err);

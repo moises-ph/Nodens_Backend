@@ -6,8 +6,8 @@ exports.OfferSchema = {
     properties: {
         Title: { type: "string" },
         Description: { type: "string" },
-        Creation_Date: { type: "string", format: "date" },
-        Event_Date: { type: "string", format: "date" },
+        Creation_Date: { type: "string", format: "date-time" },
+        Event_Date: { type: "string", format: "date-time" },
         Payment: { type: "integer" },
         OrganizerId: { type: "integer" },
         Event_Ubication: {
@@ -50,7 +50,7 @@ exports.OfferSchema = {
         Vacants: { type: "integer" },
         isAvailable: { type: "boolean" }
     },
-    required: ["Title", "Description", "Vacants", "isAvailable", "Creation_Date", "Event_Date", "Payment", "Event_Ubication", "Requeriments"]
+    required: ["Title", "Description", "Vacants", "isAvailable", "Event_Date", "Payment", "Event_Ubication", "Requeriments"]
 };
 exports.IParams = {
     type: "object",
@@ -63,9 +63,11 @@ exports.IPostulateMusician = {
     type: "object",
     properties: {
         ApplicantId: { type: "integer" },
-        PostulationDate: { type: "string", format: "date" }
+        PostulationDate: { type: "string", format: "date" },
+        PostulationFullName: { type: "string" },
+        PostulationStatus: { type: "string", enum: ["aplied", "evaluated", "acepted"] }
     },
-    required: ["PostulationDate"]
+    required: ["PostulationDate", "PostulationFullName"]
 };
 exports.IBodyPostulationStatus = {
     type: "object",
@@ -74,5 +76,5 @@ exports.IBodyPostulationStatus = {
         ApplicantId: { type: "string" },
         Action: { type: "string", enum: ["aplied", "evaluated", "acepted"] }
     },
-    required: ["OfferId", "ApplicantId", "Action"]
+    required: ["OfferId", "Action"]
 };

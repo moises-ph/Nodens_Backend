@@ -6,7 +6,9 @@ export interface IRequeriments{
 
 export interface IApplicant{
     ApplicantId : ObjectId,
-    PostulationDate : Date
+    PostulationDate : Date,
+    PostulationFullName : string,
+    PostulationStatus : string
 }
 
 export interface IEventUbication{
@@ -41,7 +43,9 @@ const RequerimentsSchema = new Schema<IRequeriments>({
 
 const ApplicantSchema = new Schema<IApplicant>({
     PostulationDate : { type : Schema.Types.Date, required : true },
-    ApplicantId : { type : Schema.Types.ObjectId, required : true }
+    ApplicantId : { type : Schema.Types.ObjectId, required : true },
+    PostulationFullName : { type : Schema.Types.String, required : true },
+    PostulationStatus : { type : Schema.Types.String, required : true }
 },{
     _id : false,
     versionKey : false

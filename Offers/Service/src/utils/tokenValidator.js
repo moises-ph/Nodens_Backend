@@ -38,11 +38,11 @@ const config_1 = require("../configuration/config");
 function validateToken(request, reply, done) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            let requestToken = request.headers.authorization || null;
+            let requestToken = request.headers.authorization;
             if (requestToken) {
                 requestToken = requestToken.replace("Bearer ", "");
                 const { payload } = yield jose.jwtVerify(requestToken, new TextEncoder().encode(config_1._SECRET));
-                if (request.method === "POST") {
+                if (request.method === "POST" || request.method === "PATCH" || request.method === "DELETE") {
                     payload.Role === "Organizer" ? request.body.OrganizerId = payload.Id : () => { throw new Error("Solo los organizadores pueden crear ofertas"); };
                 }
                 else if (request.method === "PUT") {

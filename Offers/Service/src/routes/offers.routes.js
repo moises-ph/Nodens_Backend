@@ -45,6 +45,7 @@ const routes = {
     },
     ChangePostulationStatus: {
         handler: offers_handler_1.changePostulationStatus,
+        preHandler: tokenValidator_1.validateToken,
         schema: {
             body: offers_validation_1.IBodyPostulationStatus
         }
@@ -65,7 +66,7 @@ const OffersRoutes = (fastify, options, done) => {
     // Route for disable an Offer
     fastify.patch(`${options.url}/:id`, routes.disableOffer);
     // Route for change Postulation Status
-    fastify.put(`${options.url}/changestatus`, routes.ChangePostulationStatus);
+    fastify.patch(`${options.url}/changestatus`, routes.ChangePostulationStatus);
     // Plugin Done  
     done();
 };

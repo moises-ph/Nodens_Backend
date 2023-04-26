@@ -1,6 +1,6 @@
 import { deleteOffer, disableOffer, getAllOffers, getSingleOffer, postOffer, postulateMusician, changePostulationStatus } from "../handlers/offers.handler";
 import { validateToken } from "../utils/tokenValidator";
-import { IParams, IPostulateMusician, OfferSchema, OfferType, ParamsTypeIdOnly, PostulateMusicianType, BodyPostulationStatusType,IBodyPostulationStatus } from "../validations/offers.validation";
+import { IParams, IPostulateMusician, OfferSchema, OfferType, ParamsTypeIdOnly, PostulateMusicianType, BodyPostulationStatusType,IBodyPostulationStatus, IHeadersAuth } from "../validations/offers.validation";
 import { FastifyInstance } from "fastify";
 
 const routes = {
@@ -44,6 +44,7 @@ const routes = {
     },
     ChangePostulationStatus : {
         handler : changePostulationStatus,
+        preHandler : validateToken,
         schema : {
             body : IBodyPostulationStatus
         }
@@ -60,20 +61,20 @@ export const OffersRoutes = (fastify : FastifyInstance, options : any, done : an
     fastify.get<{ Params : ParamsTypeIdOnly }>(`${options.url}/:id`, routes.getSingleOffer);
 
     // Route for Post a new Offer
-    fastify.post<{ Body : OfferType }>(options.url, routes.postOffer);
+    fastify.post<{ Body : OfferType, Headers : IHeadersAuth }>(options.url, routes.postOffer);
 
     // Route for postulate a Musician to an Offer
-    fastify.put<{ Params : ParamsTypeIdOnly, Body : PostulateMusicianType }>(`${options.url}/:id`, routes.postulateMusician);
+    fastify.put<{ Params : ParamsTypeIdOnly, Body : PostulateMusicianType, Headers : IHeadersAuth }>(`${options.url}/:id`, routes.postulateMusician);
 
     // Route for delete an Offer
-    fastify.delete<{ Params : ParamsTypeIdOnly }>(`${options.url}/:id`, routes.deleteOffer);
+    fastify.delete<{ Params : ParamsTypeIdOnly, Headers : IHeadersAuth }>(`${options.url}/:id`, routes.deleteOffer);
 
     // Route for disable an Offer
-    fastify.patch<{ Params : ParamsTypeIdOnly }>(`${options.url}/:id`, routes.disableOffer);
+    fastify.patch<{ Params : ParamsTypeIdOnly, Headers :  IHeadersAuth }>(`${options.url}/:id`, routes.disableOffer);
 
 
     // Route for change Postulation Status
-    fastify.put<{ Body : BodyPostulationStatusType }>(`${options.url}/changestatus`, routes.ChangePostulationStatus);
+    fastify.patch<{ Body : BodyPostulationStatusType, Headers : IHeadersAuth }>(`${options.url}/changestatus`, routes.ChangePostulationStatus);
 
     // Plugin Done  
     done();
