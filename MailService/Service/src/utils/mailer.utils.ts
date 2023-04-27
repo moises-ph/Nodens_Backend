@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import {EMAIL, PASSWORD} from '../config/config'
-import { templateForApplication, templateForOrganizer, templateForVerifiying } from '../templates';
+import { templateForApplication, templateForOrganizer, templateForRecovery, templateForVerifiying } from '../templates';
 
 export type MailerApplicantType = {
   applicant_email: string,
@@ -85,4 +85,24 @@ export const mailerForVerifying = async ({user_name, url, user_mail}:MailerForVe
     html: templateForVerifiying({user_name, url})
   })
   console.log(info.messageId); 
+}
+
+export const mailerForRecovery = async({url, user_mail, user_name}:MailerForVerifyingType) => {
+  let transporter = nodemailer.createTransport({
+    host: 'smtp-mail.outlook.com',
+    port: 587,
+    auth: {
+      user: EMAIL,
+      pass: PASSWORD
+    }
+  });
+
+  let info = await transporter.sendMail({
+    from: EMAIL,
+    to: user_mail,
+    subject: "Recuperar contraseña",
+    text: "Recupera tu contraseña",
+    html: templateForRecovery({user_name, url})
+  })
+  console.log(info.messageId);
 }
