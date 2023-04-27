@@ -31,7 +31,8 @@ export interface IOffer {
     Img : string,
     Requeriments : IRequeriments[],
     Vacants : number,
-    isAvailable : boolean
+    isAvailable : boolean,
+    tags : string[]
 }
 
 const RequerimentsSchema = new Schema<IRequeriments>({
@@ -74,7 +75,8 @@ const OfferSchema = new Schema<IOffer>({
     Img : { type : Schema.Types.String, required : false },
     Requeriments : { type : [RequerimentsSchema], required : true },
     Vacants : { type : Schema.Types.Number, required : true },
-    isAvailable : { type : Schema.Types.Boolean, required : true }
+    isAvailable : { type : Schema.Types.Boolean, required : true },
+    tags : { type : [Schema.Types.String], required : true }
 },{
     versionKey : false
 });

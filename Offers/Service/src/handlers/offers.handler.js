@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changePostulationStatus = exports.disableOffer = exports.deleteOffer = exports.postulateMusician = exports.getSingleOffer = exports.postOffer = exports.getAllOffers = void 0;
+exports.changePostulationStatus = exports.disableOffer = exports.deleteOffer = exports.postulateMusician = exports.getSingleOffer = exports.postOffer = exports.getOffersByTag = exports.getAllOffers = void 0;
 const offers_model_1 = require("../models/offers.model");
 const offerNotAbailable_1 = require("../utils/offerNotAbailable");
 const getAllOffers = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
@@ -20,6 +20,17 @@ const getAllOffers = (req, reply) => __awaiter(void 0, void 0, void 0, function*
     return reply.code(200).send(Offers);
 });
 exports.getAllOffers = getAllOffers;
+const getOffersByTag = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const tags = req.body.tags;
+        const tagsFounded = yield offers_model_1.Offer.find({ tags: tags });
+        return reply.code(200).send(tagsFounded);
+    }
+    catch (err) {
+        return reply.code(500).send(err);
+    }
+});
+exports.getOffersByTag = getOffersByTag;
 const postOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newOffer = new offers_model_1.Offer(req.body);

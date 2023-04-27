@@ -48,9 +48,10 @@ export const OfferSchema = {
             minItems : 1
         },
         Vacants : { type : "integer" },
-        isAvailable : { type : "boolean" }
+        isAvailable : { type : "boolean" },
+        tags : { type : "array", items : { type : "string" } }
     },
-    required : ["Title", "Description", "Vacants", "isAvailable", "Event_Date", "Payment", "Event_Ubication", "Requeriments"]
+    required : ["Title", "Description", "Vacants", "isAvailable", "Event_Date", "Payment", "Event_Ubication", "Requeriments", "tags"]
 } as const;
 
 export type OfferType = FromSchema<typeof OfferSchema>;
@@ -91,8 +92,16 @@ export const IBodyPostulationStatus = {
 export type BodyPostulationStatusType = FromSchema<typeof IBodyPostulationStatus>;
 
 
-// Headers
+// Tags
+export const IBodyQueryTags = {
+    type : "object",
+    properties : {
+        tags : { type : "array", items : { type : "string" } }
+    },
+    required : ["tags"]
+} as const;
 
+export type TBodyQueryTags = FromSchema<typeof IBodyQueryTags>;
 
 export interface IHeadersAuth extends FastifyRequest{
     authorization : string

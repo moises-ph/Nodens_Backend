@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IBodyPostulationStatus = exports.IPostulateMusician = exports.IParams = exports.OfferSchema = void 0;
+exports.IBodyQueryTags = exports.IBodyPostulationStatus = exports.IPostulateMusician = exports.IParams = exports.OfferSchema = void 0;
 exports.OfferSchema = {
     type: "object",
     properties: {
@@ -48,9 +48,10 @@ exports.OfferSchema = {
             minItems: 1
         },
         Vacants: { type: "integer" },
-        isAvailable: { type: "boolean" }
+        isAvailable: { type: "boolean" },
+        tags: { type: "array", items: { type: "string" } }
     },
-    required: ["Title", "Description", "Vacants", "isAvailable", "Event_Date", "Payment", "Event_Ubication", "Requeriments"]
+    required: ["Title", "Description", "Vacants", "isAvailable", "Event_Date", "Payment", "Event_Ubication", "Requeriments", "tags"]
 };
 exports.IParams = {
     type: "object",
@@ -77,4 +78,12 @@ exports.IBodyPostulationStatus = {
         Action: { type: "string", enum: ["aplied", "evaluated", "acepted"] }
     },
     required: ["OfferId", "Action"]
+};
+// Tags
+exports.IBodyQueryTags = {
+    type: "object",
+    properties: {
+        tags: { type: "array", items: { type: "string" } }
+    },
+    required: ["tags"]
 };

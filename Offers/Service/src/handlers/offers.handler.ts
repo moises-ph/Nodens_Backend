@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { Offer } from "../models/offers.model";
 import { setNotAvailable } from "../utils/offerNotAbailable";
-import { OfferType, ParamsTypeIdOnly, PostulateMusicianType, BodyPostulationStatusType, IHeadersAuth } from "../validations/offers.validation";
+import { OfferType, ParamsTypeIdOnly, PostulateMusicianType, BodyPostulationStatusType, IHeadersAuth, TBodyQueryTags } from "../validations/offers.validation";
 
 type RequestParams = FastifyRequest<{ Params : ParamsTypeIdOnly }>;
 
@@ -13,12 +13,25 @@ type PostulateMusicianRequest = FastifyRequest<{Params : ParamsTypeIdOnly, Body 
 
 type ChangeAplicationStatus = FastifyRequest<{Body : BodyPostulationStatusType , Headers : IHeadersAuth}>;
 
+type ByTagsRequest = FastifyRequest<{ Body : TBodyQueryTags }>;
+
 export const getAllOffers = async (req : FastifyRequest, reply : FastifyReply) => {
     const Offers = await Offer.find();
     Offers.map(async offer => {
         offer.Event_Date.getDate > Date.now ? null : await setNotAvailable(offer.id);
     });
     return reply.code(200).send(Offers);
+}
+
+export const getOffersByTag = async (req : ByTagsRequest, reply : FastifyReply) => {
+    try{
+        const tags : string[] = req.body.tags;
+        const tagsFounded = await Offer.find({tags : tags});
+        return reply.code(200).send(tagsFounded);
+    }
+    catch(err){
+        return reply.code(500).send(err);
+    }
 }
 
 export const postOffer = async (req : RequestBody, reply : FastifyReply) => {
