@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import {EMAIL, PASSWORD} from '../config/config'
-import { templateForApplication } from '../templates/templates';
+import { templateForApplication, templateForOrganizer, templateForRecovery, templateForVerifiying } from '../templates';
 
 export type MailerApplicantType = {
   applicant_email: string,
@@ -27,7 +27,7 @@ export const mailerForApplication = async ({applicant_email, applicant_name, off
     to: applicant_email,
     subject: "Aplicacion a oferta",
     text: "Aplicado correctamente",
-    html: templateForApplication({applicant_name, enterprise_name, organizer_name, title})
+    html: templateForApplication({applicant_name, enterprise_name, organizer_name, title, offer_id})
   })
   console.log(info.messageId);  
 }
@@ -56,17 +56,18 @@ export const mailerForOrganizer = async ({applicant_email, applicant_id, applica
     to: organizer_mail,
     subject: "Aplicacion a oferta",
     text: "Alguien a aplicado a tu oferta",
-    html: `<h1>${applicant_email}, ${applicant_name}, ${offer_id}</h1>`
+    html: templateForOrganizer({applicant_email, applicant_id,applicant_name, offer_id, organizer_mail, title})
   })
   console.log(info.messageId); 
 }
 
 export type MailerForVerifyingType = {
+  user_name: string,
   user_mail: string,
   url: string
 }
 
-export const mailerForVerifying = async ({url, user_mail}:MailerForVerifyingType) => {
+export const mailerForVerifying = async ({user_name, url, user_mail}:MailerForVerifyingType) => {
   let transporter = nodemailer.createTransport({
     host: 'smtp-mail.outlook.com',
     port: 587,
@@ -81,7 +82,27 @@ export const mailerForVerifying = async ({url, user_mail}:MailerForVerifyingType
     to: user_mail,
     subject: "Verificar email",
     text: "Verifica el email con el que te registraste",
-    html: `<a href="${url}">verify</a>`
+    html: templateForVerifiying({user_name, url})
   })
   console.log(info.messageId); 
+}
+
+export const mailerForRecovery = async({url, user_mail, user_name}:MailerForVerifyingType) => {
+  let transporter = nodemailer.createTransport({
+    host: 'smtp-mail.outlook.com',
+    port: 587,
+    auth: {
+      user: EMAIL,
+      pass: PASSWORD
+    }
+  });
+
+  let info = await transporter.sendMail({
+    from: EMAIL,
+    to: user_mail,
+    subject: "Recuperar contraseña",
+    text: "Recupera tu contraseña",
+    html: templateForRecovery({user_name, url})
+  })
+  console.log(info.messageId);
 }

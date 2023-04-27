@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { ApplicantType, OrganizerType, EmailOrPassType } from '../validations/schemas'
-import { MailerApplicantType, MailerForVerifyingType, MailerOrganizerType, mailerForApplication, mailerForOrganizer, mailerForVerifying } from '../utils/mailer.utils'
+import { MailerApplicantType, MailerForVerifyingType, MailerOrganizerType, mailerForApplication, mailerForOrganizer, mailerForRecovery, mailerForVerifying } from '../utils/mailer.utils'
 
 type ApplicationRequest = FastifyRequest<{Body: ApplicantType}>
 
@@ -49,13 +49,30 @@ type VerifyingRequest = FastifyRequest<{Body: EmailOrPassType}>
 
 export const sendMailForVerifying = async (req: VerifyingRequest, res: FastifyReply) => {
   try {
-    const { ReceiverEmail, URL } = req.body;
+    const { UserName,ReceiverEmail, URL } = req.body;
     const args: MailerForVerifyingType = {
+      user_name: UserName,
       url: URL,
       user_mail: ReceiverEmail
     };
     mailerForVerifying(args);
     return res.code(200).send({message: "Verifica tu email"});
+  }
+  catch (err) {
+    return res.code(500).send(err);
+  }
+}
+
+export const sendMailForRecovery = async (req: VerifyingRequest, res: FastifyReply) => {
+  try {
+    const { UserName,ReceiverEmail, URL } = req.body;
+    const args: MailerForVerifyingType = {
+      user_name: UserName,
+      url: URL,
+      user_mail: ReceiverEmail
+    };
+    mailerForRecovery(args);
+    return res.code(200).send({message: "Recupera tu contraseña"});
   }
   catch (err) {
     return res.code(500).send(err);

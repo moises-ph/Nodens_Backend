@@ -35,10 +35,11 @@ export type OrganizerType = FromSchema<typeof RequestSchemaForOrganizer>;
 export const RequestSchemaForEmailVerificationAndChangePassWord = {
   type: "object",
   properties: {
+    UserName: {type: "string"},
     ReceiverEmail: {type: "string", format: "email"},
     URL: {type: "string"},
   },
-  required: ["ReceiverEmail", "URL"]
+  required: ["UserName", "ReceiverEmail", "URL"]
 } as const;
 
 export type EmailOrPassType = FromSchema<typeof RequestSchemaForEmailVerificationAndChangePassWord>;
