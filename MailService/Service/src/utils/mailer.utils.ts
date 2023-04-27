@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import {EMAIL, PASSWORD} from '../config/config'
-import { templateForApplication, templateForVerifiying } from '../templates';
+import { templateForApplication, templateForOrganizer, templateForVerifiying } from '../templates';
 
 export type MailerApplicantType = {
   applicant_email: string,
@@ -27,7 +27,7 @@ export const mailerForApplication = async ({applicant_email, applicant_name, off
     to: applicant_email,
     subject: "Aplicacion a oferta",
     text: "Aplicado correctamente",
-    html: templateForApplication({applicant_name, enterprise_name, organizer_name, title})
+    html: templateForApplication({applicant_name, enterprise_name, organizer_name, title, offer_id})
   })
   console.log(info.messageId);  
 }
@@ -56,7 +56,7 @@ export const mailerForOrganizer = async ({applicant_email, applicant_id, applica
     to: organizer_mail,
     subject: "Aplicacion a oferta",
     text: "Alguien a aplicado a tu oferta",
-    html: `<h1>${applicant_email}, ${applicant_name}, ${offer_id}</h1>`
+    html: templateForOrganizer({applicant_email, applicant_id,applicant_name, offer_id, organizer_mail, title})
   })
   console.log(info.messageId); 
 }
