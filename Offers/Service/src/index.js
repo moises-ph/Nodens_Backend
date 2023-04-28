@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fastify_1 = __importDefault(require("fastify"));
 const offers_routes_1 = require("./routes/offers.routes");
 require("./Database/mongoose");
+const config_1 = require("./configuration/config");
 const server = (0, fastify_1.default)({
     logger: true
 }).withTypeProvider();
@@ -22,7 +23,7 @@ server.register(offers_routes_1.OffersRoutes, { url: "/offers" });
 server.get("/ping", (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
     return reply.send("pong");
 }));
-server.listen({ port: 80 }, (err, address) => {
+server.listen({ port: config_1._PORT }, (err, address) => {
     if (err) {
         console.error(err);
         process.exit(1);

@@ -96,9 +96,9 @@ export type BodyPostulationStatusType = FromSchema<typeof IBodyPostulationStatus
 export const IBodyQueryTags = {
     type : "object",
     properties : {
-        tags : { type : "array", items : { type : "string" } }
+        Tags : { type : "array", items : { type : "string" } }
     },
-    required : ["tags"]
+    required : ["Tags"]
 } as const;
 
 export type TBodyQueryTags = FromSchema<typeof IBodyQueryTags>;

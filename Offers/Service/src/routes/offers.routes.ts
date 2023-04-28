@@ -89,7 +89,7 @@ export const OffersRoutes = (
   fastify.get(options.url, routes.getAllOffers);
 
   // Route for get All Offers that match with request body tags
-  fastify.get<{ Body : TBodyQueryTags }>(options.url, routes.getOffersByTag);
+  fastify.put<{ Body : TBodyQueryTags }>(options.url, routes.getOffersByTag);
 
   // Route for Get Single Offer
   fastify.get<{ Params: ParamsTypeIdOnly }>(

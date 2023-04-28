@@ -62,7 +62,7 @@ const OffersRoutes = (fastify, options, done) => {
     // Route for Get All Offers
     fastify.get(options.url, routes.getAllOffers);
     // Route for get All Offers that match with request body tags
-    fastify.get(options.url, routes.getOffersByTag);
+    fastify.put(options.url, routes.getOffersByTag);
     // Route for Get Single Offer
     fastify.get(`${options.url}/:id`, routes.getSingleOffer);
     // Route for Post a new Offer

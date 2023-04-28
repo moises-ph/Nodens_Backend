@@ -83,7 +83,7 @@ exports.IBodyPostulationStatus = {
 exports.IBodyQueryTags = {
     type: "object",
     properties: {
-        tags: { type: "array", items: { type: "string" } }
+        Tags: { type: "array", items: { type: "string" } }
     },
-    required: ["tags"]
+    required: ["Tags"]
 };

@@ -25,8 +25,12 @@ export const getAllOffers = async (req : FastifyRequest, reply : FastifyReply) =
 
 export const getOffersByTag = async (req : ByTagsRequest, reply : FastifyReply) => {
     try{
-        const tags : string[] = req.body.tags;
-        const tagsFounded = await Offer.find({tags : tags});
+        const tags : string[] = req.body.Tags;
+        const tagsFounded = await Offer.find({
+            tags : {
+                $in : tags
+            }
+        });
         return reply.code(200).send(tagsFounded);
     }
     catch(err){
@@ -38,7 +42,6 @@ export const postOffer = async (req : RequestBody, reply : FastifyReply) => {
     try{
         const newOffer = new Offer(req.body);
         newOffer.Creation_Date = new Date();
-        console.log(newOffer.Event_Date);
         if (newOffer.Event_Date < newOffer.Creation_Date) return reply.code(400).send({ message : "La fecha del evento debe ser mayor a la fecha actual" })
         await newOffer.save();
         return reply.code(200).send({message : "Oferta creada correctamente", id : newOffer.id});

@@ -22,8 +22,12 @@ const getAllOffers = (req, reply) => __awaiter(void 0, void 0, void 0, function*
 exports.getAllOffers = getAllOffers;
 const getOffersByTag = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const tags = req.body.tags;
-        const tagsFounded = yield offers_model_1.Offer.find({ tags: tags });
+        const tags = req.body.Tags;
+        const tagsFounded = yield offers_model_1.Offer.find({
+            tags: {
+                $in: tags
+            }
+        });
         return reply.code(200).send(tagsFounded);
     }
     catch (err) {
@@ -35,7 +39,6 @@ const postOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         const newOffer = new offers_model_1.Offer(req.body);
         newOffer.Creation_Date = new Date();
-        console.log(newOffer.Event_Date);
         if (newOffer.Event_Date < newOffer.Creation_Date)
             return reply.code(400).send({ message: "La fecha del evento debe ser mayor a la fecha actual" });
         yield newOffer.save();
