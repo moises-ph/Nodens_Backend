@@ -1,6 +1,7 @@
 import {TypeBoxTypeProvider} from '@fastify/type-provider-typebox'
 import Fastify from 'fastify';
 import { MailerRoutes } from './routes/routes'
+import {HOST, PORT} from './config/config'
 
 const server = Fastify({
   logger: true
@@ -8,7 +9,7 @@ const server = Fastify({
 
 server.register(MailerRoutes, {url: "/mailer"})
 
-server.listen({port: 8000}, (err: any, addres: any) => {
+server.listen({host: HOST,port: parseInt(PORT)}, (err: any, addres: any) => {
   if (err) {
     console.error(err)
     process.exit(1)
