@@ -1,19 +1,23 @@
 FROM node:slim
 
-RUN apt-get update && apt-get upgrade -y && apt-get autoclean -y && apt-get autoremove -y
+RUN apt clean \ 
+    apt update  -y \
+    apt upgrade -y
 
 WORKDIR /app
 
 COPY package.json .
 
-RUN npm install
-
 COPY . .
 
-EXPOSE 8000
+RUN npm install
+
+ENV HOST 0.0.0.0
+
+ENV PORT 8000
 
 ENV SECRET "aek8tcdus4km1m0ni32y54thvgbo3cnrmyavhl6o"
 
-RUN npm run build
+EXPOSE 8000
 
 CMD ["npm", "start"]

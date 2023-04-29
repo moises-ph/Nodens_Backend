@@ -1,21 +1,15 @@
-import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
-import Fastify, { FastifyReply, FastifyRequest } from "fastify";
-import { OffersRoutes } from "./routes/offers.routes";
-import "./Database/mongoose";
+import { build } from "./app";
+import { _HOST, _PORT } from "./configuration/config";
 
-const server = Fastify({
-    logger: true
-}).withTypeProvider<TypeBoxTypeProvider>();
-
-server.register(OffersRoutes, { url : "/offers" });
-
-server.get("/ping", async (request : FastifyRequest, reply : FastifyReply) => {
-    return reply.send("pong");
+const server = build({
+  logger: {
+    level: 'info'
+  }
 });
 
-server.listen({ port: 8000 }, (err : any, address : any) => {
-    if(err){
-        console.error(err);
-        process.exit(1);
-    }
+server.listen({ host : _HOST,port: parseInt(_PORT,10) }, (err: any, address: any) => {
+  if (err) {
+    server.log.error(err);
+    process.exit(1);
+  }
 });

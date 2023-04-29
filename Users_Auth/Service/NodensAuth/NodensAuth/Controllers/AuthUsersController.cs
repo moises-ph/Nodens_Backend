@@ -118,7 +118,7 @@ namespace NodensAuth.Controllers
 
         [HttpPost]
         [Route("recovery/pre")]
-        public async Task<IActionResult> PostPreAsync(string Email, string Password)
+        public async Task<IActionResult> PostPreAsync(string Email)
         {
             try
             {
