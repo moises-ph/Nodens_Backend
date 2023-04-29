@@ -152,7 +152,7 @@ namespace NodensAuth.Controllers
                 var filter = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.email, Email);
                 var result = await mongoClientRequests.Find(filter).FirstOrDefaultAsync();
                 string url = $"https://{APPURI}/api/auth/recovery/request?gdusr={guid.ToString()}&mn={Email.Replace("@", "%40")}";
-                return StatusCode(StatusCodes.Status200OK, new { guid = guid.ToString(), Email, email = result.email, source = result.source, timestamp = result.timestamp.ToString() });
+                return StatusCode(StatusCodes.Status200OK, new { guid = guid.ToString(), email = result.email, URL = url });
             }
             catch (Exception err)
             {
