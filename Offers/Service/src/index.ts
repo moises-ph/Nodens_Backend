@@ -1,15 +1,13 @@
 import { build } from "./app";
+import { _HOST, _PORT } from "./configuration/config";
 
 const server = build({
   logger: {
-    level: 'info',
-    transport: {
-      target: 'pino-pretty'
-    }
+    level: 'info'
   }
 });
 
-server.listen({ port: 8000 }, (err: any, address: any) => {
+server.listen({ host : _HOST,port: parseInt(_PORT,10) }, (err: any, address: any) => {
   if (err) {
     server.log.error(err);
     process.exit(1);
