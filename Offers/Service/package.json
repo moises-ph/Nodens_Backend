@@ -2,12 +2,12 @@
   "name": "service_offers",
   "version": "0.1.0",
   "description": "Microservice offers for Nodens web App",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "buildDev": "start powershell && tsc -w -p tsconfig.json",
     "build" : "tsc",
-    "dev": "nodemon src/index.js",
-    "start" : "node src/index.js"
+    "dev": "nodemon dist/index.js",
+    "start" : "node dist/index.js"
   },
   "repository": {
     "type": "git",
