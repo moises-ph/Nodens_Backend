@@ -179,18 +179,15 @@ namespace NodensAuth.Controllers
                     return StatusCode(StatusCodes.Status401Unauthorized, new { msg = "Url no válida, por favor vuelva a pedir el restablecimiento de contraseña" });
                 }
                 var keyBytes = Encoding.UTF8.GetBytes(secretKey);
-                var claims = new ClaimsIdentity();
-                claims.AddClaim(new Claim(ClaimTypes.Email, mn));
-                claims.AddClaim(new Claim("Guid", gdusr));
-                var tokenDescriptor = new SecurityTokenDescriptor
+                var securityKey = new SymmetricSecurityKey(keyBytes);
+                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+                var claims = new[]
                 {
-                    Subject = claims,
-                    Expires = DateTime.UtcNow.AddMinutes(20),
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
+                    new Claim("Guid", gdusr),
+                    new Claim("Email", mn),
                 };
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
-                string tokencreado = tokenHandler.WriteToken(tokenConfig);
+                var token = new JwtSecurityToken(null, null, claims, expires: DateTime.Now.AddMinutes(10), signingCredentials: credentials);
+                var tokencreado = new JwtSecurityTokenHandler().WriteToken(token);
 
                 var sourceRes = result.source;
                 var filterUp = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.source.EncodedId, sourceRes.EncodedId);
@@ -207,13 +204,13 @@ namespace NodensAuth.Controllers
         [HttpPut]
         [Route("recovery/reset")]
         [Authorize]
-        public async Task<IActionResult> PostResetAsync(Reset_Pass pass)
+        public async Task<IActionResult> PostResetAsync([FromBody]Reset_Pass pass)
         {
             try
             {
                 var token = new JwtSecurityToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty));
                 string? Guid = token.Payload["Guid"].ToString();
-                string? Email = token.Payload["email"].ToString();
+                string? Email = token.Payload["Email"].ToString();
                 MongoClass mongoClass = new MongoClass(cadenaMongo);
                 IMongoCollection<MongoClass.RequestModel> mongoClientRequests = mongoClass.ClientRequest;
                 FilterDefinition<MongoClass.RequestModel> filter = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.source.EncodedId, Guid);
@@ -232,12 +229,9 @@ namespace NodensAuth.Controllers
                     return BadRequest(new { msg = "Vuelva a solicitar el restablecimiento de su contraseña" });
                 }
 
-
-                string passwordCrypt = BC.HashPassword(pass.Password, 10);
-
                 SQLResult sqlresult = new SQLResult();
 
-                sqlresult = await SQLHandler.ChangePassword(new AuthUserReq() { Email = Email, Password = passwordCrypt });
+                sqlresult = await SQLHandler.ChangePassword(new AuthUserReq() { Email = Email, Password = pass.Password });
 
                 if (sqlresult.Error)
                 {

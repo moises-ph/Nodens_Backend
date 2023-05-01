@@ -141,13 +141,13 @@ namespace NodensAuth.Db
                 var cmd = new SqlCommand("SP_ChangePassword", connection);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("Email", pass.Email);
-                cmd.Parameters.AddWithValue("Password", BC.HashPassword(pass.Password, 10));
+                cmd.Parameters.AddWithValue("NewPass", BC.HashPassword(pass.Password, 10));
                 using (var rd = await cmd.ExecuteReaderAsync())
                 {
                     while (rd.Read())
                     {
                         result.Error = Convert.ToInt32(rd["Error"].ToString()) == 1;
-                        result.Message = rd["Respuesta"].ToString();
+                        result.Message = rd["Message"].ToString();
                     }
                     rd.Close();
                 }
