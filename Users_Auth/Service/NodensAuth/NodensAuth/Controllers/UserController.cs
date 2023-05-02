@@ -75,7 +75,7 @@ namespace NodensAuth.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet("{Id}")]
         public IActionResult GetUser(string? Id)
         {
             try
