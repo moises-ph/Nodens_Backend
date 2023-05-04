@@ -9,7 +9,7 @@ from bson.objectid import  ObjectId
 from .validations import Organizersinfo
 from werkzeug.datastructures import MultiDict
 from flask_marshmallow import Marshmallow
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from werkzeug.exceptions import HTTPException
 
 from .utils.tokenValidator import token_required
@@ -31,9 +31,10 @@ optional = OptionalRoutes(app)
 
 ma = Marshmallow(app)
 
-CORS(app)
+CORS(app, origins="*", methods=["POST","PUT","GET","DELETE"])
 
 # Route para el perfil
+@cross_origin
 @app.route('/Organizer/profile', methods=["POST"])
 @token_required
 def uploadProfile(claims):
@@ -72,6 +73,7 @@ def uploadProfile(claims):
         return jsonify(err)
     
 ### GETALL ###
+@cross_origin
 @app.route("/Organizer/all", methods=["GET"])
 def getAllmusician ():
     db = Database.dbConnection()
@@ -80,6 +82,7 @@ def getAllmusician ():
     return response #Response(response, mimetype="application/json")
 
 ### GETLOGIN ##
+@cross_origin
 @app.route("/Organizer", methods=["GET"])
 @token_required
 def getlogin (claims):
@@ -96,6 +99,7 @@ def getlogin (claims):
 
 
 ### GETONLY ###
+@cross_origin
 @app.route("/Organizer/<id>", methods=["GET"])
 def getMusician(id):
     db = Database.dbConnection()
@@ -105,6 +109,7 @@ def getMusician(id):
     
 
 ### POST ###
+@cross_origin
 @app.route("/Organizer", methods=["POST"])
 @token_required
 def postInfomusician(claims):
@@ -148,6 +153,7 @@ def postInfomusician(claims):
 
 
 ### DELETE ###
+@cross_origin
 @app.route("/Organizer", methods=["DELETE"])
 @token_required
 def deleteMusician(claims):
@@ -164,6 +170,7 @@ def deleteMusician(claims):
 
 
 ### PUT ###
+@cross_origin
 @app.route("/Organizer", methods=["PUT"])
 @token_required
 def putMusician (claims):
