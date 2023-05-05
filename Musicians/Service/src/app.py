@@ -9,7 +9,7 @@ from bson.objectid import  ObjectId
 from .validations import MusicianInfo
 from werkzeug.datastructures import MultiDict
 from flask_marshmallow import Marshmallow
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 from .utils.tokenValidator import token_required
 
@@ -31,9 +31,19 @@ optional = OptionalRoutes(app)
 ma = Marshmallow(app)
 
 #CORS
-CORS(app)
+CORS(app, origins="*", methods=["POST","PUT","GET","DELETE"])
+
+#Enable Cross Origin Requests (F*cking CORS) .|.
+@app.after_request
+def after_request(response):
+    response.headers["Acces-Control-Allow-Origin"] = "*"
+    response.headers["Acces-Control-Allow-Credentials"] = "true"
+    response.headers["Acces-Control-Allow-Methods"] = "POST, GET, DELETE, OPTIONS, PUT"
+    response.headers["Acces-Control-Allow-Headers"] = "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization"
+    return response
 
 ### Route para el perfil, imagen ###
+@cross_origin
 @app.route('/musician/profile', methods=["POST"])
 @token_required
 def uploadProfile(claims):
@@ -73,6 +83,7 @@ def uploadProfile(claims):
         return jsonify(err)
 
 ### Se crea la Route para subir videos ###
+@cross_origin
 @app.route("/musician/uploadVideo", methods=["POST"])
 @token_required
 def uploadMusician(claims):
@@ -118,6 +129,7 @@ def uploadMusician(claims):
         
 
 ### Se crea el metodo "GETALL" para traer a todos los musicos ###
+@cross_origin
 @app.route("/musician/all", methods=["GET"])
 def getAllmusician():
     db = Database.dbConnection()
@@ -126,6 +138,7 @@ def getAllmusician():
     return response #Response(response, mimetype="application/json")
 
 ### Se crea el metodo "GETONLY" para traer a 1 solo musico ###
+@cross_origin
 @app.route("/musician/<id>", methods=["GET"])
 def getMusician(id):
     db = Database.dbConnection()
@@ -135,6 +148,7 @@ def getMusician(id):
 
 ### GETLOGIN
 @app.route("/musician", methods=["GET"])
+@cross_origin
 @token_required
 def getlog(claims):
     if not claims['isMusician']:
@@ -149,6 +163,7 @@ def getlog(claims):
 
 
 ### Se crea el metodo "POST" ###
+@cross_origin
 @app.route("/musician", methods=["POST"])
 @token_required
 def postInfomusician(claims):
@@ -198,6 +213,7 @@ def postInfomusician(claims):
 
 
 ### Aqui se crea el metodo "DELETE"  ###
+@cross_origin
 @app.route("/musician", methods=["DELETE"])
 @token_required
 def deleteMusician(claims):
@@ -213,6 +229,7 @@ def deleteMusician(claims):
 
 
 ### Update with PUT ###
+@cross_origin
 @app.route("/musician", methods=["PUT"])
 @token_required
 def putMusician (claims):
