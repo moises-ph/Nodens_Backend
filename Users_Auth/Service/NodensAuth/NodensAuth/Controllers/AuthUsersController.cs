@@ -169,7 +169,8 @@ namespace NodensAuth.Controllers
                 MongoClass mongoClass = new MongoClass(cadenaMongo);
                 var mongoClientRequests = mongoClass.ClientRequest;
                 var filter = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.email, mn);
-                var result = await mongoClientRequests.Find(filter).FirstOrDefaultAsync();
+                var Dbresult = await mongoClientRequests.Find(filter).ToListAsync();
+                var result = Dbresult.Find(obj => obj.source.EncodedId  == gdusr);
                 if (result == null)
                 {
                     return StatusCode(StatusCodes.Status401Unauthorized, new { msg = "Url Expirada, por favor vuelva a pedir el restablecimiento de contraseña" });

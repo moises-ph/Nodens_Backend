@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using NodensAuth.Middlewares;
 using NodensAuth.Utils;
 using System.Text;
 
@@ -13,13 +14,17 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: misReglasCors,
     builder =>
     {
-        builder.AllowAnyOrigin()
-    .AllowAnyHeader()
-    .AllowAnyMethod();
+        builder
+        .AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod();
     });
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.RespectBrowserAcceptHeader = true;
+}).AddXmlSerializerFormatters();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -53,6 +58,8 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseOptionsMiddleware();
 
 
 app.UseHttpsRedirection();
