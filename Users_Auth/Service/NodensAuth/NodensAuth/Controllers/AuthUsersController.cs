@@ -50,8 +50,8 @@ namespace NodensAuth.Controllers
         {
             try
             {
-                var cookieKey = Request.Cookies["RenewKey"];
-                if (cookieKey == null || !BC.Verify(renewKey, cookieKey))
+                Microsoft.Extensions.Primitives.StringValues cookieKey = Request.Headers.Authorization;
+                if (cookieKey.Count == 0 || !BC.Verify(renewKey, cookieKey))
                 {
                     return StatusCode(StatusCodes.Status401Unauthorized, new { message = "Invalid Cookies" });
                 }
@@ -68,8 +68,7 @@ namespace NodensAuth.Controllers
                 var tokenConfig = tokenHandler.CreateToken(tokenDescriptor);
                 string tokencreado = tokenHandler.WriteToken(tokenConfig);
                 var RenewKey = BC.HashString(renewKey);
-                Response.Cookies.Delete("RenewKey");
-                Response.Cookies.Append("RenewKey", RenewKey);
+                Response.Headers.Add("RenewKey", RenewKey);
                 return StatusCode(StatusCodes.Status200OK, new { ttoken = tokencreado });
             }
             catch (Exception ex)
@@ -107,8 +106,7 @@ namespace NodensAuth.Controllers
                 var token = new JwtSecurityToken(null, null, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
                 var tokencreado = new JwtSecurityTokenHandler().WriteToken(token);
                 var RenewKey = BC.HashString(renewKey);
-                Response.Cookies.Append("RenewKey", RenewKey);
-                return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, readAuthUser.Verified, readAuthUser.userName });
+                return StatusCode(StatusCodes.Status200OK, new { token = tokencreado, readAuthUser.Verified, readAuthUser.userName, RenewToken = RenewKey });
             }
             catch (Exception err)
             {
