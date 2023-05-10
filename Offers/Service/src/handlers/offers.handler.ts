@@ -54,11 +54,6 @@ export const getOffersByTag = async (req : ByTagsRequest, reply : FastifyReply) 
     }
 }
 
-// No token
-export const getSingleOffer = async (req: RequestParams, reply : FastifyReply) => {
-    const offer = await Offer.findById(req.params.id, { Applicants : 0 });
-    return reply.code(200).send(offer);
-}
 
 export const postOffer = async (req : RequestBody, reply : FastifyReply) => {
     try{
