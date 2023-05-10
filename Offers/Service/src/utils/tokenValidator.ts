@@ -1,9 +1,10 @@
 import * as jose from "jose";
 import { _SECRET } from "../configuration/config";
-import { FastifyReply, FastifyRequest } from "fastify";
+import { FastifyReply } from "fastify";
 
 export async function validateToken (request : any, reply : FastifyReply, done : any) {
     try{
+        console.log(request.headers);
         let requestToken : string = request.headers.authorization;
         if(requestToken){
             requestToken = requestToken.replace("Bearer ", "");
@@ -14,8 +15,8 @@ export async function validateToken (request : any, reply : FastifyReply, done :
             else if(request.method === "PUT"){
                 payload.Role === "Musician" ? request.body.ApplicantId = payload.Id : ()=>{throw new Error("Solo los músicos pueden postularse")};
             }
-            else{
-                payload.Role === "Organizer" ? null : ()=>{throw new Error("Solo los organizadores pueden realizar esta acción")};
+            else if(request.method === "GET"){
+                payload.Role === "Musician" || payload.Role === "Organizer" ? request.params.Id = payload.Id : ()=>{throw new Error("Rol inválido")};
             }
         }
         else{

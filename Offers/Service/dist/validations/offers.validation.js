@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IBodyQueryTags = exports.IBodyPostulationStatus = exports.IPostulateMusician = exports.IParams = exports.OfferSchema = void 0;
+exports.IParamsAuth = exports.IBodyQueryTags = exports.IBodyPostulationStatus = exports.IPostulateMusician = exports.IParams = exports.OfferSchema = void 0;
 exports.OfferSchema = {
     type: "object",
     properties: {
@@ -86,4 +86,11 @@ exports.IBodyQueryTags = {
         Tags: { type: "array", items: { type: "string" } }
     },
     required: ["Tags"]
+};
+exports.IParamsAuth = {
+    type: "object",
+    properties: {
+        Id: { type: "integer" }
+    },
+    required: ["Id"]
 };

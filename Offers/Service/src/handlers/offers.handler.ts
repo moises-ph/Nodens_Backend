@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { Offer } from "../models/offers.model";
 import { setNotAvailable } from "../utils/offerNotAbailable";
-import { OfferType, ParamsTypeIdOnly, PostulateMusicianType, BodyPostulationStatusType, IHeadersAuth, TBodyQueryTags } from "../validations/offers.validation";
+import { OfferType, ParamsTypeIdOnly, PostulateMusicianType, TBodyAuth ,BodyPostulationStatusType, IHeadersAuth, TBodyQueryTags } from "../validations/offers.validation";
 
 type RequestParams = FastifyRequest<{ Params : ParamsTypeIdOnly }>;
 
@@ -15,14 +15,30 @@ type ChangeAplicationStatus = FastifyRequest<{Body : BodyPostulationStatusType ,
 
 type ByTagsRequest = FastifyRequest<{ Body : TBodyQueryTags }>;
 
+export const getPostulatedOffersMusician = async (req: RequestParamsAuth, reply : FastifyReply) => {
+    const Offers = await Offer.find({
+        "Applicants.ApplicantId" : req.params.Id
+    });
+    return reply.code(200).send(Offers);
+}
+
+export const getOfferByOrganizer = async (req: RequestParamsAuth, reply : FastifyReply) => {
+    const Offers = await Offer.find({
+        OrganizerId : req.params.Id
+    }, { Applicants : 0 });
+    return reply.code(200).send(Offers);
+}
+
+// No token
 export const getAllOffers = async (req : FastifyRequest, reply : FastifyReply) => {
-    const Offers = await Offer.find();
+    const Offers = await Offer.find({},{ Applicants : 0 });
     Offers.map(async offer => {
         offer.Event_Date.getDate > Date.now ? null : await setNotAvailable(offer.id);
     });
     return reply.code(200).send(Offers);
 }
 
+// No token
 export const getOffersByTag = async (req : ByTagsRequest, reply : FastifyReply) => {
     try{
         const tags : string[] = req.body.Tags;
@@ -30,12 +46,18 @@ export const getOffersByTag = async (req : ByTagsRequest, reply : FastifyReply) 
             tags : {
                 $in : tags
             }
-        });
+        }, { Applicants : 0 });
         return reply.code(200).send(tagsFounded);
     }
     catch(err){
         return reply.code(500).send(err);
     }
+}
+
+// No token
+export const getSingleOffer = async (req: RequestParams, reply : FastifyReply) => {
+    const offer = await Offer.findById(req.params.id, { Applicants : 0 });
+    return reply.code(200).send(offer);
 }
 
 export const postOffer = async (req : RequestBody, reply : FastifyReply) => {
@@ -49,11 +71,6 @@ export const postOffer = async (req : RequestBody, reply : FastifyReply) => {
     catch(err){
         return reply.code(500).send(err);
     }
-}
-
-export const getSingleOffer = async (req: RequestParams, reply : FastifyReply) => {
-    const offer = await Offer.findById(req.params.id);
-    return reply.code(200).send(offer);
 }
 
 export const postulateMusician = async (req: PostulateMusicianRequest, reply : FastifyReply) =>{

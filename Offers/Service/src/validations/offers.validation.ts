@@ -106,3 +106,13 @@ export type TBodyQueryTags = FromSchema<typeof IBodyQueryTags>;
 export interface IHeadersAuth extends FastifyRequest{
     authorization : string
 }
+
+export const IParamsAuth = {
+    type : "object",
+    properties : {
+        Id : { type : "integer" }
+    },
+    required : ["Id"]
+} as const;
+
+export type TBodyAuth = FromSchema<typeof IParamsAuth>;

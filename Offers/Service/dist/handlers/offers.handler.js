@@ -9,17 +9,33 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changePostulationStatus = exports.disableOffer = exports.deleteOffer = exports.postulateMusician = exports.getSingleOffer = exports.postOffer = exports.getOffersByTag = exports.getAllOffers = void 0;
+exports.changePostulationStatus = exports.disableOffer = exports.deleteOffer = exports.postulateMusician = exports.postOffer = exports.getSingleOffer = exports.getOffersByTag = exports.getAllOffers = exports.getOfferByOrganizer = exports.getPostulatedOffersMusician = void 0;
 const offers_model_1 = require("../models/offers.model");
 const offerNotAbailable_1 = require("../utils/offerNotAbailable");
+const getPostulatedOffersMusician = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
+    const Offers = yield offers_model_1.Offer.find({
+        "Applicants.ApplicantId": req.params.Id
+    });
+    return reply.code(200).send(Offers);
+});
+exports.getPostulatedOffersMusician = getPostulatedOffersMusician;
+const getOfferByOrganizer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
+    const Offers = yield offers_model_1.Offer.find({
+        OrganizerId: req.params.Id
+    }, { Applicants: 0 });
+    return reply.code(200).send(Offers);
+});
+exports.getOfferByOrganizer = getOfferByOrganizer;
+// No token
 const getAllOffers = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
-    const Offers = yield offers_model_1.Offer.find();
+    const Offers = yield offers_model_1.Offer.find({}, { Applicants: 0 });
     Offers.map((offer) => __awaiter(void 0, void 0, void 0, function* () {
         offer.Event_Date.getDate > Date.now ? null : yield (0, offerNotAbailable_1.setNotAvailable)(offer.id);
     }));
     return reply.code(200).send(Offers);
 });
 exports.getAllOffers = getAllOffers;
+// No token
 const getOffersByTag = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const tags = req.body.Tags;
@@ -27,7 +43,7 @@ const getOffersByTag = (req, reply) => __awaiter(void 0, void 0, void 0, functio
             tags: {
                 $in: tags
             }
-        });
+        }, { Applicants: 0 });
         return reply.code(200).send(tagsFounded);
     }
     catch (err) {
@@ -35,6 +51,12 @@ const getOffersByTag = (req, reply) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.getOffersByTag = getOffersByTag;
+// No token
+const getSingleOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
+    const offer = yield offers_model_1.Offer.findById(req.params.id, { Applicants: 0 });
+    return reply.code(200).send(offer);
+});
+exports.getSingleOffer = getSingleOffer;
 const postOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newOffer = new offers_model_1.Offer(req.body);
@@ -49,11 +71,6 @@ const postOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.postOffer = postOffer;
-const getSingleOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
-    const offer = yield offers_model_1.Offer.findById(req.params.id);
-    return reply.code(200).send(offer);
-});
-exports.getSingleOffer = getSingleOffer;
 const postulateMusician = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         req.body.PostulationStatus = "aplied";

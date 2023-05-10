@@ -56,9 +56,21 @@ const routes = {
             body: offers_validation_1.IBodyPostulationStatus,
         },
     },
+    getPostulatedOffersMusician: {
+        handler: offers_handler_1.getPostulatedOffersMusician,
+        preHandler: tokenValidator_1.validateToken
+    },
+    getOfferByOrganizer: {
+        handler: offers_handler_1.getOfferByOrganizer,
+        preHandler: tokenValidator_1.validateToken
+    }
 };
 const OffersRoutes = (fastify, options, done) => {
     //This is a Plugin that configures all the routes in Fastify
+    // Route for Get All the Offers created by an Organizer, using Auth Token
+    fastify.get(`${options.url}/organizer`, routes.getOfferByOrganizer);
+    // Route for Get All the Offers that a Musician get postulated
+    fastify.get(`${options.url}/musician`, routes.getPostulatedOffersMusician);
     // Route for Get All Offers
     fastify.get(options.url, routes.getAllOffers);
     // Route for get All Offers that match with request body tags
