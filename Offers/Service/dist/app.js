@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.build = void 0;
 const fastify_1 = __importDefault(require("fastify"));
+const cors_1 = __importDefault(require("@fastify/cors"));
 const offers_routes_1 = require("./routes/offers.routes");
 require("./Database/mongoose");
 // const app = Fastify({
@@ -25,6 +26,20 @@ require("./Database/mongoose");
 // });
 const build = (opts) => {
     const app = (0, fastify_1.default)(opts).withTypeProvider();
+    app.register(cors_1.default, {
+        methods: ['GET', 'PUT', 'DELETE', 'PATCH', 'POST', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        origin: "*",
+        preflight: true,
+        strictPreflight: true
+    });
+    app.addHook('onSend', (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
+        reply.headers({
+            'access-control-allow-origin': '*',
+            'access-control-allow-methods': 'GET, PUT, DELETE, PATCH, POST, OPTIONS',
+            'access-control-allow-headers': 'Content-Type, Authorization'
+        });
+    }));
     app.register(offers_routes_1.OffersRoutes, { url: "/offers" });
     app.get("/ping", (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
         return reply.send("pong");

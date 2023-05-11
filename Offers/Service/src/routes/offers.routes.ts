@@ -1,7 +1,7 @@
 import { deleteOffer, disableOffer, getAllOffers, getSingleOffer, postOffer, postulateMusician, changePostulationStatus, getOffersByTag, getPostulatedOffersMusician, getOfferByOrganizer } from '../handlers/offers.handler';
 import { validateToken } from "../utils/tokenValidator";
 import { IParams, IPostulateMusician, OfferSchema, OfferType, ParamsTypeIdOnly, PostulateMusicianType, BodyPostulationStatusType, IBodyPostulationStatus, IHeadersAuth, IBodyQueryTags, TBodyQueryTags, IParamsAuth, TBodyAuth,  } from '../validations/offers.validation';
-import { FastifyInstance } from "fastify";
+import { FastifyInstance, FastifyReply } from "fastify";
 
 const routes = {
   getAllOffers: {

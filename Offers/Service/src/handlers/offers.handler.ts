@@ -2,18 +2,9 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { Offer } from "../models/offers.model";
 import { setNotAvailable } from "../utils/offerNotAbailable";
 import { OfferType, ParamsTypeIdOnly, PostulateMusicianType, TBodyAuth ,BodyPostulationStatusType, IHeadersAuth, TBodyQueryTags } from "../validations/offers.validation";
+import { RequestParamsAuth, RequestParams, ByTagsRequest, RequestBody, PostulateMusicianRequest, ChangeAplicationStatus } from "../types/http.types";
 
-type RequestParams = FastifyRequest<{ Params : ParamsTypeIdOnly }>;
 
-type RequestParamsAuth = FastifyRequest<{ Params : ParamsTypeIdOnly, Headers : IHeadersAuth }>
-
-type RequestBody = FastifyRequest<{ Body : OfferType, Headers : IHeadersAuth }>;
-
-type PostulateMusicianRequest = FastifyRequest<{Params : ParamsTypeIdOnly, Body : PostulateMusicianType, Headers : IHeadersAuth}>;
-
-type ChangeAplicationStatus = FastifyRequest<{Body : BodyPostulationStatusType , Headers : IHeadersAuth}>;
-
-type ByTagsRequest = FastifyRequest<{ Body : TBodyQueryTags }>;
 
 export const getPostulatedOffersMusician = async (req: RequestParamsAuth, reply : FastifyReply) => {
     const Offers = await Offer.find({
@@ -27,6 +18,14 @@ export const getOfferByOrganizer = async (req: RequestParamsAuth, reply : Fastif
         OrganizerId : req.params.Id
     }, { Applicants : 0 });
     return reply.code(200).send(Offers);
+}
+
+// No token
+export const getSingleOffer = async (req: RequestParams, reply : FastifyReply) => {
+    const offer = await Offer.findById(req.params.id,{
+        Applicants : 0
+    });
+    return reply.code(200).send(offer);
 }
 
 // No token

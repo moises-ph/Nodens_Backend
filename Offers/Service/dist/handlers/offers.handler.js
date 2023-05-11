@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changePostulationStatus = exports.disableOffer = exports.deleteOffer = exports.postulateMusician = exports.postOffer = exports.getSingleOffer = exports.getOffersByTag = exports.getAllOffers = exports.getOfferByOrganizer = exports.getPostulatedOffersMusician = void 0;
+exports.changePostulationStatus = exports.disableOffer = exports.deleteOffer = exports.postulateMusician = exports.postOffer = exports.getOffersByTag = exports.getAllOffers = exports.getSingleOffer = exports.getOfferByOrganizer = exports.getPostulatedOffersMusician = void 0;
 const offers_model_1 = require("../models/offers.model");
 const offerNotAbailable_1 = require("../utils/offerNotAbailable");
 const getPostulatedOffersMusician = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
@@ -26,6 +26,14 @@ const getOfferByOrganizer = (req, reply) => __awaiter(void 0, void 0, void 0, fu
     return reply.code(200).send(Offers);
 });
 exports.getOfferByOrganizer = getOfferByOrganizer;
+// No token
+const getSingleOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
+    const offer = yield offers_model_1.Offer.findById(req.params.id, {
+        Applicants: 0
+    });
+    return reply.code(200).send(offer);
+});
+exports.getSingleOffer = getSingleOffer;
 // No token
 const getAllOffers = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     const Offers = yield offers_model_1.Offer.find({}, { Applicants: 0 });
@@ -51,12 +59,6 @@ const getOffersByTag = (req, reply) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.getOffersByTag = getOffersByTag;
-// No token
-const getSingleOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
-    const offer = yield offers_model_1.Offer.findById(req.params.id, { Applicants: 0 });
-    return reply.code(200).send(offer);
-});
-exports.getSingleOffer = getSingleOffer;
 const postOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newOffer = new offers_model_1.Offer(req.body);
