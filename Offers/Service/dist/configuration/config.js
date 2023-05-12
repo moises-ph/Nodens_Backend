@@ -23,10 +23,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports._PORT = exports._HOST = exports._MONGODB_URI = exports._SECRET = void 0;
+exports._URL_MAILER = exports._URL_AUTH = exports._PORT = exports._HOST = exports._MONGODB_URI = exports._SECRET = void 0;
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 exports._SECRET = process.env.SECRET;
 exports._MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/Nodens_Offers";
 exports._HOST = process.env.HOST || "0.0.0.0";
 exports._PORT = process.env.PORT || "8000";
+exports._URL_AUTH = process.env.URL_AUTH || "none";
+exports._URL_MAILER = process.env.URL_MAILER || "none";

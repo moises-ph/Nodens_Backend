@@ -3,6 +3,7 @@ import { Offer } from "../models/offers.model";
 import { setNotAvailable } from "../utils/offerNotAbailable";
 import { OfferType, ParamsTypeIdOnly, PostulateMusicianType, TBodyAuth ,BodyPostulationStatusType, IHeadersAuth, TBodyQueryTags } from "../validations/offers.validation";
 import { RequestParamsAuth, RequestParams, ByTagsRequest, RequestBody, PostulateMusicianRequest, ChangeAplicationStatus } from "../types/http.types";
+import { _URL_AUTH, _URL_MAILER } from "../configuration/config";
 
 
 
@@ -70,12 +71,55 @@ export const postOffer = async (req : RequestBody, reply : FastifyReply) => {
 export const postulateMusician = async (req: PostulateMusicianRequest, reply : FastifyReply) =>{
     try{
         req.body.PostulationStatus = "aplied";
-        await Offer.findByIdAndUpdate(req.params.id,{
+        const idOrganizer = await Offer.findById(req.params.id,{
+            OrganizerId : 1
+        });
+        if(!idOrganizer) throw new Error("The organizer doesn't exists")
+        const emailOrganizer = await fetch(`${_URL_AUTH}/api/user/${idOrganizer?.OrganizerId}`)
+            .then(res => res.json())
+            .then((data : any) => {
+                return data;
+            })
+            .catch(err => {throw new Error(err)})
+        
+        console.log(emailOrganizer);
+
+        const updatedOffer = await Offer.findByIdAndUpdate(req.params.id,{
             $push :{
                 Applicants : req.body
             }
         });
-        return reply.code(200).send({message : `Musico ${req.body.ApplicantId} Postulado Correctamente`});
+
+        if(!updatedOffer) throw new Error("Oferta no existe");
+
+        const body = {
+            ReceiverEmail : emailOrganizer.email,
+            ReceiverName : req.body.PostulationFullName,
+            OfferID : req.params.id,
+            OfferTitle : updatedOffer?.Title,
+            OrganizerName : emailOrganizer.userName,
+            OrganizerId : idOrganizer.OrganizerId,
+            EntrepriseName : null
+        }
+
+        console.log(body);
+
+        console.log(_URL_MAILER);
+
+        fetch(`${_URL_MAILER}/mailer`,{
+            method : 'POST',
+            body : JSON.stringify(body),
+            headers : {
+                "content-type" : "application/json"
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(err => new Error(err))
+
+        return reply.code(200).send({message : `Musico ${req.body.ApplicantId} Postulado Correctamente`, emailOrganizer});
     }catch(err){
         return reply.code(500).send(err);
     }
