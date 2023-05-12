@@ -38,7 +38,7 @@ export const sendMailToOrganizer = async (req: OrganizerRequest, res: FastifyRep
       title: OfferTitle
     };
     mailerForOrganizer(args);
-    return res.code(200).send({message: "Alguien a aplicado a tu oferta de empleo"});
+    return res.code(200).send({message: "Alguien ha aplicado a tu oferta de empleo"});
   }
   catch (err) {
     return res.code(500).send(err);
