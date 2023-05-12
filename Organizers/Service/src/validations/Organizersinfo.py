@@ -28,6 +28,15 @@ class OrganizerSchemaUpdate(Schema):
     nombre_empresa = fields.String(required=False)
     descripcion_empresa = fields.String(required=False)
     pais = fields.String(required=False)
+### Validacion de update Organizadores ###
+class OrganizerSchemaUpdate(Schema):
+    IdAuth = fields.Integer(required=True)
+    Name = fields.String(required=False)
+    Lastname = fields.String(required=False)
+    telefono = fields.String(required=False)
+    nombre_empresa = fields.String(required=False)
+    descripcion_empresa = fields.String(required=False)
+    pais = fields.String(required=False)
     fecha_nacimiento = fields.Date(required=False)
     ciudad = fields.String(required=False)
     url_logo = fields.String(required=False, allow_none=True)
