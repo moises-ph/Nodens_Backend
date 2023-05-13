@@ -66,6 +66,7 @@ export const IParams = {
 
 export type ParamsTypeIdOnly = FromSchema<typeof IParams>;
 
+
 export const IPostulateMusician ={
     type : "object",
     properties : {

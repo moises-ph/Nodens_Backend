@@ -4,6 +4,11 @@ import { setNotAvailable } from "../utils/offerNotAbailable";
 import { OfferType, ParamsTypeIdOnly, PostulateMusicianType, TBodyAuth ,BodyPostulationStatusType, IHeadersAuth, TBodyQueryTags } from "../validations/offers.validation";
 import { RequestParamsAuth, RequestParams, ByTagsRequest, RequestBody, PostulateMusicianRequest, ChangeAplicationStatus } from "../types/http.types";
 import { _URL_AUTH, _URL_MAILER } from "../configuration/config";
+import { fetchOrganizer } from "../utils/authService";
+import { ApplicantType, OrganizerType } from "../types/mail.types";
+import { IAuthUserSchema } from '../types/auth.types';
+import { sendOrganizer, sendPostulated } from "../utils/mailService";
+import { getJWTPayload } from "../helpers/getPayload";
 
 
 
@@ -70,54 +75,48 @@ export const postOffer = async (req : RequestBody, reply : FastifyReply) => {
 
 export const postulateMusician = async (req: PostulateMusicianRequest, reply : FastifyReply) =>{
     try{
+        console.log(req.params)
         req.body.PostulationStatus = "aplied";
-        const idOrganizer = await Offer.findById(req.params.id,{
-            OrganizerId : 1
-        });
-        if(!idOrganizer) throw new Error("The organizer doesn't exists")
-        const emailOrganizer = await fetch(`${_URL_AUTH}/api/user/${idOrganizer?.OrganizerId}`)
-            .then(res => res.json())
-            .then((data : any) => {
-                return data;
-            })
-            .catch(err => {throw new Error(err)})
+        const actualOffer = await Offer.findById(req.params.id);
+        if(!actualOffer) throw new Error("The offer doesn't exists")
+        const emailOrganizer : IAuthUserSchema = await fetchOrganizer(actualOffer?.OrganizerId.toString());
         
-        console.log(emailOrganizer);
+        if(emailOrganizer !satisfies IAuthUserSchema) new Error("El organizador no existe")
 
-        const updatedOffer = await Offer.findByIdAndUpdate(req.params.id,{
-            $push :{
-                Applicants : req.body
-            }
-        });
+        const payload = getJWTPayload(req.headers.authorization);
 
-        if(!updatedOffer) throw new Error("Oferta no existe");
-
-        const body = {
-            ReceiverEmail : emailOrganizer.email,
+        const applicantData : ApplicantType = {
+            ReceiverEmail : payload.Email,
             ReceiverName : req.body.PostulationFullName,
-            OfferID : req.params.id,
-            OfferTitle : updatedOffer?.Title,
+            OfferID : req.params.Payload!.Id,
+            OfferTitle : actualOffer!.Title,
             OrganizerName : emailOrganizer.userName,
-            OrganizerId : idOrganizer.OrganizerId,
-            EntrepriseName : null
+            OrganizerId : actualOffer.OrganizerId.toString()
         }
 
-        console.log(body);
+        const organizerData : OrganizerType = {
+            ReceiverEmail : emailOrganizer.Email,
+            ApplicantName : req.body.PostulationFullName,
+            ApplicantId : req.params.Payload!.Id,
+            ApplicantEmail : req.params.Payload!.Email,
+            OfferID : req.params.Payload!.Id,
+            OfferTitle : actualOffer.Title
+        }
+        console.log(applicantData);
 
         console.log(_URL_MAILER);
 
-        fetch(`${_URL_MAILER}/mailer`,{
-            method : 'POST',
-            body : JSON.stringify(body),
-            headers : {
-                "content-type" : "application/json"
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                console.log(data);
-            })
-            .catch(err => new Error(err))
+        console.log(req.params);
+
+        // await sendPostulated(applicantData);
+
+        // await sendOrganizer(organizerData);
+
+        // await actualOffer.update({
+        //     $push :{
+        //         Applicants : req.body
+        //     }
+        // });
 
         return reply.code(200).send({message : `Musico ${req.body.ApplicantId} Postulado Correctamente`, emailOrganizer});
     }catch(err){
@@ -127,6 +126,7 @@ export const postulateMusician = async (req: PostulateMusicianRequest, reply : F
 
 export const deleteOffer = async (req : RequestParamsAuth, reply : FastifyReply)  => {
     try{
+        console.log(req.params.id);
         await Offer.findByIdAndDelete(req.params.id);
         return reply.code(200).send({message : "Oferta eliminada correctamente"});
     }catch(err){

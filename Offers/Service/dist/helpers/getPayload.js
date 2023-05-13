@@ -32,34 +32,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateToken = void 0;
+exports.getJWTPayload = void 0;
 const jose = __importStar(require("jose"));
 const config_1 = require("../configuration/config");
-function validateToken(request, reply, done) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            let requestToken = request.headers.authorization;
-            if (requestToken) {
-                requestToken = requestToken.replace("Bearer ", "");
-                const { payload } = yield jose.jwtVerify(requestToken, new TextEncoder().encode(config_1._SECRET));
-                console.log(request.params);
-                if (request.method === "POST" || request.method === "PATCH" || request.method === "DELETE") {
-                    payload.Role === "Organizer" ? request.method != "DELETE" ? request.body.OrganizerId = payload.Id : null : () => { throw new Error("Solo los organizadores pueden crear ofertas"); };
-                }
-                else if (request.method === "PUT") {
-                    payload.Role === "Musician" ? null : () => { throw new Error("Solo los músicos pueden postularse"); };
-                }
-                else if (request.method === "GET") {
-                    payload.Role === "Musician" || payload.Role === "Organizer" ? request.params.Id = payload.Id : () => { throw new Error("Rol inválido"); };
-                }
-            }
-            else {
-                return reply.code(401).send({ message: "Must send Authorization Token" });
-            }
-        }
-        catch (err) {
-            return reply.code(401).send(err);
-        }
-    });
-}
-exports.validateToken = validateToken;
+const getJWTPayload = (jwt) => __awaiter(void 0, void 0, void 0, function* () {
+    const { payload } = yield jose.jwtVerify(jwt, new TextEncoder().encode(config_1._SECRET));
+    return payload;
+});
+exports.getJWTPayload = getJWTPayload;

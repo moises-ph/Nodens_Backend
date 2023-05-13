@@ -13,6 +13,8 @@ exports.changePostulationStatus = exports.disableOffer = exports.deleteOffer = e
 const offers_model_1 = require("../models/offers.model");
 const offerNotAbailable_1 = require("../utils/offerNotAbailable");
 const config_1 = require("../configuration/config");
+const authService_1 = require("../utils/authService");
+const getPayload_1 = require("../helpers/getPayload");
 const getPostulatedOffersMusician = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     const Offers = yield offers_model_1.Offer.find({
         "Applicants.ApplicantId": req.params.Id
@@ -76,49 +78,41 @@ const postOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* ()
 exports.postOffer = postOffer;
 const postulateMusician = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log(req.params);
         req.body.PostulationStatus = "aplied";
-        const idOrganizer = yield offers_model_1.Offer.findById(req.params.id, {
-            OrganizerId: 1
-        });
-        if (!idOrganizer)
-            throw new Error("The organizer doesn't exists");
-        const emailOrganizer = yield fetch(`${config_1._URL_AUTH}/api/user/${idOrganizer === null || idOrganizer === void 0 ? void 0 : idOrganizer.OrganizerId}`)
-            .then(res => res.json())
-            .then((data) => {
-            return data;
-        })
-            .catch(err => { throw new Error(err); });
-        console.log(emailOrganizer);
-        const updatedOffer = yield offers_model_1.Offer.findByIdAndUpdate(req.params.id, {
-            $push: {
-                Applicants: req.body
-            }
-        });
-        if (!updatedOffer)
-            throw new Error("Oferta no existe");
-        const body = {
-            ReceiverEmail: emailOrganizer.email,
+        const actualOffer = yield offers_model_1.Offer.findById(req.params.id);
+        if (!actualOffer)
+            throw new Error("The offer doesn't exists");
+        const emailOrganizer = yield (0, authService_1.fetchOrganizer)(actualOffer === null || actualOffer === void 0 ? void 0 : actualOffer.OrganizerId.toString());
+        if (emailOrganizer)
+            new Error("El organizador no existe");
+        const payload = (0, getPayload_1.getJWTPayload)(req.headers.authorization);
+        const applicantData = {
+            ReceiverEmail: payload.Email,
             ReceiverName: req.body.PostulationFullName,
-            OfferID: req.params.id,
-            OfferTitle: updatedOffer === null || updatedOffer === void 0 ? void 0 : updatedOffer.Title,
+            OfferID: req.params.Payload.Id,
+            OfferTitle: actualOffer.Title,
             OrganizerName: emailOrganizer.userName,
-            OrganizerId: idOrganizer.OrganizerId,
-            EntrepriseName: null
+            OrganizerId: actualOffer.OrganizerId.toString()
         };
-        console.log(body);
+        const organizerData = {
+            ReceiverEmail: emailOrganizer.Email,
+            ApplicantName: req.body.PostulationFullName,
+            ApplicantId: req.params.Payload.Id,
+            ApplicantEmail: req.params.Payload.Email,
+            OfferID: req.params.Payload.Id,
+            OfferTitle: actualOffer.Title
+        };
+        console.log(applicantData);
         console.log(config_1._URL_MAILER);
-        fetch(`${config_1._URL_MAILER}/mailer`, {
-            method: 'POST',
-            body: JSON.stringify(body),
-            headers: {
-                "content-type": "application/json"
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-            console.log(data);
-        })
-            .catch(err => new Error(err));
+        console.log(req.params);
+        // await sendPostulated(applicantData);
+        // await sendOrganizer(organizerData);
+        // await actualOffer.update({
+        //     $push :{
+        //         Applicants : req.body
+        //     }
+        // });
         return reply.code(200).send({ message: `Musico ${req.body.ApplicantId} Postulado Correctamente`, emailOrganizer });
     }
     catch (err) {
@@ -128,6 +122,7 @@ const postulateMusician = (req, reply) => __awaiter(void 0, void 0, void 0, func
 exports.postulateMusician = postulateMusician;
 const deleteOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log(req.params.id);
         yield offers_model_1.Offer.findByIdAndDelete(req.params.id);
         return reply.code(200).send({ message: "Oferta eliminada correctamente" });
     }
