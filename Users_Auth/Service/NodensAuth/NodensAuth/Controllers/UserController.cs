@@ -25,8 +25,8 @@ namespace NodensAuth.Controllers
         private readonly string cadenaSQL;
         private readonly string cadenaMongo;
         private readonly EnvironmentConfig environmentConfig;
-        private readonly string APPURI = "<none>";
         private readonly SQL SQLHandler;
+        private readonly MailService MailService;
         public UserController(IConfiguration config, IOptions<EnvironmentConfig> options)
         {
             environmentConfig = options.Value;
@@ -34,8 +34,8 @@ namespace NodensAuth.Controllers
             //cadenaMongo = config.GetConnectionString("CadenaMongo");
             cadenaSQL = environmentConfig.CadenaSQL;
             cadenaMongo = environmentConfig.CadenaMongo;
-            APPURI = environmentConfig.APPURL;
             SQLHandler = new SQL(cadenaSQL);
+            MailService = new MailService(environmentConfig.MAILURL);
         }
 
         [HttpPost("Register")]
@@ -65,8 +65,7 @@ namespace NodensAuth.Controllers
 
                 await VerifyUsersCollection.InsertOneAsync(verifyUsersModel);
                 string emailHash = BC.HashString(obj.Email);
-                string url = $"https://{APPURI}/api/auth/verify?em={emailHash}&guid={guid.ToString()}";
-                return StatusCode(StatusCodes.Status200OK, new { url, Message = sqlResult.Message });
+                return StatusCode(StatusCodes.Status200OK, new { Message = sqlResult.Message, emailHash, guid });
             }
             catch (Exception err)
             {

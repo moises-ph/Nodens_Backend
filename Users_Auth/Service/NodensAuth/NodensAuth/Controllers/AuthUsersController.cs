@@ -8,6 +8,7 @@ using MongoDB.Driver;
 using NodensAuth.Db;
 using NodensAuth.Models;
 using NodensAuth.Utils;
+using NodensAuth.Validations;
 using RestSharp;
 using RestSharp.Authenticators;
 using System.IdentityModel.Tokens.Jwt;
@@ -27,10 +28,10 @@ namespace NodensAuth.Controllers
         private readonly string renewKey;
         private readonly string cadenaSQL;
         private readonly string cadenaMongo;
-        private readonly string APPURI = "<none>";
         private readonly IConfiguration configuration;
         private readonly EnvironmentConfig environmentConfig;
         private readonly SQL SQLHandler;
+        private readonly MailService MailService;
         public Auht_UsersController(IConfiguration config, IOptions<EnvironmentConfig> options)
         {
             environmentConfig = options.Value;
@@ -40,9 +41,9 @@ namespace NodensAuth.Controllers
             //cadenaMongo = config.GetConnectionString("CadenaMongo");
             cadenaSQL = environmentConfig.CadenaSQL;
             cadenaMongo = environmentConfig.CadenaMongo;
-            APPURI = environmentConfig.APPURL;
             configuration = config;
             SQLHandler = new SQL(cadenaSQL);
+            MailService = new MailService(environmentConfig.MAILURL);
         }
 
         [HttpPut("renew")]
@@ -149,8 +150,16 @@ namespace NodensAuth.Controllers
                 await mongoClientRequests.InsertOneAsync(requestModel);
                 var filter = Builders<MongoClass.RequestModel>.Filter.Eq(r => r.email, Email);
                 var result = await mongoClientRequests.Find(filter).FirstOrDefaultAsync();
-                string url = $"https://{APPURI}/api/auth/recovery/request?gdusr={guid.ToString()}&mn={Email.Replace("@", "%40")}";
-                return StatusCode(StatusCodes.Status200OK, new { guid = guid.ToString(), email = result.email, URL = url });
+                var url = $"gdusr={guid.ToString()}&em={result.email}";
+                ReadUser user = SQLHandler.ReadUser(Email);
+                MailValidations mail = new MailValidations()
+                {
+                    ReceiverEmail = result.email,
+                    UserName = user.userName,
+                    URL = url,
+                };
+                var mailresult = MailService.SendRecoveryPassword(mail);
+                return StatusCode(StatusCodes.Status200OK, new { guid = guid.ToString(), email = result.email, mailresult });
             }
             catch (Exception err)
             {
