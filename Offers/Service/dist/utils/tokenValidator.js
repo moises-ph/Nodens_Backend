@@ -42,7 +42,6 @@ function validateToken(request, reply, done) {
             if (requestToken) {
                 requestToken = requestToken.replace("Bearer ", "");
                 const { payload } = yield jose.jwtVerify(requestToken, new TextEncoder().encode(config_1._SECRET));
-                console.log(request.params);
                 if (request.method === "POST" || request.method === "PATCH" || request.method === "DELETE") {
                     payload.Role === "Organizer" ? request.method != "DELETE" ? request.body.OrganizerId = payload.Id : null : () => { throw new Error("Solo los organizadores pueden crear ofertas"); };
                 }

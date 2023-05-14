@@ -1,7 +1,7 @@
 import { FromSchema } from "json-schema-to-ts";
 
 export interface IAuthUserSchema {
-    Email : string,
+    email : string,
     userName : string,
     Rol : string,
     verified : boolean

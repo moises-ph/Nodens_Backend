@@ -1,7 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { Offer } from "../models/offers.model";
 import { setNotAvailable } from "../utils/offerNotAbailable";
-import { OfferType, ParamsTypeIdOnly, PostulateMusicianType, TBodyAuth ,BodyPostulationStatusType, IHeadersAuth, TBodyQueryTags } from "../validations/offers.validation";
 import { RequestParamsAuth, RequestParams, ByTagsRequest, RequestBody, PostulateMusicianRequest, ChangeAplicationStatus } from "../types/http.types";
 import { _URL_AUTH, _URL_MAILER } from "../configuration/config";
 import { fetchOrganizer } from "../utils/authService";
@@ -22,7 +21,7 @@ export const getPostulatedOffersMusician = async (req: RequestParamsAuth, reply 
 export const getOfferByOrganizer = async (req: RequestParamsAuth, reply : FastifyReply) => {
     const Offers = await Offer.find({
         OrganizerId : req.params.Id
-    }, { Applicants : 0 });
+    });
     return reply.code(200).send(Offers);
 }
 
@@ -75,7 +74,7 @@ export const postOffer = async (req : RequestBody, reply : FastifyReply) => {
 
 export const postulateMusician = async (req: PostulateMusicianRequest, reply : FastifyReply) =>{
     try{
-        console.log(req.params)
+
         req.body.PostulationStatus = "aplied";
         const actualOffer = await Offer.findById(req.params.id);
         if(!actualOffer) throw new Error("The offer doesn't exists")
@@ -83,40 +82,39 @@ export const postulateMusician = async (req: PostulateMusicianRequest, reply : F
         
         if(emailOrganizer !satisfies IAuthUserSchema) new Error("El organizador no existe")
 
-        const payload = getJWTPayload(req.headers.authorization);
+        const payload : any = await getJWTPayload(req.headers.authorization.replace("Bearer ", ""));
 
         const applicantData : ApplicantType = {
             ReceiverEmail : payload.Email,
             ReceiverName : req.body.PostulationFullName,
-            OfferID : req.params.Payload!.Id,
+            OfferID : payload.Id,
             OfferTitle : actualOffer!.Title,
             OrganizerName : emailOrganizer.userName,
             OrganizerId : actualOffer.OrganizerId.toString()
         }
 
         const organizerData : OrganizerType = {
-            ReceiverEmail : emailOrganizer.Email,
+            ReceiverEmail : emailOrganizer.email,
             ApplicantName : req.body.PostulationFullName,
-            ApplicantId : req.params.Payload!.Id,
-            ApplicantEmail : req.params.Payload!.Email,
-            OfferID : req.params.Payload!.Id,
+            ApplicantId : payload.Id,
+            ApplicantEmail : payload.Email,
+            OfferID : payload.Id,
             OfferTitle : actualOffer.Title
         }
-        console.log(applicantData);
 
-        console.log(_URL_MAILER);
+        const postulatedEmailresult = await sendPostulated(applicantData);
 
-        console.log(req.params);
+        const organizerEmailResult = await sendOrganizer(organizerData);     
 
-        // await sendPostulated(applicantData);
+        if(postulatedEmailresult.hasOwnProperty("statusCode") && postulatedEmailresult.statusCode != 200) new Error(postulatedEmailresult.message);
 
-        // await sendOrganizer(organizerData);
+        if(organizerEmailResult.hasOwnProperty("statusCode") && organizerEmailResult.statusCode != 200) new Error(organizerEmailResult.message);
 
-        // await actualOffer.update({
-        //     $push :{
-        //         Applicants : req.body
-        //     }
-        // });
+        await actualOffer.updateOne({
+            $push :{
+                Applicants : req.body
+            }
+        });
 
         return reply.code(200).send({message : `Musico ${req.body.ApplicantId} Postulado Correctamente`, emailOrganizer});
     }catch(err){

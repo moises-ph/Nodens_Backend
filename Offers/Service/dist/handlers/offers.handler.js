@@ -12,8 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.changePostulationStatus = exports.disableOffer = exports.deleteOffer = exports.postulateMusician = exports.postOffer = exports.getOffersByTag = exports.getAllOffers = exports.getSingleOffer = exports.getOfferByOrganizer = exports.getPostulatedOffersMusician = void 0;
 const offers_model_1 = require("../models/offers.model");
 const offerNotAbailable_1 = require("../utils/offerNotAbailable");
-const config_1 = require("../configuration/config");
 const authService_1 = require("../utils/authService");
+const mailService_1 = require("../utils/mailService");
 const getPayload_1 = require("../helpers/getPayload");
 const getPostulatedOffersMusician = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     const Offers = yield offers_model_1.Offer.find({
@@ -25,7 +25,7 @@ exports.getPostulatedOffersMusician = getPostulatedOffersMusician;
 const getOfferByOrganizer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     const Offers = yield offers_model_1.Offer.find({
         OrganizerId: req.params.Id
-    }, { Applicants: 0 });
+    });
     return reply.code(200).send(Offers);
 });
 exports.getOfferByOrganizer = getOfferByOrganizer;
@@ -78,7 +78,6 @@ const postOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* ()
 exports.postOffer = postOffer;
 const postulateMusician = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log(req.params);
         req.body.PostulationStatus = "aplied";
         const actualOffer = yield offers_model_1.Offer.findById(req.params.id);
         if (!actualOffer)
@@ -86,33 +85,34 @@ const postulateMusician = (req, reply) => __awaiter(void 0, void 0, void 0, func
         const emailOrganizer = yield (0, authService_1.fetchOrganizer)(actualOffer === null || actualOffer === void 0 ? void 0 : actualOffer.OrganizerId.toString());
         if (emailOrganizer)
             new Error("El organizador no existe");
-        const payload = (0, getPayload_1.getJWTPayload)(req.headers.authorization);
+        const payload = yield (0, getPayload_1.getJWTPayload)(req.headers.authorization.replace("Bearer ", ""));
         const applicantData = {
             ReceiverEmail: payload.Email,
             ReceiverName: req.body.PostulationFullName,
-            OfferID: req.params.Payload.Id,
+            OfferID: payload.Id,
             OfferTitle: actualOffer.Title,
             OrganizerName: emailOrganizer.userName,
             OrganizerId: actualOffer.OrganizerId.toString()
         };
         const organizerData = {
-            ReceiverEmail: emailOrganizer.Email,
+            ReceiverEmail: emailOrganizer.email,
             ApplicantName: req.body.PostulationFullName,
-            ApplicantId: req.params.Payload.Id,
-            ApplicantEmail: req.params.Payload.Email,
-            OfferID: req.params.Payload.Id,
+            ApplicantId: payload.Id,
+            ApplicantEmail: payload.Email,
+            OfferID: payload.Id,
             OfferTitle: actualOffer.Title
         };
-        console.log(applicantData);
-        console.log(config_1._URL_MAILER);
-        console.log(req.params);
-        // await sendPostulated(applicantData);
-        // await sendOrganizer(organizerData);
-        // await actualOffer.update({
-        //     $push :{
-        //         Applicants : req.body
-        //     }
-        // });
+        const postulatedEmailresult = yield (0, mailService_1.sendPostulated)(applicantData);
+        const organizerEmailResult = yield (0, mailService_1.sendOrganizer)(organizerData);
+        if (postulatedEmailresult.hasOwnProperty("statusCode") && postulatedEmailresult.statusCode != 200)
+            new Error(postulatedEmailresult.message);
+        if (organizerEmailResult.hasOwnProperty("statusCode") && organizerEmailResult.statusCode != 200)
+            new Error(organizerEmailResult.message);
+        yield actualOffer.updateOne({
+            $push: {
+                Applicants: req.body
+            }
+        });
         return reply.code(200).send({ message: `Musico ${req.body.ApplicantId} Postulado Correctamente`, emailOrganizer });
     }
     catch (err) {

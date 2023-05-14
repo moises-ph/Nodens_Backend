@@ -8,7 +8,6 @@ export async function validateToken (request : any, reply : FastifyReply, done :
         if(requestToken){
             requestToken = requestToken.replace("Bearer ", "");
             const { payload } = await jose.jwtVerify(requestToken, new TextEncoder().encode(_SECRET));
-            console.log(request.params);
             
             if(request.method === "POST" || request.method === "PATCH" || request.method === "DELETE"){
                 payload.Role === "Organizer" ? request.method != "DELETE" ? request.body.OrganizerId = payload.Id : null : ()=>{throw new Error("Solo los organizadores pueden crear ofertas")};
