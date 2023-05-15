@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { ApplicantType, OrganizerType, EmailOrPassType } from '../validations/schemas'
 import { MailerApplicantType, MailerForVerifyingType, MailerOrganizerType, mailerForApplication, mailerForOrganizer, mailerForRecovery, mailerForVerifying } from '../utils/mailer.utils'
+import { _FRONTEND_URL } from '../config/config'
 
 type ApplicationRequest = FastifyRequest<{Body: ApplicantType}>
 
@@ -71,6 +72,7 @@ export const sendMailForRecovery = async (req: VerifyingRequest, res: FastifyRep
       url: URL,
       user_mail: ReceiverEmail
     };
+    console.log(_FRONTEND_URL);
     mailerForRecovery(args);
     return res.code(200).send({message: "Recupera tu contraseña"});
   }

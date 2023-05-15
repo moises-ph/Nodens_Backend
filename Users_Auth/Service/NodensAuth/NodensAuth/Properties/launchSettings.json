@@ -24,7 +24,7 @@
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "publishAllPorts": true,
       "useSSL": true,
-      "DockerfileRunArguments": "-e CadenaSQL=\"Server=192.168.0.17, 1433; Database=AuthServiceDB; User ID=Nodens; Password=yourStrong(!)Password;\" -e \"CadenaMongo=mongodb://Nodens:secret@192.168.0.17:27018/\" -e \"APPURL=si\""
+      "DockerfileRunArguments": "-e CadenaSQL=\"Server=192.168.0.17, 1433; Database=AuthServiceDB; User ID=Nodens; Password=yourStrong(!)Password;\" -e \"CadenaMongo=mongodb://Nodens:secret@192.168.0.17:27018/\" -e \"MAILURL=http://192.168.0.17:8000\""
     }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json",

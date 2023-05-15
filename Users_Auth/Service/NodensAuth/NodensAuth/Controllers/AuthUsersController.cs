@@ -158,7 +158,7 @@ namespace NodensAuth.Controllers
                     UserName = user.userName,
                     URL = url,
                 };
-                var mailresult = MailService.SendRecoveryPassword(mail);
+                var mailresult = await MailService.SendRecoveryPassword(mail);
                 return StatusCode(StatusCodes.Status200OK, new { guid = guid.ToString(), email = result.email, mailresult });
             }
             catch (Exception err)
