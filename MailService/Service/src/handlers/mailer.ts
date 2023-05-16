@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify'
 import { ApplicantType, OrganizerType, EmailOrPassType } from '../validations/schemas'
 import { MailerApplicantType, MailerForVerifyingType, MailerOrganizerType, mailerForApplication, mailerForOrganizer, mailerForRecovery, mailerForVerifying } from '../utils/mailer.utils'
 import { _FRONTEND_URL } from '../config/config'
+import { templateForVerifiying } from '../templates'
 
 type ApplicationRequest = FastifyRequest<{Body: ApplicantType}>
 
@@ -57,7 +58,7 @@ export const sendMailForVerifying = async (req: VerifyingRequest, res: FastifyRe
       user_mail: ReceiverEmail
     };
     mailerForVerifying(args);
-    return res.code(200).send({message: "Verifica tu email"});
+    return res.code(200).send({message: "Verifica tu email" });
   }
   catch (err) {
     return res.code(500).send(err);
@@ -72,7 +73,6 @@ export const sendMailForRecovery = async (req: VerifyingRequest, res: FastifyRep
       url: URL,
       user_mail: ReceiverEmail
     };
-    console.log(_FRONTEND_URL);
     mailerForRecovery(args);
     return res.code(200).send({message: "Recupera tu contraseña"});
   }

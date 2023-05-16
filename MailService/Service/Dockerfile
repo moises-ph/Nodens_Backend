@@ -10,11 +10,11 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 8000
+EXPOSE 80
 
 ENV EMAIL "nodems@outlook.es" 
 ENV PASSWORD "eufycabpdtlvntas"
 ENV HOST 0.0.0.0
-ENV PORT 8000
+ENV PORT 80
 
 CMD [ "npm", "start" ]
