@@ -8,6 +8,7 @@ using MongoDB.Driver;
 using NodensAuth.Db;
 using NodensAuth.Models;
 using NodensAuth.Utils;
+using NodensAuth.Validations;
 using RestSharp;
 using RestSharp.Authenticators;
 using System.Linq;
@@ -65,7 +66,14 @@ namespace NodensAuth.Controllers
 
                 await VerifyUsersCollection.InsertOneAsync(verifyUsersModel);
                 string emailHash = BC.HashString(obj.Email);
-                return StatusCode(StatusCodes.Status200OK, new { Message = sqlResult.Message, emailHash, guid });
+                string url = $"?em={emailHash}&guid={guid}";
+                HttpResponseMessage responseMessage = await MailService.SendVerifyEmail(new MailValidations()
+                {
+                    ReceiverEmail = obj.Email,
+                    URL = url,
+                    UserName = obj.userName
+                });
+                return StatusCode(StatusCodes.Status200OK, new { Message = sqlResult.Message, emailHash, guid, responseMessage });
             }
             catch (Exception err)
             {

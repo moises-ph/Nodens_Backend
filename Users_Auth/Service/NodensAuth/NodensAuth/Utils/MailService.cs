@@ -9,21 +9,38 @@ namespace NodensAuth.Utils
     public class MailService
     {
         private readonly string MailURL;
+        private readonly HttpClient httpClient = new HttpClient();
         public MailService(string mailurl) 
         {
             MailURL = mailurl;
+            httpClient.BaseAddress = new Uri(MailURL);
+        }
+
+        private StringContent getJsonContent(MailValidations Object) 
+        {
+            return new StringContent(JsonSerializer.Serialize<MailValidations>(Object), Encoding.UTF8, "application/json");
         }
 
         public async Task<HttpResponseMessage> SendRecoveryPassword(MailValidations emailObject)
         {
             try
             {
-                HttpClient client = new HttpClient();
-                client.BaseAddress = new Uri(MailURL);
-                var request = new HttpRequestMessage(HttpMethod.Post, "/mailer/recovery");
-                string dic = JsonSerializer.Serialize<MailValidations>(emailObject);
-                request.Content = new StringContent(dic, Encoding.UTF8, "application/json");
-                var response = await client.SendAsync(request);
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/mailer/recovery") { Content = getJsonContent(emailObject)};
+                HttpResponseMessage response = await httpClient.SendAsync(request);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<HttpResponseMessage> SendVerifyEmail(MailValidations mailObject)
+        {
+            try
+            {
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/mailer/verify") { Content = getJsonContent(mailObject)};
+                HttpResponseMessage response = await httpClient.SendAsync(request);
                 return response;
             }
             catch (Exception ex)

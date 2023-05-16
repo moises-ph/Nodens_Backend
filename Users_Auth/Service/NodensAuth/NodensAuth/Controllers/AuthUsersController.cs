@@ -302,10 +302,9 @@ namespace NodensAuth.Controllers
             try
             {
                 ReadAuthUser? result = SQLHandler.AuthUser(verifyReq.email);
-                if (result == null)
-                {
-                    return StatusCode(StatusCodes.Status404NotFound, new { Message = "El usuario no existe, por favor regístrese" });
-                }
+                if (result == null) return StatusCode(StatusCodes.Status404NotFound, new { Message = "El usuario no existe, por favor regístrese" });
+
+                if (result.Verified) return StatusCode(StatusCodes.Status400BadRequest, new { Message = "El usuario ya está verificado" });
 
                 Guid guid = Guid.NewGuid();
                 var timestamp = (MongoDB.Bson.BsonDateTime)DateTime.Now;
@@ -323,8 +322,14 @@ namespace NodensAuth.Controllers
 
                 await verifyCollection.InsertOneAsync(verifyUsersModel);
                 string emailHash = BC.HashString(verifyReq.email);
-                string url = $"https://localhost:44384/api/auth/verify?em={emailHash}&guid={guid}";
-                return StatusCode(StatusCodes.Status200OK, new { url, Message = "Verificación de email solicitada correctamente, vaya al enlace" });
+                string url = $"?em={emailHash}&guid={guid}";
+                HttpResponseMessage responseMessage = await MailService.SendVerifyEmail(new MailValidations()
+                {
+                    ReceiverEmail = verifyReq.email,
+                    URL = url,
+                    UserName = result.userName
+                });
+                return StatusCode(StatusCodes.Status200OK, new { url, Message = "Verificación de email solicitada correctamente, vaya al enlace", responseMessage });
             }
             catch (Exception err)
             {
