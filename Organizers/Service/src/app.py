@@ -73,7 +73,7 @@ def uploadProfile(claims):
         
         uploadResult = cloudinary.uploader.upload_image(img.stream, public_id="profileOrg"+id, unique_filename=True)
         db = Database.dbConnection()
-        db.Musicians.update_one({"IdAuth": int(id)}, {"$set" : { "url_foto_perfil" : uploadResult.url }})
+        db.Organizers.update_one({"IdAuth": int(id)}, {"$set" : { "url_foto_perfil" : uploadResult.url }})
 
         response = jsonify({"message" : "Foto de perfil actualizada correctamente"})
         response.status_code = 200
