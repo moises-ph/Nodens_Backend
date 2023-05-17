@@ -11,16 +11,18 @@ RUN python -m pip install --upgrade pip
 
 WORKDIR /app
 
+COPY serve.sh ./
+
+RUN chmod +x serve.sh
+
 COPY requeriments.txt requeriments.txt
 
 COPY . .
 
-COPY nginx.conf /etc/nginx
-
 RUN pip install -r requeriments.txt
-
-RUN chmod +x ./start.sh
 
 ENV SECRET=aek8tcdus4km1m0ni32y54thvgbo3cnrmyavhl6o
 
-CMD ["sh", "/app/start.sh"]
+EXPOSE 80
+
+CMD ["sh", "/app/serve.sh"]

@@ -83,7 +83,6 @@ def uploadProfile(claims):
         return jsonify(err)
 
 ### Se crea la Route para subir videos ###
-@cross_origin
 @app.route("/musician/uploadVideo", methods=["POST"])
 @token_required
 def uploadMusician(claims):
@@ -106,6 +105,7 @@ def uploadMusician(claims):
         videosUrl = []
         for element in files:
             for singleFile in element[1]:
+                print(singleFile)
                 assetName = "{usid}-{number}".format(usid = id, number = (len(UserVideos['url_video_presentacion'])+1) + (len(videosUrl)))
                 if singleFile.mimetype.startswith("video"):
                     url = cloudinary.uploader.upload(singleFile.stream,resource_type="video", public_id="video"+assetName, unique_filename = True)
@@ -148,7 +148,6 @@ def getMusician(id):
 
 ### GETLOGIN
 @app.route("/musician", methods=["GET"])
-@cross_origin
 @token_required
 def getlog(claims):
     if not claims['isMusician']:
@@ -157,7 +156,7 @@ def getlog(claims):
         return response
 
     db = Database.dbConnection()
-    user = db.Musicians.update_one({"IdAuth" : int(id)})
+    user = db.Musicians.find_one({"IdAuth" : int(claims["IdAuth"])})
     response = json_util.dumps(user)
     return response
 

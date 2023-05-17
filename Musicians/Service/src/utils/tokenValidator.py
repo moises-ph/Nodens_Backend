@@ -12,7 +12,7 @@ def token_required(f):
             token = request.headers['Authorization'].replace("Bearer ","")
         
         if not token:
-            return jsonify({'message' : 'No token valid was sent'})
+            return jsonify({'message' : 'No token valid was sent'}).status(401)
         try:
             data = jwt.decode(token, config.SECRET, algorithms=["HS256"])
             isMusician = False
