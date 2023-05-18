@@ -14,7 +14,7 @@ import { getJWTPayload } from "../helpers/getPayload";
 export const getPostulatedOffersMusician = async (req: RequestParamsAuth, reply : FastifyReply) => {
     const Offers = await Offer.find({
         "Applicants.ApplicantId" : req.params.Id
-    });
+    },{Applicants : 0});
     return reply.code(200).send(Offers);
 }
 
