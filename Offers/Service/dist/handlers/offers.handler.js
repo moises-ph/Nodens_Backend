@@ -18,7 +18,7 @@ const getPayload_1 = require("../helpers/getPayload");
 const getPostulatedOffersMusician = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     const Offers = yield offers_model_1.Offer.find({
         "Applicants.ApplicantId": req.params.Id
-    });
+    }, { Applicants: 0 });
     return reply.code(200).send(Offers);
 });
 exports.getPostulatedOffersMusician = getPostulatedOffersMusician;
@@ -122,7 +122,10 @@ const postulateMusician = (req, reply) => __awaiter(void 0, void 0, void 0, func
 exports.postulateMusician = postulateMusician;
 const deleteOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log(req.params.id);
+        const offer = yield offers_model_1.Offer.findById(req.params.id);
+        const payload = yield (0, getPayload_1.getJWTPayload)(req.headers.authorization.replace("Bearer ", ""));
+        if ((offer === null || offer === void 0 ? void 0 : offer.OrganizerId) != payload.Id)
+            throw new Error("Esta oferta no es tuya");
         yield offers_model_1.Offer.findByIdAndDelete(req.params.id);
         return reply.code(200).send({ message: "Oferta eliminada correctamente" });
     }

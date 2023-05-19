@@ -124,7 +124,9 @@ export const postulateMusician = async (req: PostulateMusicianRequest, reply : F
 
 export const deleteOffer = async (req : RequestParamsAuth, reply : FastifyReply)  => {
     try{
-        console.log(req.params.id);
+        const offer = await Offer.findById(req.params.id);
+        const payload = await getJWTPayload(req.headers.authorization.replace("Bearer ", ""));
+        if(offer?.OrganizerId != payload.Id)throw new Error("Esta oferta no es tuya");
         await Offer.findByIdAndDelete(req.params.id);
         return reply.code(200).send({message : "Oferta eliminada correctamente"});
     }catch(err){
