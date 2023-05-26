@@ -31,9 +31,11 @@ const getOfferByOrganizer = (req, reply) => __awaiter(void 0, void 0, void 0, fu
 exports.getOfferByOrganizer = getOfferByOrganizer;
 // No token
 const getSingleOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
-    const offer = yield offers_model_1.Offer.findById(req.params.id, {
-        Applicants: 0
-    });
+    let payload;
+    if (req.headers.authorization)
+        payload = yield (0, getPayload_1.getJWTPayload)(req.headers.authorization.replace("Bearer ", ""));
+    console.log(payload && payload.Role === 'Organizer' ? 1 : 0);
+    const offer = yield offers_model_1.Offer.findById(req.params.id, payload && payload.Role === 'Organizer' ? {} : { Applicants: 0 });
     return reply.code(200).send(offer);
 });
 exports.getSingleOffer = getSingleOffer;

@@ -85,7 +85,7 @@ export const OffersRoutes = (
   fastify.put<{ Body : TBodyQueryTags }>(options.url, routes.getOffersByTag);
 
   // Route for Get Single Offer
-  fastify.get<{ Params: ParamsTypeIdOnly }>(`${options.url}/:id`, routes.getSingleOffer );
+  fastify.get<{ Params: ParamsTypeIdOnly, Headers ? : IHeadersAuth }>(`${options.url}/:id`, routes.getSingleOffer );
 
   // Route for Post a new Offer
   fastify.post<{ Body: OfferType; Headers: IHeadersAuth }>( options.url, routes.postOffer);

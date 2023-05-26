@@ -27,9 +27,10 @@ export const getOfferByOrganizer = async (req: RequestParamsAuth, reply : Fastif
 
 // No token
 export const getSingleOffer = async (req: RequestParams, reply : FastifyReply) => {
-    const offer = await Offer.findById(req.params.id,{
-        Applicants : 0
-    });
+    let payload : any;
+    if(req.headers.authorization) payload = await getJWTPayload(req.headers.authorization!.replace("Bearer ", ""));
+    console.log(payload && payload.Role === 'Organizer' ? 1 : 0);
+    const offer = await Offer.findById(req.params.id,payload && payload.Role === 'Organizer' ? {} : {Applicants : 0});
     return reply.code(200).send(offer);
 }
 
