@@ -36,10 +36,10 @@ CORS(app, origins="*", methods=["POST","PUT","GET","DELETE"])
 #Enable Cross Origin Requests (F*cking CORS) .|.
 @app.after_request
 def after_request(response):
-    response.headers["Acces-Control-Allow-Origin"] = "*"
-    response.headers["Acces-Control-Allow-Credentials"] = "true"
-    response.headers["Acces-Control-Allow-Methods"] = "POST, GET, DELETE, OPTIONS, PUT"
-    response.headers["Acces-Control-Allow-Headers"] = "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization"
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Allow-Methods"] = "POST, GET, DELETE, OPTIONS, PUT"
+    response.headers["Access-Control-Allow-Headers"] = "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization"
     return response
 
 ### Route para el perfil, imagen ###
