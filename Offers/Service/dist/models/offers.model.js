@@ -10,9 +10,9 @@ const RequerimentsSchema = new mongoose_1.Schema({
 });
 const ApplicantSchema = new mongoose_1.Schema({
     PostulationDate: { type: mongoose_1.Schema.Types.Date, required: true },
-    ApplicantId: { type: mongoose_1.Schema.Types.ObjectId, required: true },
+    ApplicantId: { type: mongoose_1.Schema.Types.Number, required: true },
     PostulationFullName: { type: mongoose_1.Schema.Types.String, required: true },
-    PostulationStatus: { type: mongoose_1.Schema.Types.String, required: true }
+    PostulationStatus: { required: true, type: mongoose_1.Schema.Types.String }
 }, {
     _id: false,
     versionKey: false

@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { Offer } from "../models/offers.model";
+import { IApplicant, Offer } from "../models/offers.model";
 import { setNotAvailable } from "../utils/offerNotAbailable";
 import { RequestParamsAuth, RequestParams, ByTagsRequest, RequestBody, PostulateMusicianRequest, ChangeAplicationStatus } from "../types/http.types";
 import { _URL_AUTH, _URL_MAILER } from "../configuration/config";
@@ -79,10 +79,17 @@ export const postulateMusician = async (req: PostulateMusicianRequest, reply : F
         const actualOffer = await Offer.findById(req.params.id);
         if(!actualOffer) throw new Error("The offer doesn't exists")
         const emailOrganizer : IAuthUserSchema = await fetchOrganizer(actualOffer?.OrganizerId.toString());
+        console.log(emailOrganizer);
         
-        if(emailOrganizer !satisfies IAuthUserSchema) new Error("El organizador no existe")
+        if(emailOrganizer !satisfies IAuthUserSchema)throw new Error("El organizador no existe")
 
         const payload : any = await getJWTPayload(req.headers.authorization.replace("Bearer ", ""));
+
+        req.body.ApplicantId = req.body.ApplicantId == null ? payload.Id : req.body.ApplicantId
+
+        console.log(actualOffer.Applicants.map(element => element.ApplicantId).includes(req.body.ApplicantId as number));
+
+        if(actualOffer.Applicants.map(element => element.ApplicantId).includes(req.body.ApplicantId as number)) throw new Error("El músico ya se postuló a esta oferta")
 
         const applicantData : ApplicantType = {
             ReceiverEmail : payload.Email,
@@ -102,13 +109,13 @@ export const postulateMusician = async (req: PostulateMusicianRequest, reply : F
             OfferTitle : actualOffer.Title
         }
 
-        const postulatedEmailresult = await sendPostulated(applicantData);
+        // const postulatedEmailresult = await sendPostulated(applicantData);
 
-        const organizerEmailResult = await sendOrganizer(organizerData);     
+        // const organizerEmailResult = await sendOrganizer(organizerData);     
 
-        if(postulatedEmailresult.hasOwnProperty("statusCode") && postulatedEmailresult.statusCode != 200) new Error(postulatedEmailresult.message);
+        // if(postulatedEmailresult.hasOwnProperty("statusCode") && postulatedEmailresult.statusCode != 200) new Error(postulatedEmailresult.message);
 
-        if(organizerEmailResult.hasOwnProperty("statusCode") && organizerEmailResult.statusCode != 200) new Error(organizerEmailResult.message);
+        // if(organizerEmailResult.hasOwnProperty("statusCode") && organizerEmailResult.statusCode != 200) new Error(organizerEmailResult.message);
 
         await actualOffer.updateOne({
             $push :{

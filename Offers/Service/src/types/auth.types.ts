@@ -3,6 +3,6 @@ import { FromSchema } from "json-schema-to-ts";
 export interface IAuthUserSchema {
     email : string,
     userName : string,
-    Rol : string,
+    rol : string,
     verified : boolean
 }

@@ -13,7 +13,6 @@ exports.changePostulationStatus = exports.disableOffer = exports.deleteOffer = e
 const offers_model_1 = require("../models/offers.model");
 const offerNotAbailable_1 = require("../utils/offerNotAbailable");
 const authService_1 = require("../utils/authService");
-const mailService_1 = require("../utils/mailService");
 const getPayload_1 = require("../helpers/getPayload");
 const getPostulatedOffersMusician = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     const Offers = yield offers_model_1.Offer.find({
@@ -83,9 +82,14 @@ const postulateMusician = (req, reply) => __awaiter(void 0, void 0, void 0, func
         if (!actualOffer)
             throw new Error("The offer doesn't exists");
         const emailOrganizer = yield (0, authService_1.fetchOrganizer)(actualOffer === null || actualOffer === void 0 ? void 0 : actualOffer.OrganizerId.toString());
+        console.log(emailOrganizer);
         if (emailOrganizer)
-            new Error("El organizador no existe");
+            throw new Error("El organizador no existe");
         const payload = yield (0, getPayload_1.getJWTPayload)(req.headers.authorization.replace("Bearer ", ""));
+        req.body.ApplicantId = req.body.ApplicantId == null ? payload.Id : req.body.ApplicantId;
+        console.log(actualOffer.Applicants.map(element => element.ApplicantId).includes(req.body.ApplicantId));
+        if (actualOffer.Applicants.map(element => element.ApplicantId).includes(req.body.ApplicantId))
+            throw new Error("El músico ya se postuló a esta oferta");
         const applicantData = {
             ReceiverEmail: payload.Email,
             ReceiverName: req.body.PostulationFullName,
@@ -102,12 +106,10 @@ const postulateMusician = (req, reply) => __awaiter(void 0, void 0, void 0, func
             OfferID: payload.Id,
             OfferTitle: actualOffer.Title
         };
-        const postulatedEmailresult = yield (0, mailService_1.sendPostulated)(applicantData);
-        const organizerEmailResult = yield (0, mailService_1.sendOrganizer)(organizerData);
-        if (postulatedEmailresult.hasOwnProperty("statusCode") && postulatedEmailresult.statusCode != 200)
-            new Error(postulatedEmailresult.message);
-        if (organizerEmailResult.hasOwnProperty("statusCode") && organizerEmailResult.statusCode != 200)
-            new Error(organizerEmailResult.message);
+        // const postulatedEmailresult = await sendPostulated(applicantData);
+        // const organizerEmailResult = await sendOrganizer(organizerData);     
+        // if(postulatedEmailresult.hasOwnProperty("statusCode") && postulatedEmailresult.statusCode != 200) new Error(postulatedEmailresult.message);
+        // if(organizerEmailResult.hasOwnProperty("statusCode") && organizerEmailResult.statusCode != 200) new Error(organizerEmailResult.message);
         yield actualOffer.updateOne({
             $push: {
                 Applicants: req.body

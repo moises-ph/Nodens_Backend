@@ -5,7 +5,7 @@ export interface IRequeriments{
 }
 
 export interface IApplicant{
-    ApplicantId : ObjectId,
+    ApplicantId : number,
     PostulationDate : Date,
     PostulationFullName : string,
     PostulationStatus : string
@@ -44,9 +44,9 @@ const RequerimentsSchema = new Schema<IRequeriments>({
 
 const ApplicantSchema = new Schema<IApplicant>({
     PostulationDate : { type : Schema.Types.Date, required : true },
-    ApplicantId : { type : Schema.Types.ObjectId, required : true },
+    ApplicantId : { type : Schema.Types.Number, required : true },
     PostulationFullName : { type : Schema.Types.String, required : true },
-    PostulationStatus : { type : Schema.Types.String, required : true }
+    PostulationStatus : { required : true, type : Schema.Types.String }
 },{
     _id : false,
     versionKey : false
