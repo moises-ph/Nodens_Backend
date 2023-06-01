@@ -1,4 +1,4 @@
-import { deleteOffer, disableOffer, getAllOffers, getSingleOffer, postOffer, postulateMusician, changePostulationStatus, getOffersByTag, getPostulatedOffersMusician, getOfferByOrganizer } from '../handlers/offers.handler';
+import { deleteOffer, changeOfferStatus, getAllOffers, getSingleOffer, postOffer, postulateMusician, changePostulationStatus, getOffersByTag, getPostulatedOffersMusician, getOfferByOrganizer } from '../handlers/offers.handler';
 import { validateToken } from "../utils/tokenValidator";
 import { IParams, IPostulateMusician, OfferSchema, OfferType, ParamsTypeIdOnly, PostulateMusicianType, BodyPostulationStatusType, IBodyPostulationStatus, IHeadersAuth, IBodyQueryTags, TBodyQueryTags, IParamsAuth, TBodyAuth,  } from '../validations/offers.validation';
 import { FastifyInstance, FastifyReply } from "fastify";
@@ -41,8 +41,8 @@ const routes = {
       params: IParams,
     },
   },
-  disableOffer: {
-    handler: disableOffer,
+  changeOfferStatus: {
+    handler: changeOfferStatus,
     preHandler: validateToken,
     schema: {
       params: IParams,
@@ -97,7 +97,7 @@ export const OffersRoutes = (
   fastify.delete<{ Params: ParamsTypeIdOnly; Headers: IHeadersAuth }>( `${options.url}/:id`, routes.deleteOffer);
 
   // Route for disable an Offer
-  fastify.patch<{ Params: ParamsTypeIdOnly; Headers: IHeadersAuth }>( `${options.url}/:id`, routes.disableOffer );
+  fastify.patch<{ Params: ParamsTypeIdOnly; Headers: IHeadersAuth }>( `${options.url}/:id`, routes.changeOfferStatus );
 
   // Route for change Postulation Status
   fastify.patch<{ Body: BodyPostulationStatusType; Headers: IHeadersAuth }>( `${options.url}/changestatus`, routes.ChangePostulationStatus);

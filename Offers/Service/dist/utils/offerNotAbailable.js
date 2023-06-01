@@ -9,23 +9,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setNotAvailable = void 0;
+exports.setOfferStatus = void 0;
 const offers_model_1 = require("../models/offers.model");
-const setNotAvailable = (id) => __awaiter(void 0, void 0, void 0, function* () {
+const setOfferStatus = (id) => __awaiter(void 0, void 0, void 0, function* () {
     return new Promise((res, rej) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            yield offers_model_1.Offer.findByIdAndUpdate(id, {
-                $set: {
-                    isAvailable: false
-                }
-            });
-            return {
+            yield offers_model_1.Offer.findByIdAndUpdate(id, [{
+                    $set: {
+                        isAvailable: {
+                            $eq: [
+                                false,
+                                "$isAvailable"
+                            ]
+                        }
+                    }
+                }]);
+            console.log("XD");
+            return res({
                 code: 200
-            };
+            });
         }
         catch (err) {
             return rej(err);
         }
     }));
 });
-exports.setNotAvailable = setNotAvailable;
+exports.setOfferStatus = setOfferStatus;

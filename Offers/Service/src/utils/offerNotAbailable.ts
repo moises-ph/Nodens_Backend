@@ -4,17 +4,23 @@ type Response = {
     code : number
 }
 
-export const setNotAvailable = async (id : string) : Promise<Response> => {
+export const setOfferStatus = async (id : string) : Promise<Response> => {
     return new Promise(async (res, rej)=>{
         try{
-            await Offer.findByIdAndUpdate(id,{
+            await Offer.findByIdAndUpdate(id,[{
                 $set : {
-                    isAvailable : false
+                    isAvailable : { 
+                        $eq: [
+                            false,
+                            "$isAvailable"
+                        ] 
+                    }
                 }
-            });
-            return {
+            }]);
+            console.log("XD");
+            return res({
                 code : 200
-            }
+            })
         }catch(err){
             return rej(err)
         }

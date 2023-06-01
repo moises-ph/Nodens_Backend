@@ -42,8 +42,8 @@ const routes = {
             params: offers_validation_1.IParams,
         },
     },
-    disableOffer: {
-        handler: offers_handler_1.disableOffer,
+    changeOfferStatus: {
+        handler: offers_handler_1.changeOfferStatus,
         preHandler: tokenValidator_1.validateToken,
         schema: {
             params: offers_validation_1.IParams,
@@ -84,7 +84,7 @@ const OffersRoutes = (fastify, options, done) => {
     // Route for delete an Offer
     fastify.delete(`${options.url}/:id`, routes.deleteOffer);
     // Route for disable an Offer
-    fastify.patch(`${options.url}/:id`, routes.disableOffer);
+    fastify.patch(`${options.url}/:id`, routes.changeOfferStatus);
     // Route for change Postulation Status
     fastify.patch(`${options.url}/changestatus`, routes.ChangePostulationStatus);
     // Plugin Done

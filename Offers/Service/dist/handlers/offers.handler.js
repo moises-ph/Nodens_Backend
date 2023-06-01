@@ -9,10 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changePostulationStatus = exports.disableOffer = exports.deleteOffer = exports.postulateMusician = exports.postOffer = exports.getOffersByTag = exports.getAllOffers = exports.getSingleOffer = exports.getOfferByOrganizer = exports.getPostulatedOffersMusician = void 0;
+exports.changePostulationStatus = exports.changeOfferStatus = exports.deleteOffer = exports.postulateMusician = exports.postOffer = exports.getOffersByTag = exports.getAllOffers = exports.getSingleOffer = exports.getOfferByOrganizer = exports.getPostulatedOffersMusician = void 0;
 const offers_model_1 = require("../models/offers.model");
 const offerNotAbailable_1 = require("../utils/offerNotAbailable");
 const authService_1 = require("../utils/authService");
+const mailService_1 = require("../utils/mailService");
 const getPayload_1 = require("../helpers/getPayload");
 const getPostulatedOffersMusician = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     const Offers = yield offers_model_1.Offer.find({
@@ -42,7 +43,7 @@ exports.getSingleOffer = getSingleOffer;
 const getAllOffers = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     const Offers = yield offers_model_1.Offer.find({}, { Applicants: 0 });
     Offers.map((offer) => __awaiter(void 0, void 0, void 0, function* () {
-        offer.Event_Date.getDate > Date.now ? null : yield (0, offerNotAbailable_1.setNotAvailable)(offer.id);
+        offer.Event_Date.getDate > Date.now ? null : yield (0, offerNotAbailable_1.setOfferStatus)(offer.id);
     }));
     return reply.code(200).send(Offers);
 });
@@ -85,12 +86,12 @@ const postulateMusician = (req, reply) => __awaiter(void 0, void 0, void 0, func
             throw new Error("The offer doesn't exists");
         const emailOrganizer = yield (0, authService_1.fetchOrganizer)(actualOffer === null || actualOffer === void 0 ? void 0 : actualOffer.OrganizerId.toString());
         console.log(emailOrganizer);
-        if (emailOrganizer)
+        if (emailOrganizer.message)
             throw new Error("El organizador no existe");
         const payload = yield (0, getPayload_1.getJWTPayload)(req.headers.authorization.replace("Bearer ", ""));
         req.body.ApplicantId = req.body.ApplicantId == null ? payload.Id : req.body.ApplicantId;
         console.log(actualOffer.Applicants.map(element => element.ApplicantId).includes(req.body.ApplicantId));
-        if (actualOffer.Applicants.map(element => element.ApplicantId).includes(req.body.ApplicantId))
+        if (actualOffer.Applicants.find(element => element.ApplicantId === req.body.ApplicantId))
             throw new Error("El músico ya se postuló a esta oferta");
         const applicantData = {
             ReceiverEmail: payload.Email,
@@ -108,10 +109,12 @@ const postulateMusician = (req, reply) => __awaiter(void 0, void 0, void 0, func
             OfferID: payload.Id,
             OfferTitle: actualOffer.Title
         };
-        // const postulatedEmailresult = await sendPostulated(applicantData);
-        // const organizerEmailResult = await sendOrganizer(organizerData);     
-        // if(postulatedEmailresult.hasOwnProperty("statusCode") && postulatedEmailresult.statusCode != 200) new Error(postulatedEmailresult.message);
-        // if(organizerEmailResult.hasOwnProperty("statusCode") && organizerEmailResult.statusCode != 200) new Error(organizerEmailResult.message);
+        const postulatedEmailresult = yield (0, mailService_1.sendPostulated)(applicantData);
+        const organizerEmailResult = yield (0, mailService_1.sendOrganizer)(organizerData);
+        if (postulatedEmailresult.hasOwnProperty("statusCode") && postulatedEmailresult.statusCode != 200)
+            new Error(postulatedEmailresult.message);
+        if (organizerEmailResult.hasOwnProperty("statusCode") && organizerEmailResult.statusCode != 200)
+            new Error(organizerEmailResult.message);
         yield actualOffer.updateOne({
             $push: {
                 Applicants: req.body
@@ -138,16 +141,16 @@ const deleteOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.deleteOffer = deleteOffer;
-const disableOffer = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
+const changeOfferStatus = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield (0, offerNotAbailable_1.setNotAvailable)(req.params.id);
+        yield (0, offerNotAbailable_1.setOfferStatus)(req.params.id);
         return reply.code(200).send({ message: "Oferta deshabilidata exitosamente" });
     }
     catch (err) {
         return reply.code(500).send(err);
     }
 });
-exports.disableOffer = disableOffer;
+exports.changeOfferStatus = changeOfferStatus;
 const changePostulationStatus = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield offers_model_1.Offer.findByIdAndUpdate(req.body.OfferId, {
