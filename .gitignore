@@ -35,3 +35,8 @@ msbuild.wrn
 
 node_modules
 package-lock.json
+.idea/workspace.xml
+.idea/vcs.xml
+.idea/Nodens_Backend.iml
+.idea/modules.xml
+.idea/misc.xml
