@@ -1,9 +1,7 @@
 package com.nodens.post.Controllers;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.nodens.post.Documents.Post;
 import com.nodens.post.Services.PostService;
-import org.bson.json.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,6 +40,18 @@ public class PostController {
     public ResponseEntity<String> PutActualPost(@PathVariable String id){
         this.service.DeleteAPost(id);
         return ResponseEntity.status(HttpStatus.CREATED).body("Post eliminado correctamente");
+    }
+
+    @PatchMapping("/like/add/{id}")
+    public ResponseEntity<String> LikePost(@PathVariable String id){
+        this.service.likePost(id);
+        return ResponseEntity.ok("Post likeado correctamente");
+    }
+
+    @PatchMapping("/like/delete/{id}")
+    public ResponseEntity<String> UnLikePost(@PathVariable String id){
+        this.service.unlikePost(id);
+        return ResponseEntity.ok("Post unlikeado correctamente");
     }
 
 }

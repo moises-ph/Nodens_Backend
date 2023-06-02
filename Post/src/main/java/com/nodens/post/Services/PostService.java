@@ -9,4 +9,6 @@ public interface PostService {
     Post createAPost(Post newPost);
     void DeleteAPost(String id);
     List<Post> getPostsByCreator(String creatorId);
+    void likePost(String id);
+    void unlikePost(String id);
 }

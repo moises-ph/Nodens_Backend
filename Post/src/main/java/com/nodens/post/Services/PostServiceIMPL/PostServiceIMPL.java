@@ -37,4 +37,19 @@ public class PostServiceIMPL implements PostService {
     public List<Post> getPostsByCreator(String creatorId) {
         return this.repo.getPostByCreator(creatorId);
     }
+
+    @Override
+    public void likePost(String id) {
+        Post postLiked = this.repo.findById(id).get();
+        postLiked.setLikes(postLiked.getLikes() + 1);
+        this.repo.save(postLiked);
+    }
+
+    @Override
+    public void unlikePost(String id) {
+        Post postLiked = this.repo.findById(id).get();
+        postLiked.setLikes(postLiked.getLikes() - 1);
+        this.repo.save(postLiked);
+    }
+
 }
