@@ -1,6 +1,7 @@
 package com.nodens.post.Services;
 
 import com.nodens.post.Documents.Post;
+import com.nodens.post.Documents.PostComment;
 
 import java.util.List;
 
@@ -11,4 +12,5 @@ public interface PostService {
     List<Post> getPostsByCreator(String creatorId);
     void likePost(String id);
     void unlikePost(String id);
+    void commentPost(PostComment newComment, String postId);
 }

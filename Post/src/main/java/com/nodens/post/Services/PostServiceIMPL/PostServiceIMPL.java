@@ -1,6 +1,7 @@
 package com.nodens.post.Services.PostServiceIMPL;
 
 import com.nodens.post.Documents.Post;
+import com.nodens.post.Documents.PostComment;
 import com.nodens.post.Repositories.PostRepository;
 import com.nodens.post.Services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,15 @@ public class PostServiceIMPL implements PostService {
         Post postLiked = this.repo.findById(id).get();
         postLiked.setLikes(postLiked.getLikes() - 1);
         this.repo.save(postLiked);
+    }
+
+    @Override
+    public void commentPost(PostComment newComment, String postId) {
+        Post postToComment = this.repo.findById(postId).get();
+        List<PostComment> newComments = postToComment.getComments();
+        newComments.add(newComment);
+        postToComment.setComments(newComments);
+        this.repo.save(postToComment);
     }
 
 }
