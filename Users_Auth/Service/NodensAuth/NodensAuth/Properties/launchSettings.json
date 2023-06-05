@@ -24,7 +24,7 @@
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "publishAllPorts": true,
       "useSSL": true,
-      "DockerfileRunArguments": "-e CadenaSQL=\"Server=192.168.0.17, 1433; Database=AuthServiceDB; User ID=Nodens; Password=yourStrong(!)Password;\" -e \"CadenaMongo=mongodb://Nodens:secret@192.168.0.17:27018/\" -e \"MAILURL=http://192.168.0.17:8000\""
+      "DockerfileRunArguments": "-e CadenaSQL=\"Server=10.199.2.21, 1433; Database=AuthServiceDB; User ID=Nodens; Password=Proyecto_basados;\" -e \"CadenaMongo=mongodb://Nodens:Proyecto_basados@10.199.2.21:27018/\" -e \"MAILURL=https://nodensmailer.azurewebsites.com\""
     }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json",

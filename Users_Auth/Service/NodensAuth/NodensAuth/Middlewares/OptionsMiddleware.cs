@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
-
-namespace NodensAuth.Middlewares
+﻿namespace NodensAuth.Middlewares
 {
     // You may need to install the Microsoft.AspNetCore.Http.Abstractions package into your project
     public class OptionsMiddleware
@@ -27,7 +23,7 @@ namespace NodensAuth.Middlewares
             context.Response.Headers.Add("Access-Control-Allow-Methods", new[] { "GET, POST, PUT, DELETE, OPTIONS" });
             context.Response.Headers.Add("Access-Control-Allow-Credentials", new[] { "true" });
             context.Response.StatusCode = 200;
-            return context.Response.WriteAsync("OK");
+            return _next.Invoke(context);
         }
     }
 
