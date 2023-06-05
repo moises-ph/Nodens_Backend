@@ -1,5 +1,6 @@
 package com.nodens.post.Controllers;
 
+import com.nodens.post.Documents.Like;
 import com.nodens.post.Documents.Post;
 import com.nodens.post.Services.PostService;
 import com.nodens.post.utils.JWTUtils;
@@ -58,13 +59,16 @@ public class PostController {
 
     @PatchMapping("/like/add/{id}")
     public ResponseEntity<String> LikePost(@PathVariable String id){
-        this.service.likePost(id);
+        Claims claims = jwtUtils.getTokenClaims(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization").replace("Bearer ", ""));
+        Like newLike = new Like(claims.get("Id").toString());
+        this.service.likePost(newLike,id);
         return ResponseEntity.ok("Like añadido correctamente");
     }
 
     @PatchMapping("/like/delete/{id}")
     public ResponseEntity<String> UnLikePost(@PathVariable String id){
-        this.service.unlikePost(id);
+        Claims claims = jwtUtils.getTokenClaims(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization").replace("Bearer ", ""));
+        this.service.unlikePost(id, claims.get("Id").toString());
         return ResponseEntity.ok("Like eliminado correctamente");
     }
 

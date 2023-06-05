@@ -1,5 +1,6 @@
 package com.nodens.post.Services.PostServiceIMPL;
 
+import com.nodens.post.Documents.Like;
 import com.nodens.post.Documents.Post;
 import com.nodens.post.Documents.PostComment;
 import com.nodens.post.Repositories.PostRepository;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostServiceIMPL implements PostService {
@@ -40,16 +42,17 @@ public class PostServiceIMPL implements PostService {
     }
 
     @Override
-    public void likePost(String id) {
+    public void likePost(Like like, String id) {
         Post postLiked = this.repo.findById(id).get();
-        postLiked.setLikes(postLiked.getLikes() + 1);
+        postLiked.getLikes().add(like);
+        postLiked.setLikes(postLiked.getLikes());
         this.repo.save(postLiked);
     }
 
     @Override
-    public void unlikePost(String id) {
+    public void unlikePost(String id, String user_id) {
         Post postLiked = this.repo.findById(id).get();
-        postLiked.setLikes(postLiked.getLikes() - 1);
+        postLiked.setLikes(postLiked.getLikes().stream().filter( l -> l.getUser_id() != user_id ).collect(Collectors.toList()));
         this.repo.save(postLiked);
     }
 

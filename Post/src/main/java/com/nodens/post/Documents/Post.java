@@ -19,6 +19,6 @@ public class Post {
     private List<String> links;
     private List<String> images;
     private String Date;
-    private Integer likes;
+    private List<Like> likes;
     private List<PostComment> comments;
 }
