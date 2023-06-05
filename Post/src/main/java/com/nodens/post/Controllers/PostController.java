@@ -59,13 +59,13 @@ public class PostController {
     @PatchMapping("/like/add/{id}")
     public ResponseEntity<String> LikePost(@PathVariable String id){
         this.service.likePost(id);
-        return ResponseEntity.ok("Post likeado correctamente");
+        return ResponseEntity.ok("Like añadido correctamente");
     }
 
     @PatchMapping("/like/delete/{id}")
     public ResponseEntity<String> UnLikePost(@PathVariable String id){
         this.service.unlikePost(id);
-        return ResponseEntity.ok("Post unlikeado correctamente");
+        return ResponseEntity.ok("Like eliminado correctamente");
     }
 
 }
