@@ -13,5 +13,5 @@ public class PostComment {
     private String text;
     private List<String> links;
     private List<String> images;
-    private List<CommentResponses> Responses;
+    private List<PostComment> Responses;
 }
