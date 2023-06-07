@@ -10,8 +10,9 @@ def token_required(f):
 
         if 'Authorization' in request.headers:
             token = request.headers['Authorization'].replace("Bearer ","")
-        
+            print(token)
         if not token:
+            print(token)
             return jsonify({'message' : 'No token valid was sent'})
         try:
             data = jwt.decode(token, config.SECRET, algorithms=["HS256"])
