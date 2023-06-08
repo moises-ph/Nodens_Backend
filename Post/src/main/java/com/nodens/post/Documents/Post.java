@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.util.List;
+
+import java.time.LocalDate;
+import java.util.*;
 
 @Document("Posts")
 @Data
@@ -18,7 +20,7 @@ public class Post {
     private String text;
     private List<String> links;
     private List<String> images;
-    private String Date;
+    private LocalDate Date;
     private List<Like> likes;
     private List<PostComment> comments;
 }

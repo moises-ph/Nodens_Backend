@@ -1,5 +1,6 @@
 package com.nodens.post.Services.PostServiceIMPL;
 
+import com.mongodb.BasicDBObject;
 import com.nodens.post.Documents.Like;
 import com.nodens.post.Documents.Post;
 import com.nodens.post.Documents.PostComment;
@@ -52,17 +53,35 @@ public class PostServiceIMPL implements PostService {
     @Override
     public void unlikePost(String id, String user_id) {
         Post postLiked = this.repo.findById(id).get();
-        postLiked.setLikes(postLiked.getLikes().stream().filter( l -> l.getUser_id() != user_id ).collect(Collectors.toList()));
+        postLiked.setLikes(postLiked.getLikes().stream().filter(like -> like.getUser_id() == user_id).toList());
         this.repo.save(postLiked);
+    }
+
+    @Override
+    public List<Post> getPostsLiked(String user_id) {
+        BasicDBObject query = new BasicDBObject();
+        query.put("likes.user_id", user_id);
+        return this.repo.getPostsLiked(user_id);
     }
 
     @Override
     public void commentPost(PostComment newComment, String postId) {
         Post postToComment = this.repo.findById(postId).get();
-        List<PostComment> newComments = postToComment.getComments();
-        newComments.add(newComment);
-        postToComment.setComments(newComments);
+        postToComment.getComments().add(newComment);
+        postToComment.setComments(postToComment.getComments());
         this.repo.save(postToComment);
+    }
+
+    @Override
+    public List<Post> getPostCommented(String user_id) {
+        return this.repo.getPostsCommentedByUserId(user_id);
+    }
+
+    @Override
+    public void deletPostComment(String postid, String id, String autorid) {
+        Post commentedPost = this.repo.findById(postid).get();
+        commentedPost.setComments(commentedPost.getComments().stream().filter(postComment -> postComment.getComment_id() == id && postComment.getUser_id() == autorid).toList());
+        this.repo.save(commentedPost);
     }
 
 }

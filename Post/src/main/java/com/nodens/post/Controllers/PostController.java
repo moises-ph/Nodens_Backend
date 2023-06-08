@@ -2,6 +2,7 @@ package com.nodens.post.Controllers;
 
 import com.nodens.post.Documents.Like;
 import com.nodens.post.Documents.Post;
+import com.nodens.post.Documents.PostComment;
 import com.nodens.post.Services.PostService;
 import com.nodens.post.utils.JWTUtils;
 import io.jsonwebtoken.Claims;
@@ -43,12 +44,17 @@ public class PostController {
         return ResponseEntity.ok(this.service.getPostsByCreator(claims.get("Id").toString()));
     }
 
-    @PostMapping(value="/new", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity PostNewPost(@RequestBody Post newPost) {
-        Claims claims = jwtUtils.getTokenClaims(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization").replace("Bearer ", ""));
-        newPost.setUser_id(claims.get("Id").toString());
-        Post createdPost = this.service.createAPost(newPost);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
+    @PostMapping(value="/new")
+    public ResponseEntity PostNewPost(@RequestBody Post newPost) throws Exception {
+        try{
+            Claims claims = jwtUtils.getTokenClaims(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization").replace("Bearer ", ""));
+            newPost.setUser_id(claims.get("Id").toString());
+            Post createdPost = this.service.createAPost(newPost);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
+        }
+        catch (Exception err){
+            return ResponseEntity.internalServerError().body(err);
+        }
     }
 
     @DeleteMapping("/delete/{id}")
@@ -66,10 +72,60 @@ public class PostController {
     }
 
     @PatchMapping("/like/delete/{id}")
-    public ResponseEntity<String> UnLikePost(@PathVariable String id){
+    public ResponseEntity UnLikePost(@PathVariable String id) throws Exception{
+        try{
+            Claims claims = jwtUtils.getTokenClaims(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization").replace("Bearer ", ""));
+            this.service.unlikePost(id, claims.get("Id").toString());
+            return ResponseEntity.ok("Like eliminado correctamente");
+        }
+        catch (Exception err){
+            System.out.println(err.getCause().toString());
+            return ResponseEntity.internalServerError().body(err);
+        }
+    }
+
+    @GetMapping("/liked")
+    public ResponseEntity GetLikedPosts() throws Exception{
+        try{
+            Claims claims = jwtUtils.getTokenClaims(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization").replace("Bearer ", ""));
+            return ResponseEntity.ok(this.service.getPostsLiked(claims.get("Id").toString()));
+        }
+        catch (Exception err){
+            System.out.println(err.getCause().toString());
+            return ResponseEntity.internalServerError().body(err);
+        }
+    }
+
+    @PatchMapping("/comment/{id}")
+    public ResponseEntity CommentPost(@RequestBody PostComment newComment, @PathVariable String id){
         Claims claims = jwtUtils.getTokenClaims(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization").replace("Bearer ", ""));
-        this.service.unlikePost(id, claims.get("Id").toString());
-        return ResponseEntity.ok("Like eliminado correctamente");
+        newComment.setUser_id(claims.get("Id").toString());
+        this.service.commentPost(newComment, id);
+        return ResponseEntity.ok("Post Comentado Correctamente");
+    }
+
+    @GetMapping("/commented")
+    public ResponseEntity GetCommentedPosts(){
+        try{
+            Claims claims = jwtUtils.getTokenClaims(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization").replace("Bearer ", ""));
+            return ResponseEntity.ok(this.service.getPostCommented(claims.get("Id").toString()));
+        }
+        catch (Exception err){
+            System.out.println(err.getCause().toString());
+            return ResponseEntity.internalServerError().body(err);
+        }
+    }
+
+    @DeleteMapping("/comment/delete/{postid}/{commentid}")
+    public ResponseEntity DeleteComment(@PathVariable String postid, @PathVariable String commentid){
+        try{
+            Claims claims = jwtUtils.getTokenClaims(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization").replace("Bearer ", ""));
+            this.service.deletPostComment(postid, commentid, claims.get("Id").toString());
+            return ResponseEntity.ok("Comentario eliminado");
+        }catch (Exception err){
+            System.out.println(err.getCause().toString());
+            return ResponseEntity.internalServerError().body(err);
+        }
     }
 
 }

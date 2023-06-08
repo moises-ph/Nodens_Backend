@@ -18,7 +18,6 @@ public class JWTUtils {
     public Claims getTokenClaims(String token){
             JwtParser builder = Jwts.parserBuilder().setSigningKey(key).build();
             Jws<Claims> claims = builder.parseClaimsJws(token);
-            System.out.println("si");
             return claims.getBody();
     }
 }
