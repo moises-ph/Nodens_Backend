@@ -35,10 +35,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests( auth ->
                         auth.requestMatchers(HttpMethod.GET,"/posts/").permitAll()
                             .requestMatchers(HttpMethod.GET,"/posts/creator/**").permitAll()
+                            .requestMatchers(HttpMethod.OPTIONS, "/posts/", "/posts/creator/**", "/posts/user", "/posts/new", "/posts/delete/**", "/posts/like/add/**", "/posts/like/delete/**", "/posts/liked", "/posts/comment/**", "/posts/commented", "/posts/comment/delete/**/**").permitAll()
                             .anyRequest().authenticated())
                 .oauth2ResourceServer((oauth2) -> oauth2
-                        .jwt(Customizer.withDefaults())
-                )
+                .jwt(Customizer.withDefaults()))
                 .sessionManagement( session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(withDefaults())
                 .build();
