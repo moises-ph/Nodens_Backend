@@ -53,8 +53,7 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod	.OPTIONS).permitAll()
                             .anyRequest().authenticated())
                 .oauth2ResourceServer((oauth2) -> oauth2
-                        .jwt(Customizer.withDefaults())
-                )
+                .jwt(Customizer.withDefaults()))
                 .sessionManagement( session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(withDefaults())
                 .build();

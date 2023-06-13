@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.annotation.processing.SupportedOptions;
 import java.util.List;
 
 @RestController
 @RequestMapping("/posts")
+@CrossOrigin
 public class PostController {
     private PostService service;
     private JWTUtils jwtUtils = new JWTUtils();
@@ -26,7 +28,7 @@ public class PostController {
         this.service = postService;
     }
 
-    @GetMapping("/")
+    @RequestMapping("/")
     public ResponseEntity<List<Post>> GetAllPosts(){
         return ResponseEntity.ok(this.service.getAllPosts());
     }
