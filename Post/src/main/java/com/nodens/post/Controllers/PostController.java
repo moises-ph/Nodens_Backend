@@ -8,14 +8,12 @@ import com.nodens.post.utils.JWTUtils;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/posts")
@@ -45,7 +43,7 @@ public class PostController {
     }
 
     @PostMapping(value="/new")
-    public ResponseEntity PostNewPost(@RequestBody Post newPost) throws Exception {
+    public ResponseEntity<?> PostNewPost(@RequestBody Post newPost) throws Exception {
         try{
             Claims claims = jwtUtils.getTokenClaims(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization").replace("Bearer ", ""));
             newPost.setUser_id(claims.get("Id").toString());
@@ -72,7 +70,7 @@ public class PostController {
     }
 
     @PatchMapping("/like/delete/{id}")
-    public ResponseEntity UnLikePost(@PathVariable String id) throws Exception{
+    public ResponseEntity<?> UnLikePost(@PathVariable String id) throws Exception{
         try{
             Claims claims = jwtUtils.getTokenClaims(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization").replace("Bearer ", ""));
             this.service.unlikePost(id, claims.get("Id").toString());
@@ -85,7 +83,7 @@ public class PostController {
     }
 
     @GetMapping("/liked")
-    public ResponseEntity GetLikedPosts() throws Exception{
+    public ResponseEntity<?> GetLikedPosts() throws Exception{
         try{
             Claims claims = jwtUtils.getTokenClaims(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization").replace("Bearer ", ""));
             return ResponseEntity.ok(this.service.getPostsLiked(claims.get("Id").toString()));
@@ -97,7 +95,7 @@ public class PostController {
     }
 
     @PatchMapping("/comment/{id}")
-    public ResponseEntity CommentPost(@RequestBody PostComment newComment, @PathVariable String id){
+    public ResponseEntity<?> CommentPost(@RequestBody PostComment newComment, @PathVariable String id){
         Claims claims = jwtUtils.getTokenClaims(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization").replace("Bearer ", ""));
         newComment.setUser_id(claims.get("Id").toString());
         this.service.commentPost(newComment, id);
@@ -105,7 +103,7 @@ public class PostController {
     }
 
     @GetMapping("/commented")
-    public ResponseEntity GetCommentedPosts(){
+    public ResponseEntity<?> GetCommentedPosts(){
         try{
             Claims claims = jwtUtils.getTokenClaims(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization").replace("Bearer ", ""));
             return ResponseEntity.ok(this.service.getPostCommented(claims.get("Id").toString()));
@@ -117,7 +115,7 @@ public class PostController {
     }
 
     @DeleteMapping("/comment/delete/{postid}/{commentid}")
-    public ResponseEntity DeleteComment(@PathVariable String postid, @PathVariable String commentid){
+    public ResponseEntity<?> DeleteComment(@PathVariable String postid, @PathVariable String commentid){
         try{
             Claims claims = jwtUtils.getTokenClaims(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization").replace("Bearer ", ""));
             this.service.deletPostComment(postid, commentid, claims.get("Id").toString());
