@@ -71,7 +71,7 @@ const OfferSchema = new Schema<IOffer>({
     Payment : { type : Schema.Types.Number, required : true },
     OrganizerId : { type : Schema.Types.Number, required : true },
     Event_Ubication : { type : SchemaEventUbication, required : true },
-    Applicants : { type : [], required : false, default : [] },
+    Applicants : { type : [ApplicantSchema], required : false, default : [] },
     Img : { type : Schema.Types.String, required : false },
     Requeriments : { type : [RequerimentsSchema], required : true },
     Vacants : { type : Schema.Types.Number, required : true },

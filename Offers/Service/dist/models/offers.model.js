@@ -35,7 +35,7 @@ const OfferSchema = new mongoose_1.Schema({
     Payment: { type: mongoose_1.Schema.Types.Number, required: true },
     OrganizerId: { type: mongoose_1.Schema.Types.Number, required: true },
     Event_Ubication: { type: SchemaEventUbication, required: true },
-    Applicants: { type: [], required: false, default: [] },
+    Applicants: { type: [ApplicantSchema], required: false, default: [] },
     Img: { type: mongoose_1.Schema.Types.String, required: false },
     Requeriments: { type: [RequerimentsSchema], required: true },
     Vacants: { type: mongoose_1.Schema.Types.Number, required: true },

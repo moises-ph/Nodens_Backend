@@ -16,9 +16,14 @@ const authService_1 = require("../utils/authService");
 const mailService_1 = require("../utils/mailService");
 const getPayload_1 = require("../helpers/getPayload");
 const getPostulatedOffersMusician = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
+    const payload = yield (0, getPayload_1.getJWTPayload)(req.headers.authorization.replace("Bearer ", ""));
     const Offers = yield offers_model_1.Offer.find({
-        "Applicants.ApplicantId": req.params.Id
-    }, { Applicants: 0 });
+        "Applicants": {
+            $elemMatch: {
+                "ApplicantId": payload.Id
+            }
+        }
+    });
     return reply.code(200).send(Offers);
 });
 exports.getPostulatedOffersMusician = getPostulatedOffersMusician;

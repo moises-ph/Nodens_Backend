@@ -12,9 +12,16 @@ import { getJWTPayload } from "../helpers/getPayload";
 
 
 export const getPostulatedOffersMusician = async (req: RequestParamsAuth, reply : FastifyReply) => {
+    const payload: any = await getJWTPayload(
+      req.headers.authorization.replace("Bearer ", "")
+    );
     const Offers = await Offer.find({
-        "Applicants.ApplicantId" : req.params.Id
-    },{Applicants : 0});
+      "Applicants" : {
+        $elemMatch : {
+            "ApplicantId" : payload.Id
+        }        
+      }
+    });
     return reply.code(200).send(Offers);
 }
 
