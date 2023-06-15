@@ -67,13 +67,13 @@ namespace NodensAuth.Controllers
                 await VerifyUsersCollection.InsertOneAsync(verifyUsersModel);
                 string emailHash = BC.HashString(obj.Email);
                 string url = $"?em={emailHash}&guid={guid}";
-                HttpResponseMessage responseMessage = await MailService.SendVerifyEmail(new MailValidations()
+                _ = MailService.SendVerifyEmail(new MailValidations()
                 {
                     ReceiverEmail = obj.Email,
                     URL = url,
                     UserName = obj.userName
                 });
-                return StatusCode(StatusCodes.Status200OK, new { Message = sqlResult.Message, emailHash, guid, responseMessage });
+                return StatusCode(StatusCodes.Status200OK, new { Message = sqlResult.Message, emailHash, guid });
             }
             catch (Exception err)
             {

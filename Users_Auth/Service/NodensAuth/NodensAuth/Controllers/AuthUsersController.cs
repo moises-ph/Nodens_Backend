@@ -158,8 +158,8 @@ namespace NodensAuth.Controllers
                     UserName = user.userName,
                     URL = url,
                 };
-                var mailresult = await MailService.SendRecoveryPassword(mail);
-                return StatusCode(StatusCodes.Status200OK, new { guid = guid.ToString(), email = result.email, mailresult });
+                _ = await MailService.SendRecoveryPassword(mail);
+                return StatusCode(StatusCodes.Status200OK, new { guid = guid.ToString(), email = result.email });
             }
             catch (Exception err)
             {
@@ -323,13 +323,13 @@ namespace NodensAuth.Controllers
                 await verifyCollection.InsertOneAsync(verifyUsersModel);
                 string emailHash = BC.HashString(verifyReq.email);
                 string url = $"?em={emailHash}&guid={guid}";
-                HttpResponseMessage responseMessage = await MailService.SendVerifyEmail(new MailValidations()
+                _ = MailService.SendVerifyEmail(new MailValidations()
                 {
                     ReceiverEmail = verifyReq.email,
                     URL = url,
                     UserName = result.userName
                 });
-                return StatusCode(StatusCodes.Status200OK, new { url, Message = "Verificación de email solicitada correctamente, vaya al enlace", responseMessage });
+                return StatusCode(StatusCodes.Status200OK, new { url, Message = "Verificación de email solicitada correctamente, vaya al enlace" });
             }
             catch (Exception err)
             {
