@@ -1,4 +1,4 @@
-import { deleteOffer, changeOfferStatus, getAllOffers, getSingleOffer, postOffer, postulateMusician, changePostulationStatus, getOffersByTag, getPostulatedOffersMusician, getOfferByOrganizer } from '../handlers/offers.handler';
+import { deleteOffer, changeOfferStatus, getAllOffers, getSingleOffer, postOffer, postulateMusician, changePostulationStatus, getOffersByTag, getPostulatedOffersMusician, getOfferByOrganizer, addSaveOffer, getSavedOfferMusician } from '../handlers/offers.handler';
 import { validateToken } from "../utils/tokenValidator";
 import { IParams, IPostulateMusician, OfferSchema, OfferType, ParamsTypeIdOnly, PostulateMusicianType, BodyPostulationStatusType, IBodyPostulationStatus, IHeadersAuth, IBodyQueryTags, TBodyQueryTags, IParamsAuth, TBodyAuth,  } from '../validations/offers.validation';
 import { FastifyInstance, FastifyReply } from "fastify";
@@ -7,17 +7,17 @@ const routes = {
   getAllOffers: {
     handler: getAllOffers,
   },
-  getOffersByTag : {
-    handler : getOffersByTag,
-    schema : {
-        body : IBodyQueryTags
-    }
+  getOffersByTag: {
+    handler: getOffersByTag,
+    schema: {
+      body: IBodyQueryTags,
+    },
   },
   getSingleOffer: {
     handler: getSingleOffer,
     schema: {
       params: IParams,
-    }
+    },
   },
   postOffer: {
     handler: postOffer,
@@ -55,12 +55,20 @@ const routes = {
       body: IBodyPostulationStatus,
     },
   },
-  getPostulatedOffersMusician :{
-    handler : getPostulatedOffersMusician,
+  getPostulatedOffersMusician: {
+    handler: getPostulatedOffersMusician,
+    preHandler: validateToken,
+  },
+  getOfferByOrganizer: {
+    handler: getOfferByOrganizer,
+    preHandler: validateToken,
+  },
+  addSaveOffer: {
+    handler: addSaveOffer,
     preHandler : validateToken
   },
-  getOfferByOrganizer : {
-    handler : getOfferByOrganizer,
+  getSavedOffer : {
+    handler : getSavedOfferMusician,
     preHandler : validateToken
   }
 };
@@ -71,6 +79,11 @@ export const OffersRoutes = (
   done: any
 ) => {
   //This is a Plugin that configures all the routes in Fastify
+
+  fastify.get<{ Params : ParamsTypeIdOnly; Headers : IHeadersAuth }>(`${options.url}/musician/saved`, routes.getSavedOffer );
+
+  // Route for Musician save an offer
+  fastify.patch<{ Params : ParamsTypeIdOnly; Headers : IHeadersAuth }>(`${options.url}/save/:id`, routes.addSaveOffer);
 
   // Route for Get All the Offers created by an Organizer, using Auth Token
   fastify.get<{ Params : ParamsTypeIdOnly; Headers : IHeadersAuth }>(`${options.url}/organizer`, routes.getOfferByOrganizer);

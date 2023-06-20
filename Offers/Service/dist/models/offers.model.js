@@ -40,8 +40,9 @@ const OfferSchema = new mongoose_1.Schema({
     Requeriments: { type: [RequerimentsSchema], required: true },
     Vacants: { type: mongoose_1.Schema.Types.Number, required: true },
     isAvailable: { type: mongoose_1.Schema.Types.Boolean, required: true },
-    tags: { type: [mongoose_1.Schema.Types.String], required: true }
+    tags: { type: [mongoose_1.Schema.Types.String], required: true },
+    saves: { type: [mongoose_1.Schema.Types.String], required: true }
 }, {
-    versionKey: false
+    versionKey: false,
 });
 exports.Offer = (0, mongoose_1.model)("Offers", OfferSchema);

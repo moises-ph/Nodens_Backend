@@ -49,9 +49,10 @@ exports.OfferSchema = {
         },
         Vacants: { type: "integer" },
         isAvailable: { type: "boolean" },
-        tags: { type: "array", items: { type: "string" } }
+        tags: { type: "array", items: { type: "string" } },
+        saves: { type: "array", items: { type: "string" } }
     },
-    required: ["Title", "Description", "Vacants", "isAvailable", "Event_Date", "Payment", "Event_Ubication", "Requeriments", "tags"]
+    required: ["Title", "Description", "Vacants", "isAvailable", "Event_Date", "Payment", "Event_Ubication", "Requeriments", "tags", "saves"]
 };
 exports.IParams = {
     type: "object",

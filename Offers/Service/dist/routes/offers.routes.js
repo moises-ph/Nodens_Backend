@@ -11,14 +11,14 @@ const routes = {
     getOffersByTag: {
         handler: offers_handler_1.getOffersByTag,
         schema: {
-            body: offers_validation_1.IBodyQueryTags
-        }
+            body: offers_validation_1.IBodyQueryTags,
+        },
     },
     getSingleOffer: {
         handler: offers_handler_1.getSingleOffer,
         schema: {
             params: offers_validation_1.IParams,
-        }
+        },
     },
     postOffer: {
         handler: offers_handler_1.postOffer,
@@ -58,15 +58,26 @@ const routes = {
     },
     getPostulatedOffersMusician: {
         handler: offers_handler_1.getPostulatedOffersMusician,
-        preHandler: tokenValidator_1.validateToken
+        preHandler: tokenValidator_1.validateToken,
     },
     getOfferByOrganizer: {
         handler: offers_handler_1.getOfferByOrganizer,
+        preHandler: tokenValidator_1.validateToken,
+    },
+    addSaveOffer: {
+        handler: offers_handler_1.addSaveOffer,
+        preHandler: tokenValidator_1.validateToken
+    },
+    getSavedOffer: {
+        handler: offers_handler_1.getSavedOfferMusician,
         preHandler: tokenValidator_1.validateToken
     }
 };
 const OffersRoutes = (fastify, options, done) => {
     //This is a Plugin that configures all the routes in Fastify
+    fastify.get(`${options.url}/musician/saved`, routes.getSavedOffer);
+    // Route for Musician save an offer
+    fastify.patch(`${options.url}/save/:id`, routes.addSaveOffer);
     // Route for Get All the Offers created by an Organizer, using Auth Token
     fastify.get(`${options.url}/organizer`, routes.getOfferByOrganizer);
     // Route for Get All the Offers that a Musician get postulated

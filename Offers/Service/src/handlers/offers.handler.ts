@@ -9,7 +9,32 @@ import { IAuthUserSchema } from '../types/auth.types';
 import { sendOrganizer, sendPostulated } from "../utils/mailService";
 import { getJWTPayload } from "../helpers/getPayload";
 
+export const addSaveOffer = async (req: RequestParamsAuth, reply: FastifyReply) => {
+    try {
+        const payload: any = await getJWTPayload(
+        req.headers.authorization.replace("Bearer ", "")
+        );
+        const actualOffer = await Offer.findById(req.params.id);
+        if (!actualOffer) throw new Error("The offer doesn't exists");
+        actualOffer.saves.push(payload.Id);
+        await actualOffer.save();
+        return reply.code(200).send({ message: "Oferta guardada correctamente" });
+    }catch (err) {
+        return reply.code(500).send(err);
+    }
+};
 
+export const getSavedOfferMusician = async (req: RequestParamsAuth, reply : FastifyReply) => {
+    const payload: any = await getJWTPayload(
+      req.headers.authorization.replace("Bearer ", "")
+    );
+    const Offers = await Offer.find({
+      "saves" : {
+        $all : [payload.Id]        
+      }
+    });
+    return reply.code(200).send(Offers);
+}
 
 export const getPostulatedOffersMusician = async (req: RequestParamsAuth, reply : FastifyReply) => {
     const payload: any = await getJWTPayload(
