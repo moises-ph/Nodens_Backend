@@ -115,12 +115,10 @@ const postulateMusician = (req, reply) => __awaiter(void 0, void 0, void 0, func
         if (!actualOffer)
             throw new Error("The offer doesn't exists");
         const emailOrganizer = yield (0, authService_1.fetchOrganizer)(actualOffer === null || actualOffer === void 0 ? void 0 : actualOffer.OrganizerId.toString());
-        console.log(emailOrganizer);
         if (emailOrganizer.message)
             throw new Error("El organizador no existe");
         const payload = yield (0, getPayload_1.getJWTPayload)(req.headers.authorization.replace("Bearer ", ""));
-        req.body.ApplicantId = req.body.ApplicantId == null ? payload.Id : req.body.ApplicantId;
-        console.log(actualOffer.Applicants.map(element => element.ApplicantId).includes(req.body.ApplicantId));
+        req.body.ApplicantId = parseInt(payload.Id);
         if (actualOffer.Applicants.find(element => element.ApplicantId === req.body.ApplicantId))
             throw new Error("El músico ya se postuló a esta oferta");
         const applicantData = {
@@ -150,7 +148,7 @@ const postulateMusician = (req, reply) => __awaiter(void 0, void 0, void 0, func
                 Applicants: req.body
             }
         });
-        return reply.code(200).send({ message: `Musico ${req.body.ApplicantId} Postulado Correctamente`, emailOrganizer });
+        return reply.code(200).send({ message: `Musico ${req.body.ApplicantId} Postulado Correctamente` });
     }
     catch (err) {
         return reply.code(500).send(err);

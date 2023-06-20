@@ -112,17 +112,14 @@ export const postulateMusician = async (req: PostulateMusicianRequest, reply : F
         const actualOffer = await Offer.findById(req.params.id);
         if(!actualOffer) throw new Error("The offer doesn't exists");
         const emailOrganizer : IAuthUserSchema | any = await fetchOrganizer(actualOffer?.OrganizerId.toString());
-        console.log(emailOrganizer);
         
         if(emailOrganizer.message)throw new Error("El organizador no existe")
 
         const payload : any = await getJWTPayload(req.headers.authorization.replace("Bearer ", ""));
 
-        req.body.ApplicantId = req.body.ApplicantId == null ? payload.Id : req.body.ApplicantId
+        req.body.ApplicantId = parseInt(payload.Id as string);
 
-        console.log(actualOffer.Applicants.map(element => element.ApplicantId).includes(req.body.ApplicantId as number));
-
-        if(actualOffer.Applicants.find(element => element.ApplicantId === req.body.ApplicantId)) throw new Error("El músico ya se postuló a esta oferta")
+        if(actualOffer.Applicants.find(element => element.ApplicantId === req.body.ApplicantId)) throw new Error("El músico ya se postuló a esta oferta");
 
         const applicantData : ApplicantType = {
             ReceiverEmail : payload.Email,
@@ -156,7 +153,7 @@ export const postulateMusician = async (req: PostulateMusicianRequest, reply : F
             }
         });
 
-        return reply.code(200).send({message : `Musico ${req.body.ApplicantId} Postulado Correctamente`, emailOrganizer});
+        return reply.code(200).send({message : `Musico ${req.body.ApplicantId} Postulado Correctamente`});
     }catch(err){
         return reply.code(500).send(err);
     }
