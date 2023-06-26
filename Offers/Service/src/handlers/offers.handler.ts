@@ -69,9 +69,6 @@ export const getSingleOffer = async (req: RequestParams, reply : FastifyReply) =
 // No token
 export const getAllOffers = async (req : FastifyRequest, reply : FastifyReply) => {
     const Offers = await Offer.find({},{ Applicants : 0 });
-    Offers.map(async offer => {
-        offer.Event_Date.getDate > Date.now ? null : await setOfferStatus(offer.id);
-    });
     return reply.code(200).send(Offers);
 }
 

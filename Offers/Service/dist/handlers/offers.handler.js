@@ -72,9 +72,6 @@ exports.getSingleOffer = getSingleOffer;
 // No token
 const getAllOffers = (req, reply) => __awaiter(void 0, void 0, void 0, function* () {
     const Offers = yield offers_model_1.Offer.find({}, { Applicants: 0 });
-    Offers.map((offer) => __awaiter(void 0, void 0, void 0, function* () {
-        offer.Event_Date.getDate > Date.now ? null : yield (0, offerNotAbailable_1.setOfferStatus)(offer.id);
-    }));
     return reply.code(200).send(Offers);
 });
 exports.getAllOffers = getAllOffers;
