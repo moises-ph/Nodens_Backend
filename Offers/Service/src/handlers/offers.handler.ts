@@ -136,13 +136,9 @@ export const postulateMusician = async (req: PostulateMusicianRequest, reply : F
             OfferTitle : actualOffer.Title
         }
 
-        const postulatedEmailresult = await sendPostulated(applicantData);
+        sendPostulated(applicantData);
 
-        const organizerEmailResult = await sendOrganizer(organizerData);     
-
-        if(postulatedEmailresult.hasOwnProperty("statusCode") && postulatedEmailresult.statusCode != 200) new Error(postulatedEmailresult.message);
-
-        if(organizerEmailResult.hasOwnProperty("statusCode") && organizerEmailResult.statusCode != 200) new Error(organizerEmailResult.message);
+        sendOrganizer(organizerData);     
 
         await actualOffer.updateOne({
             $push :{
