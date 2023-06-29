@@ -117,6 +117,14 @@ def getMusician(id):
     response = json_util.dumps(user)
     return response
     
+@cross_origin
+@app.route("/Organizer/one/<id>", methods=["GET"])
+def getMusician(id):
+    db = Database.dbConnection()
+    user = db.Organizers.find_one({"IdAuth" : int(id)})
+    response = json_util.dumps(user)
+    return response
+
 
 ### POST ###
 @cross_origin
